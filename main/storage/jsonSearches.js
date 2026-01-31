@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const STORAGE_KEY = 'SearchPresets';
+const TEMP_STORAGE_KEY = 'tempPreset';
 const DEFAULT_DATA = { presets: [] };
 
 export async function getJsonPresets() {
@@ -72,5 +73,37 @@ export async function clearAllPresets() {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_DATA));
   } catch (error) {
     console.error('Error clearing presets:', error);
+  }
+}
+
+export async function setTempPreset(jsonObject) {
+  try {
+    await AsyncStorage.setItem(TEMP_STORAGE_KEY, JSON.stringify(jsonObject));
+    return jsonObject;
+  } catch (error) {
+    console.error('Error setting temp preset:', error);
+  }
+}
+
+export async function getTempPreset() {
+  try {
+    const dataString = await AsyncStorage.getItem(TEMP_STORAGE_KEY);
+
+    if (dataString) {
+      return JSON.parse(dataString);
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error getting temp preset:', error);
+    return null;
+  }
+}
+
+export async function clearTempPreset() {
+  try {
+    await AsyncStorage.removeItem(TEMP_STORAGE_KEY);
+  } catch (error) {
+    console.error('Error clearing temp preset:', error);
   }
 }

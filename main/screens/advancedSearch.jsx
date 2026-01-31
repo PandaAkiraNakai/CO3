@@ -11,7 +11,14 @@ import {
   View,
 } from 'react-native';
 import CustomDropdown from '../components/common/CustomDropdown';
-import { pushJsonPreset, getAllPresets, removePreset, containsPreset } from '../storage/jsonSearches';
+import {
+  pushJsonPreset,
+  getAllPresets,
+  removePreset,
+  containsPreset,
+  setTempPreset,
+  getTempPreset,
+} from '../storage/jsonSearches';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const AO3_BASE_URL = 'https://archiveofourown.org/autocomplete';
@@ -441,6 +448,7 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
   const [sortDirection, setSortDirection] = useState(savedFilters['work_search[sort_direction]'] || 'desc');
 
   useEffect(() => {
+    loadTempPreset();
     loadPresetsFromStorage();
   }, []);
 
@@ -458,6 +466,8 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
     const filters = {};
     // Helper to convert array of items back to comma-separated string for the API
     const itemsToString = (items) => items.map(item => item.name).join(',');
+
+    saveTempPreset();
 
     // Work Info
     if (anyField) filters['work_search[query]'] = anyField;
@@ -518,6 +528,52 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
     await loadPresetsFromStorage();
   }
 
+  async function saveTempPreset() {
+    const newPreset = {
+      timestamp: Date.now(),
+      preset: {
+        anyField, title, creator, date, completionStatus, crossoverStatus,
+        singleChapter, wordCount, language,
+        fandoms, rating, warnings, categories, characters,
+        relationships, additionalTags,
+        hits, kudos, comments, bookmarks,
+        sortBy, sortDirection,
+      },
+    };
+
+    await setTempPreset(newPreset);
+  }
+
+  async function loadTempPreset() {
+    const presetToLoad = await getTempPreset();
+    setAnyField(presetToLoad.preset.anyField);
+    setTitle(presetToLoad.preset.title);
+    setCreator(presetToLoad.preset.creator);
+    setDate(presetToLoad.preset.date);
+    setCompletionStatus(presetToLoad.preset.completionStatus);
+    setCrossoverStatus(presetToLoad.preset.crossoverStatus);
+    setSingleChapter(presetToLoad.preset.singleChapter);
+    setWordCount(presetToLoad.preset.wordCount);
+    setLanguage(presetToLoad.preset.language);
+
+    setFandoms(presetToLoad.preset.fandoms);
+    setRating(presetToLoad.preset.rating);
+    setWarnings(presetToLoad.preset.warnings);
+    setCategories(presetToLoad.preset.categories);
+    setCharacters(presetToLoad.preset.characters);
+    setRelationships(presetToLoad.preset.relationships);
+    setAdditionalTags(presetToLoad.preset.additionalTags);
+
+    setHits(presetToLoad.preset.hits);
+    setKudos(presetToLoad.preset.kudos);
+    setComments(presetToLoad.preset.comments);
+    setBookmarks(presetToLoad.preset.bookmarks);
+    setSortBy(presetToLoad.preset.sortBy);
+    setSortDirection(presetToLoad.preset.sortDirection);
+
+    setPresetName(presetToLoad.name)
+  }
+
   function loadPreset(presetToLoad) {
     setAnyField(presetToLoad.preset.anyField);
     setTitle(presetToLoad.preset.title);
@@ -546,6 +602,7 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
 
     setPresetName(presetToLoad.name)
   }
+
 
   const deletePreset = async (index) => {
     await removePreset(index);
