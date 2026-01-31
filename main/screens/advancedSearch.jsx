@@ -1,6 +1,7 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Modal,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -10,6 +11,8 @@ import {
   View,
 } from 'react-native';
 import CustomDropdown from '../components/common/CustomDropdown';
+import { pushJsonPreset, getAllPresets, removePreset, containsPreset } from '../storage/jsonSearches';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const AO3_BASE_URL = 'https://archiveofourown.org/autocomplete';
 
@@ -398,6 +401,17 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
   // Helper to convert comma-separated string from saved filters to array of objects
   const stringToItems = (str) => str ? str.split(',').map((name, index) => ({ id: `${name}-${index}`, name: name.trim() })) : [];
 
+  const [presets, setPresets] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showPresetModal, setShowPresetModal] = useState(false);
+
+  const [presetName, setPresetName] = useState();
+  const [presetExists, setPresetExists] = useState();
+
+  useEffect(() => {
+    containsPreset(presetName).then(setPresetExists);
+  }, [presetName])
+
   const [anyField, setAnyField] = useState(savedFilters['work_search[query]'] || '');
   const [title, setTitle] = useState(savedFilters['work_search[title]'] || '');
   const [creator, setCreator] = useState(savedFilters['work_search[creators]'] || '');
@@ -425,6 +439,20 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
   // Search options
   const [sortBy, setSortBy] = useState(savedFilters['work_search[sort_column]'] || 'revised_at');
   const [sortDirection, setSortDirection] = useState(savedFilters['work_search[sort_direction]'] || 'desc');
+
+  useEffect(() => {
+    loadPresetsFromStorage();
+  }, []);
+
+  const loadPresetsFromStorage = async () => {
+    try {
+      const loadedPresets = await getAllPresets();
+      setPresets(loadedPresets);
+      console.log(loadedPresets);
+    } catch (error) {
+      console.error('Error loading presets:', error);
+    }
+  };
 
   const handleSearch = useCallback(() => {
     const filters = {};
@@ -468,11 +496,142 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
     hits, kudos, comments, bookmarks, sortBy, sortDirection, onSearch
   ]);
 
+  async function savePreset(name) {
+    if (!name.trim()) {
+      return;
+    }
+
+    const newPreset = {
+      name: name,
+      timestamp: Date.now(),
+      preset: {
+        anyField, title, creator, date, completionStatus, crossoverStatus,
+        singleChapter, wordCount, language,
+        fandoms, rating, warnings, categories, characters,
+        relationships, additionalTags,
+        hits, kudos, comments, bookmarks,
+        sortBy, sortDirection,
+      },
+    };
+
+    await pushJsonPreset(newPreset);
+    await loadPresetsFromStorage();
+  }
+
+  function loadPreset(presetToLoad) {
+    setAnyField(presetToLoad.preset.anyField);
+    setTitle(presetToLoad.preset.title);
+    setCreator(presetToLoad.preset.creator);
+    setDate(presetToLoad.preset.date);
+    setCompletionStatus(presetToLoad.preset.completionStatus);
+    setCrossoverStatus(presetToLoad.preset.crossoverStatus);
+    setSingleChapter(presetToLoad.preset.singleChapter);
+    setWordCount(presetToLoad.preset.wordCount);
+    setLanguage(presetToLoad.preset.language);
+
+    setFandoms(presetToLoad.preset.fandoms);
+    setRating(presetToLoad.preset.rating);
+    setWarnings(presetToLoad.preset.warnings);
+    setCategories(presetToLoad.preset.categories);
+    setCharacters(presetToLoad.preset.characters);
+    setRelationships(presetToLoad.preset.relationships);
+    setAdditionalTags(presetToLoad.preset.additionalTags);
+
+    setHits(presetToLoad.preset.hits);
+    setKudos(presetToLoad.preset.kudos);
+    setComments(presetToLoad.preset.comments);
+    setBookmarks(presetToLoad.preset.bookmarks);
+    setSortBy(presetToLoad.preset.sortBy);
+    setSortDirection(presetToLoad.preset.sortDirection);
+
+    setPresetName(presetToLoad.name)
+  }
+
+  const deletePreset = async (index) => {
+    await removePreset(index);
+    await loadPresetsFromStorage();
+  };
 
   return (
       <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.backgroundColor }]}>
+
+        {/* Add preset modal */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={showAddModal}
+          onRequestClose={() => {
+            setShowAddModal(!showAddModal);
+          }}
+        >
+          <View style={styles.modal}>
+            <View style={[styles.modalBg, { backgroundColor: currentTheme.backgroundColor, borderColor: currentTheme.borderColor }]}>
+              <View style={[styles.header, { borderBottomColor: currentTheme.borderColor }]}>
+                <Text style={[styles.headerTitle,  { color: currentTheme.textColor }]}>Save preset</Text>
+                <TouchableOpacity onPress={() => {setShowAddModal(false)}}>
+                  <Icon style={[styles.icon, { color: currentTheme.iconColor }]} name={"close"} />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.modalContent}>
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: currentTheme.textColor }]}>Preset name</Text>
+                  <TextInput style={[styles.input, { color: currentTheme.textColor, borderColor: currentTheme.borderColor, backgroundColor: currentTheme.inputBackground }]} placeholder="Enter preset name" placeholderTextColor={currentTheme.placeholderColor} value={presetName} onChangeText={setPresetName} />
+                </View>
+                <TouchableOpacity style={[styles.modalButton, { backgroundColor: currentTheme.primaryColor }]} onPress={() => {savePreset(presetName); setShowAddModal(false)}}>
+                  <Text style={styles.buttonText}>{presetExists ? "Update" : "Add"}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Preset modal */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={showPresetModal}
+          onRequestClose={() => {
+            setShowPresetModal(!showAddModal);
+          }}
+        >
+          <View style={styles.modal}>
+            <View style={[styles.modalBg, { backgroundColor: currentTheme.backgroundColor, borderColor: currentTheme.borderColor }]}>
+              <View style={[styles.header, { borderBottomColor: currentTheme.borderColor }]}>
+                <Text style={[styles.headerTitle,  { color: currentTheme.textColor }]}>Preset</Text>
+                <TouchableOpacity onPress={() => {setShowPresetModal(false)}}>
+                  <Icon style={[styles.icon, { color: currentTheme.iconColor }]} name={"close"} />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.modalContent}>
+                <ScrollView>
+                  {presets.map((p, index) =>
+                    <TouchableOpacity onPress={() => {loadPreset(presets[index]); setShowPresetModal(false)}}>
+                      <View key={index} style={[styles.modalPresetObject, { backgroundColor: currentTheme.cardBackground, borderColor: currentTheme.borderColor }]}>
+                        <Text style={[{ color: currentTheme.textColor }]} >{p.name}</Text>
+                        <TouchableOpacity onPress={() => {deletePreset(index)}}>
+                          <Icon style={[styles.iconDelete, { color: currentTheme.warningTextColor }]} name={"delete"} />
+                        </TouchableOpacity>
+                      </View>
+                    </TouchableOpacity>
+                  )}
+
+                  {presets.length == 0 ? <Text style={[{ color: currentTheme.textColor }]} >You don't have any preset yet !</Text> : null}
+                </ScrollView>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
         <View style={[styles.header, { borderBottomColor: currentTheme.borderColor }]}>
           <Text style={[styles.headerTitle, { color: currentTheme.textColor }]}>Work Search</Text>
+          <TouchableOpacity onPress={() => setShowPresetModal(true)}>
+            <Text style={[styles.closeButton, { color: currentTheme.primaryColor }]}>Presets</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {
+            setShowAddModal(true);
+          }}>
+            <Text style={[styles.closeButton, { color: currentTheme.primaryColor }]}>Save</Text>
+          </TouchableOpacity>
           <TouchableOpacity onPress={onClose}>
             <Text style={[styles.closeButton, { color: currentTheme.primaryColor }]}>Close</Text>
           </TouchableOpacity>
@@ -695,6 +854,41 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
+
+  modal: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalBg: {
+    borderRadius: 12,
+    width: '80%',
+    borderWidth: 1,
+  },
+  modalContent: {
+    padding: 16,
+  },
+  modalButton: {
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  modalPresetObject: {
+    borderRadius: 12,
+    borderWidth: 1,
+    margin: 4,
+    padding: 8,
+    display: "flex",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: "center"
+  },
+  icon: {
+    fontSize: 32,
+  },
+  iconDelete: {
+    fontSize: 24,
+  }
 });
 
 export default AdvancedSearchScreen;
