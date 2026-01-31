@@ -30,7 +30,7 @@ import UpdateScreen from './screens/Update';
 import BrowseScreen from './screens/Browse';
 import HistoryScreen from './screens/History';
 import MoreScreen from './screens/More';
-import ChapterInfoScreen from './screens/workScreen'; // <--- IMPORT ADDED
+import ChapterInfoScreen from './screens/workScreen';
 import { LibraryDAO } from './storage/dao/LibraryDAO';
 import { ProgressDAO } from './storage/dao/ProgressDAO';
 import { KudoHistoryDAO } from './storage/dao/KudosHistoryDAO';
@@ -44,6 +44,7 @@ import { setup, setupNotificationListeners } from './web/updater';
 import { getJsonSettings } from './storage/jsonSettings';
 import { UpdateDAO } from './storage/dao/UpdateDAO';
 import notifee from '@notifee/react-native';
+import { Linking } from 'react-native';
 
 const AppWrapper = () => {
   return (
@@ -154,6 +155,8 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [activeScreen, setActiveScreen] = useState('library');
 
+  const [linkingUrl, setLinkingUrl] = useState();
+
   const [databaseObj, setDatabaseObj] = useState(null);
   const [workDAO, setWorkDAO] = useState(null);
   const [historyDAO, setHistoryDAO] = useState(null);
@@ -188,6 +191,48 @@ const App = () => {
     workDAO, libraryDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, currentTheme
   });
 
+  const hasAddedInitialScreen = useRef(false);
+
+  useEffect(() => {
+    if (loading || !libraryDAO || !progressDAO || !settingsDAO || !workDAO || hasAddedInitialScreen.current) {
+      return;
+    }
+
+    const handleUrl = async (url) => {
+      hasAddedInitialScreen.current = true;
+      const workId = url.split('/')[4];
+
+      setScreens(prev => [...prev,
+        <ChapterInfoScreen
+          key={`url_work_${workId}`}
+          workId={workId}
+          currentTheme={currentTheme}
+          libraryDAO={libraryDAO}
+          workDAO={workDAO}
+          setScreens={setScreens}
+          settingsDAO={settingsDAO}
+          historyDAO={historyDAO}
+          progressDAO={progressDAO}
+          kudoHistoryDAO={kudoHistoryDAO}
+          openTagSearch={openTagSearch}
+          url={url}
+        />
+      ]);
+    };
+
+    Linking.getInitialURL().then((url) => {
+      if (url != null) {
+        handleUrl(url);
+      }
+    });
+
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      handleUrl(url);
+    });
+
+    return () => subscription.remove();
+  }, [loading, libraryDAO, progressDAO, settingsDAO, workDAO]);
+
   useEffect(() => {
     contextRef.current = {
       workDAO, libraryDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, currentTheme
@@ -198,11 +243,13 @@ const App = () => {
   useEffect(() => {
     initializeApp();
 
-    const unsubscribeForeground = setupNotificationListeners(
-      setActiveScreen,
-      setScreens,
-      (workId, chapterId) => handleNotificationOpen(workId, chapterId)
-    );
+    function unsubscribeForeground() {
+      setupNotificationListeners(
+        setActiveScreen,
+        setScreens,
+        (workId, chapterId) => handleNotificationOpen(workId, chapterId)
+      )
+    }
 
     const checkInitialNotification = async () => {
       const initialNotification = await notifee.getInitialNotification();
@@ -228,7 +275,6 @@ const App = () => {
       unsubscribeForeground();
     };
   }, []);
-
 
   const handleNotificationOpen = async (workId, chapterNumber) => {
     const ctx = contextRef.current;
@@ -284,6 +330,7 @@ const App = () => {
 
   useEffect(() => {
     const backAction = () => {
+      console.log(screens);
       if (screens.length > 0) {
         setScreens(prev => {
           const newScreens = [...prev];

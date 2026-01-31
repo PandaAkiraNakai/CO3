@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -195,7 +195,8 @@ const ChapterInfoScreen = ({
                              progressDAO,
                              loadChapter,
                              kudoHistoryDAO,
-                             openTagSearch
+                             openTagSearch,
+                             url
                            }) => {
   const [work, setWork] = useState(null);
   const [chapters, setChapters] = useState([]);
@@ -217,6 +218,7 @@ const ChapterInfoScreen = ({
   const [categoryAction, setCategoryAction] = useState(null);
   const [menuVisible, setMenuVisible] = useState(false);
   const [showDate, setShowDate] = useState(false);
+  const [loadChapterRef, setLoadChapterRef] = useState(loadChapter);
 
   const showToast = (message, type = 'error') => {
     Toast.show({
@@ -314,9 +316,7 @@ const ChapterInfoScreen = ({
         progressDAO.getProgressList(workId),
       ]);
 
-      if (!workData) {
-        throw new Error("Could not fetch work data");
-      }
+      if (!workData) throw new Error("Could not fetch work data");
 
       setWork(workData);
       setChapters(workData.chapters);
@@ -327,68 +327,90 @@ const ChapterInfoScreen = ({
       }, {});
       setChapterProgress(progressMap);
 
-      if (loadChapter !== null && workData.chapters && workData.chapters[loadChapter]) {
-        setScreens(prev => {
-          const newScreens = [...prev];
-          newScreens.pop();
-          setScreens([...newScreens,
-            <ChapterInfoScreen
-              key={workId}
-              workId={workId}
-              currentTheme={currentTheme}
-              libraryDAO={libraryDAO}
-              workDAO={workDAO}
-              setScreens={setScreens}
-              settingsDAO={settingsDAO}
-              historyDAO={historyDAO}
-              progressDAO={progressDAO}
-              kudoHistoryDAO={kudoHistoryDAO}
-              openTagSearch={openTagSearch}
-            />
-          ]);
-          return newScreens;
-        })
+      const hasLoadChapterIndex = typeof loadChapter === 'number';
 
-        const chapterToLoad = workData.chapters[loadChapter];
-        const chapterContent = await fetchChapter(
-          workId,
-          chapterToLoad.id,
-          currentTheme,
-          settingsDAO
-        );
+      const chapterUrlMatch = url ? url.match(/\/chapters\/(\d+)/) : null;
+      const hasUrlTrigger = !!chapterUrlMatch;
 
-        if (chapterContent) {
-          const initialChapterData = {
-            workId: workId,
-            workTitle: workData.title,
-            chapterId: chapterToLoad.id,
-            chapterTitle: chapterToLoad.name,
-            htmlContent: chapterContent,
-            chapterIndex: loadChapter,
-            hasNextChapter: loadChapter < workData.chapters.length - 1,
-            hasPreviousChapter: loadChapter > 0,
-          };
+      if ((hasLoadChapterIndex && workData.chapters && workData.chapters[loadChapter]) || hasUrlTrigger) {
 
-          const chapterListForNav = workData.chapters.map((c) => ({
-            id: c.id,
-            title: c.name,
-          }));
+        let chapterToLoad;
+        let actualIndex = -1;
 
-          setScreens((prevScreens) => [
-            ...prevScreens,
-            <ReaderWrapper
-              key={chapterToLoad.id}
-              initialChapterData={initialChapterData}
-              currentTheme={currentTheme}
-              setScreens={setScreens}
-              chapterList={chapterListForNav}
-              settingsDAO={settingsDAO}
-              historyDAO={historyDAO}
-              progressDAO={progressDAO}
-            />,
-          ]);
+        if (hasLoadChapterIndex) {
+          chapterToLoad = workData.chapters[loadChapter];
+          actualIndex = loadChapter;
+        }
+        else if (hasUrlTrigger) {
+          const chapterId = chapterUrlMatch[1];
+
+          chapterToLoad = workData.chapters.find((ch) => String(ch.id) === String(chapterId));
+          actualIndex = workData.chapters.findIndex((ch) => String(ch.id) === String(chapterId));
+
+          console.log("URL Load Debug:", { url, extractedId: chapterId, found: !!chapterToLoad });
+        }
+
+        if (chapterToLoad && actualIndex !== -1) {
+          const chapterContent = await fetchChapter(workId, chapterToLoad.id, currentTheme, settingsDAO);
+
+          if (chapterContent) {
+            const initialChapterData = {
+              workId: workId,
+              workTitle: workData.title,
+              chapterId: chapterToLoad.id,
+              chapterTitle: chapterToLoad.name,
+              htmlContent: chapterContent,
+              chapterIndex: actualIndex,
+              hasNextChapter: actualIndex < workData.chapters.length - 1,
+              hasPreviousChapter: actualIndex > 0,
+            };
+
+            const chapterListForNav = workData.chapters.map((c) => ({ id: c.id, title: c.name }));
+
+            setScreens((prevScreens) => {
+              const stackWithoutCurrent = prevScreens.slice(0, -1);
+
+              const cleanHistoryScreen = (
+                <ChapterInfoScreen
+                  key={`${workId}_clean`}
+                  workId={workId}
+                  currentTheme={currentTheme}
+                  libraryDAO={libraryDAO}
+                  workDAO={workDAO}
+                  setScreens={setScreens}
+                  settingsDAO={settingsDAO}
+                  historyDAO={historyDAO}
+                  progressDAO={progressDAO}
+                  kudoHistoryDAO={kudoHistoryDAO}
+                  openTagSearch={openTagSearch}
+                  loadChapter={null}
+                  url={null}
+                />
+              );
+
+              const readerScreen = (
+                <ReaderWrapper
+                  key={`reader_${chapterToLoad.id}`}
+                  initialChapterData={initialChapterData}
+                  currentTheme={currentTheme}
+                  setScreens={setScreens}
+                  chapterList={chapterListForNav}
+                  settingsDAO={settingsDAO}
+                  historyDAO={historyDAO}
+                  progressDAO={progressDAO}
+                />
+              );
+
+              return [...stackWithoutCurrent, cleanHistoryScreen, readerScreen];
+            });
+
+            return;
+          }
+        } else {
+          console.log("Could not find chapter from URL. Staying on Info Screen.");
         }
       }
+
     } catch (err) {
       console.error('Error loading work data:', err);
       setError(err.message || 'Failed to load work data');

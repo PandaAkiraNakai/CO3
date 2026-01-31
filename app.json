@@ -1,7 +1,4 @@
 {
   "name": "CO3",
-  "displayName": "CO3",
-  "plugins": [
-    "expo-secure-store"
-  ]
+  "displayName": "CO3"
 }
