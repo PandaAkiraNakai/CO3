@@ -350,7 +350,7 @@ const ChapterInfoScreen = ({
           console.log("URL Load Debug:", { url, extractedId: chapterId, found: !!chapterToLoad });
         }
 
-        if (chapterToLoad && actualIndex !== -1) {
+        if (chapterToLoad && actualIndex !== -1 && actualIndex !== 0) {
           const chapterContent = await fetchChapter(workId, chapterToLoad.id, currentTheme, settingsDAO);
 
           if (chapterContent) {
