@@ -1,4 +1,6 @@
 import SQLite from 'react-native-sqlite-storage';
+import RNFS from 'react-native-fs';
+import { Platform } from 'react-native';
 
 SQLite.enablePromise(true);
 
@@ -155,6 +157,57 @@ class Database {
       console.error("Error initializing schema:", error);
       throw error;
     }
+  }
+}
+
+
+export async function exportDb(db) {
+  let dbWasOpen = !!db.db;
+
+  try {
+    if (db.db) {
+      await db.close();
+    }
+
+    const dbFileName = 'library.db';
+    const exportFileName = 'CO3-Database-Export.db';
+
+    const dbPath = Platform.select({
+      android: `/data/data/com.co3/databases/${dbFileName}`,
+      ios: `${RNFS.LibraryDirectoryPath}/LocalDatabase/${dbFileName}`,
+    });
+
+    const exportPath = Platform.select({
+      android: `${RNFS.DownloadDirectoryPath}/${exportFileName}`,
+      ios: `${RNFS.DocumentDirectoryPath}/${exportFileName}`,
+    });
+
+    const exportDir = Platform.select({
+      android: RNFS.DownloadDirectoryPath,
+      ios: RNFS.DocumentDirectoryPath,
+    });
+
+    await RNFS.mkdir(exportDir, { NSURLIsExcludedFromBackupKey: false });
+
+    await RNFS.copyFile(dbPath, exportPath);
+
+    if (dbWasOpen) {
+      await db.open();
+    }
+
+    return exportPath;
+  } catch (error) {
+    console.error('Database export failed:', error);
+
+    if (dbWasOpen) {
+      try {
+        await db.open();
+      } catch (reopenError) {
+        console.error('Failed to reopen database:', reopenError);
+      }
+    }
+
+    throw error;
   }
 }
 

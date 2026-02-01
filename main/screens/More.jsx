@@ -17,6 +17,7 @@ import HelpScreen from './more/HelpScreen';
 import BookmarksScreen from './more/BookmarksScreen';
 import ReadLaterScreen from './more/ReadLaterScreen';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import StorageScreen from './more/StorageScreen';
 
 const MoreScreen = ({
   currentTheme,
@@ -34,6 +35,7 @@ const MoreScreen = ({
   historyDAO,
   progressDAO,
   kudoHistoryDAO,
+  databaseObj
 }) => {
   const insets = useSafeAreaInsets();
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -129,6 +131,22 @@ const MoreScreen = ({
             settingsDAO={settingsDAO}
             progressDAO={progressDAO}
             kudoHistoryDAO={kudoHistoryDAO}
+          />,
+        ]);
+        break;
+      case 'Data and Storage':
+        setScreens(prev => [
+          ...prev,
+          <StorageScreen
+            currentTheme={currentTheme}
+            workDAO={workDAO}
+            libraryDAO={libraryDAO}
+            setScreens={setScreens}
+            historyDAO={historyDAO}
+            settingsDAO={settingsDAO}
+            progressDAO={progressDAO}
+            kudoHistoryDAO={kudoHistoryDAO}
+            databaseObj={databaseObj}
           />,
         ]);
         break;
