@@ -10,12 +10,12 @@ import {
   View,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { fetchBookmarks } from '../../web/other/bookmarks';
 import BookCard from '../../components/Library/BookCard';
 import LoadingSpinner from '../../components/History/Spinner';
 import { getUsername } from '../../storage/Credentials';
+import { fetchUserWorks } from '../../web/user/userWorks';
 
-export default function BookmarksScreen({
+export default function UserWorkScreen({
   setScreens,
   currentTheme,
   workDAO,
@@ -37,7 +37,7 @@ export default function BookmarksScreen({
   const PAGE_SIZE = 20;
 
   useEffect(() => {
-    loadInitialBookmarks();
+    loadInitialUserWork();
   }, []);
 
   const formatWork = work => {
@@ -68,11 +68,11 @@ export default function BookmarksScreen({
     };
   };
 
-  const loadInitialBookmarks = async () => {
+  const loadInitialUserWork = async () => {
     try {
       setLoading(true);
       setCurrentPage(1);
-      const res = username ? await fetchBookmarks(1, username) : await fetchBookmarks(1);
+      const res = username ? await fetchUserWorks(1, username) : await fetchUserWorks(1);
       setBookmarks(res || []);
       setHasMore((res?.length || 0) === PAGE_SIZE);
     } catch (error) {
@@ -83,13 +83,13 @@ export default function BookmarksScreen({
     }
   };
 
-  const loadMoreBookmarks = async () => {
+  const loadMoreWorks = async () => {
     if (loadingMore || !hasMore) return;
 
     try {
       setLoadingMore(true);
       const nextPage = currentPage + 1;
-      const res = username ? await fetchBookmarks(nextPage, username) : await fetchBookmarks(nextPage);
+      const res = username ? await fetchUserWorks(nextPage, username) : await fetchUserWorks(nextPage);
       const moreData = res || [];
 
       if (moreData.length > 0) {
@@ -108,7 +108,7 @@ export default function BookmarksScreen({
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadInitialBookmarks();
+    await loadInitialUserWork();
     setRefreshing(false);
   }, []);
 
@@ -124,13 +124,13 @@ export default function BookmarksScreen({
     console.log('Search for tag:', tag);
   };
 
-  const renderBookmark = ({ item, index }) => (
+  const renderWork = ({ item, index }) => (
     <BookCard
       key={index}
       book={formatWork(item)}
       viewMode={viewMode}
       theme={currentTheme}
-      onUpdate={loadInitialBookmarks}
+      onUpdate={loadInitialUserWork}
       setScreens={setScreens}
       libraryDAO={libraryDAO}
       workDAO={workDAO}
@@ -149,7 +149,7 @@ export default function BookmarksScreen({
         <Icon name="arrow-back" size={24} color={currentTheme.textColor} />
       </TouchableOpacity>
       <Text style={[styles.title, { color: currentTheme.textColor }]}>
-        {username ? username + "'s " : ""}Bookmarks
+        {username ? username + "'s " : ""}Works
       </Text>
 
       <TouchableOpacity
@@ -201,9 +201,9 @@ export default function BookmarksScreen({
       {renderHeader()}
       <FlatList
         data={bookmarks}
-        renderItem={renderBookmark}
+        renderItem={renderWork}
         keyExtractor={(item, index) => `${item.id || index}`}
-        onEndReached={loadMoreBookmarks}
+        onEndReached={loadMoreWorks}
         onEndReachedThreshold={0.1}
         ListEmptyComponent={
           <Text style={[{ textColor: currentTheme.textColor }]}>

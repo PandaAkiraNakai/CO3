@@ -39,7 +39,7 @@ const imageMappings = {
   },
 };
 
-const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, screens, libraryDAO, workDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, openTagSearch, showDate = true }) => {
+const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, workDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, openTagSearch, showDate = true }) => {
   const [isMainModalOpen, setIsMainModalOpen] = useState(false);
   const [isAllTagsModalOpen, setIsAllTagsModalOpen] = useState(false);
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
@@ -85,7 +85,7 @@ const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, screens, librar
 
   return (
       <TouchableOpacity
-          onPress={() => {setScreens([...screens,
+          onPress={() => {setScreens(p => [...p,
             <ChapterInfoScreen
               workId={book.id}
               currentTheme={theme}

@@ -30,6 +30,7 @@ import Toast from 'react-native-toast-message';
 import { bookmark } from '../web/other/bookmarks';
 import { normalizeWorkData } from '../storage/dao/WorkDAO';
 import { getJsonSettings } from '../storage/jsonSettings';
+import UserInfoScreen from './UserInfo';
 
 const ChapterItem = React.memo(({ chapter, index, currentTheme, onPress, showDate }) => {
   const hasProgress = chapter.progress !== undefined && chapter.progress !== null;
@@ -747,9 +748,28 @@ const ChapterInfoScreen = ({
       <Text style={[styles.workTitle, { color: currentTheme.textColor }]}>
         {work.title}
       </Text>
-      <Text style={[styles.workAuthor, { color: currentTheme.secondaryTextColor }]}>
-        by {work.author}
-      </Text>
+      <TouchableOpacity
+        onPress={() => {
+          setScreens(p => {return [...p,
+            <UserInfoScreen
+              username={work.author}
+              currentTheme={currentTheme}
+              setScreens={setScreens}
+              onBack={() => setScreens(prev => prev.slice(0, -1))}
+              settingsDAO={settingsDAO}
+              historyDAO={historyDAO}
+              progressDAO={progressDAO}
+              kudoHistoryDAO={kudoHistoryDAO}
+              libraryDAO={libraryDAO}
+              workDAO={workDAO}
+            />
+          ]})
+        }}
+      >
+        <Text style={[styles.workAuthor, { color: currentTheme.secondaryTextColor }]}>
+          by {work.author}
+        </Text>
+      </TouchableOpacity>
 
       {renderActionButtons()}
       {renderDescription()}
