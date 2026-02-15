@@ -35,6 +35,8 @@ const PreferencesScreen = ({
   const [localViewMode, setLocalViewMode] = useState('full');
 
   // JSON Settings State
+  const [preferDesc, setPreferDesc] = useState(false);
+  const [preferHtml, setPreferHtml] = useState(false);
   const [showChapterDate, setShowChapterDate] = useState(false);
   const [compactNotifications, setCompactNotifications] = useState(false);
   const [updateTime, setUpdateTime] = useState(1440);
@@ -63,6 +65,9 @@ const PreferencesScreen = ({
         setShowChapterDate(jsonSettings.showChapterDate || false);
         setCompactNotifications(jsonSettings.compactNotifications || false);
         setUpdateTime(jsonSettings.time || 1440);
+
+        setPreferDesc(jsonSettings.showFullDescription || false);
+        setPreferHtml(jsonSettings.preferHtml || false);
 
         // Handle array wrapper for restriction
         const restriction = Array.isArray(jsonSettings.updateRestriction)
@@ -132,6 +137,18 @@ const PreferencesScreen = ({
     const newValue = !compactNotifications;
     setCompactNotifications(newValue);
     saveJsonSettingsData({ compactNotifications: newValue });
+  };
+
+  const handlePreferDesc = () => {
+    const newValue = !preferDesc;
+    setPreferDesc(newValue);
+    saveJsonSettingsData({ showFullDescription: newValue });
+  };
+
+  const handlePreferHtml = () => {
+    const newValue = !preferHtml;
+    setPreferHtml(newValue);
+    saveJsonSettingsData({ preferHtml: newValue });
   };
 
   const handleUpdateTimeChange = value => {
@@ -467,6 +484,61 @@ const PreferencesScreen = ({
               />
             </View>
           </View>
+
+          <View
+            style={[
+              styles.settingItem,
+              { borderBottomColor: activeTheme.borderColor },
+            ]}
+          >
+            <View style={styles.switchContainer}>
+              <Text
+                style={[styles.settingText, { color: activeTheme.textColor }]}
+              >
+                Prefer Full Descriptions
+              </Text>
+              <Switch
+                value={preferDesc}
+                onValueChange={handlePreferDesc}
+                thumbColor={
+                  preferDesc ? activeTheme.primaryColor : '#f4f3f4'
+                }
+                trackColor={{
+                  false: '#767577',
+                  true: `${activeTheme.primaryColor}40`,
+                }}
+              />
+            </View>
+          </View>
+
+          <View
+            style={[
+              styles.settingItem,
+              { borderBottomColor: activeTheme.borderColor },
+              { borderBottomWidth: 0 }
+            ]}
+          >
+            <View style={styles.switchContainer}>
+              <Text
+                style={[styles.settingText, { color: activeTheme.textColor }]}
+              >
+                Prefer HTML Styling
+              </Text>
+              <Switch
+                value={preferHtml}
+                onValueChange={handlePreferHtml}
+                thumbColor={
+                  preferHtml ? activeTheme.primaryColor : '#f4f3f4'
+                }
+                trackColor={{
+                  false: '#767577',
+                  true: `${activeTheme.primaryColor}40`,
+                }}
+              />
+            </View>
+          </View>
+
+
         </View>
 
         {/* UPDATE & NOTIFICATION SETTINGS */}

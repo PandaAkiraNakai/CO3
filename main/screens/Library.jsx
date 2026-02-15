@@ -13,6 +13,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import BookCard from '../components/Library/BookCard';
 import CategorySelectionModal from '../components/WorkScreen/CategorySelectionModal.jsx';
+import { getJsonSettings } from '../storage/jsonSettings';
 
 const SortIcon = ({ color, size }) => (
   <View
@@ -87,6 +88,8 @@ const LibraryScreen = ({
   const [allCollections, setAllCollections] = useState([]);
   const [showSortModal, setShowSortModal] = useState(false);
   const [showAllCollectionsModal, setShowAllCollectionsModal] = useState(false);
+
+  const [jsonSettings, setJsonSettings] = useState();
 
   const pageSize = 20;
 
@@ -188,6 +191,7 @@ const LibraryScreen = ({
       const isLastPage = libraryEntries.length < pageSize;
       setHasMore(!isLastPage);
 
+      setJsonSettings(await getJsonSettings())
     } catch (err) {
       console.error('Error loading works:', err);
       setError({
@@ -433,6 +437,7 @@ const LibraryScreen = ({
       progressDAO={progressDAO}
       kudoHistoryDAO={kudoHistoryDAO}
       openTagSearch={openTagSearch}
+      jsonSettings={jsonSettings}
     />
   );
 

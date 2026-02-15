@@ -145,7 +145,17 @@ export function parseWorkElements(workElements) {
       ...categorizedTags.freeforms
     ];
 
-    const summaryElement = workElement.getElementsByClassName("userstuff summary")[0]?.getElementsByTagName("p")[0];
+    const summaryContainer = workElement.getElementsByClassName("userstuff summary")[0];
+
+    const fullDescriptionText = getElementText(summaryContainer);
+    let fullDescriptionHTML = "";
+    if (summaryContainer && summaryContainer.childNodes) {
+      for (let i = 0; i < summaryContainer.childNodes.length; i++) {
+        fullDescriptionHTML += summaryContainer.childNodes[i].toString();
+      }
+    }
+    fullDescriptionHTML = fullDescriptionHTML.trim() || null;
+
     const dateElement = workElement.getElementsByClassName("datetime")[0];
     const dateText = getElementText(dateElement);
 
@@ -182,7 +192,8 @@ export function parseWorkElements(workElements) {
       bookmarks: parseNumber(stats.bookmarks) || "?",
       tags: allTags,
       warnings: categorizedTags.warnings,
-      description: getElementText(summaryElement),
+      description: fullDescriptionText,
+      descriptionHTML: fullDescriptionHTML,
       chapters: [],
       currentChapter: chapterInfo.current || "?",
       chapterCount: chapterInfo.total || "?",

@@ -14,6 +14,7 @@ import { fetchFilteredWorks } from '../web/browse/fetchWorks';
 import BookCard from '../components/Library/BookCard';
 import AdvancedSearchScreen from './advancedSearch';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getJsonSettings } from '../storage/jsonSettings';
 
 const FilterIcon = ({ color, size }) => (
   <View
@@ -76,6 +77,8 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
   const [appliedFilters, setAppliedFilters] = useState({});
   const [hasFilters, setHasFilters] = useState(false);
 
+  const [jsonSettings, setJsonSettings] = useState();
+
   const loadWorks = useCallback(async (reset = false) => {
     if (!reset && Object.keys(appliedFilters).length === 0) return;
 
@@ -100,6 +103,8 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
       const newWorks = result.works || [];
 
       const isLastPage = newWorks.length < 20;
+
+      setJsonSettings(await getJsonSettings());
 
       if (reset) {
         setWorks(newWorks);
@@ -199,6 +204,7 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
       tags: work.tags,
       warnings: work.warnings,
       description: work.description,
+      descriptionHTML: work.descriptionHTML,
       lastUpdated: work.updated ? new Date(work.updated).toLocaleDateString() : 'Unknown',
       likes: work.kudos,
       bookmarks: work.bookmarks,
@@ -275,6 +281,7 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
       progressDAO={progressDAO}
       kudoHistoryDAO={kudoHistoryDAO}
       openTagSearch={openTagSearch}
+      jsonSettings={jsonSettings}
     />
   );
 

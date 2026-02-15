@@ -180,7 +180,8 @@ export function extractWorkContent(doc) {
   const result = {
     title: null,
     author: null,
-    summary: null
+    summary: null,
+    summaryHTML: ""
   };
 
   const workskinElement = doc.getElementById("workskin");
@@ -211,6 +212,13 @@ export function extractWorkContent(doc) {
       const blockquote = divElements[i].getElementsByTagName("blockquote")?.[0];
       if (blockquote) {
         result.summary = getElementText(blockquote);
+
+        if (blockquote && blockquote.childNodes) {
+          for (let j = 0; j < blockquote.childNodes.length; j++) {
+            result.summaryHTML += blockquote.childNodes[j].toString();
+          }
+        }
+        result.summaryHTML = result.summaryHTML.trim() || null;
       }
       break;
     }
@@ -258,6 +266,8 @@ export async function fetchWorkFromWorkID(workId) {
       ? "Choose Not To Use Archive Warnings"
       : metadata.warnings.length > 0 ? "Yes" : "No";
 
+    let fullDescriptionHTML = "";
+
     const work = new Work({
       id: workId,
       title: content.title || null,
@@ -270,6 +280,7 @@ export async function fetchWorkFromWorkID(workId) {
       tags: metadata.tags || [],
       warnings: metadata.warnings || [],
       description: content.summary || null,
+      descriptionHTML: content.summaryHTML.toString() || null,
       chapters: chapters,
       currentChapter: chapterInfo.current,
       chapterCount: chapterInfo.total || chapters.length,

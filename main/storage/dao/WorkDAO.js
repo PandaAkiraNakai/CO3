@@ -16,6 +16,7 @@ export class WorkDAO {
       updated,
       bookmarks,
       description,
+      descriptionHTML,
       currentChapter,
       chapterCount,
       rating,
@@ -26,17 +27,16 @@ export class WorkDAO {
       warnings = [],
     } = work;
 
-    // Ensure ID is provided
     if (!id) {
       throw new Error('Work ID is required');
     }
 
     await this.db.executeSql(
       `INSERT OR REPLACE INTO works (
-          id, title, author, kudos, hits, language, updated, bookmarks,
-          description, currentChapter, chapterCount, rating, category,
-          warningStatus, isCompleted
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        id, title, author, kudos, hits, language, updated, bookmarks,
+        description, descriptionHTML, currentChapter, chapterCount, rating, category,
+        warningStatus, isCompleted
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         title,
@@ -47,6 +47,7 @@ export class WorkDAO {
         updated,
         bookmarks,
         description,
+        descriptionHTML,
         currentChapter,
         chapterCount,
         rating,
@@ -100,6 +101,45 @@ export class WorkDAO {
     return works;
   }
 
+  async get(id) {
+    const [results] = await this.db.executeSql(
+      'SELECT * FROM works WHERE id = ?',
+      [id],
+    );
+    if (results.rows.length === 0) return null;
+
+    const workData = results.rows.item(0);
+    workData.tags = await this.getTagsForWork(id);
+    workData.warnings = await this.getWarningsForWork(id);
+
+    return new Work({
+      ...workData,
+      isCompleted: workData.isCompleted ? Boolean(workData.isCompleted) : null,
+    });
+  }
+
+  async getAll() {
+    const [results] = await this.db.executeSql('SELECT * FROM works');
+    const works = [];
+
+    for (let i = 0; i < results.rows.length; i++) {
+      const workData = results.rows.item(i);
+      workData.tags = await this.getTagsForWork(workData.id);
+      workData.warnings = await this.getWarningsForWork(workData.id);
+
+      works.push(
+        new Work({
+          ...workData,
+          isCompleted: workData.isCompleted
+            ? Boolean(workData.isCompleted)
+            : null,
+        }),
+      );
+    }
+
+    return works;
+  }
+
   async update(work) {
     const {
       id,
@@ -111,6 +151,7 @@ export class WorkDAO {
       updated,
       bookmarks,
       description,
+      descriptionHTML, // Added
       currentChapter,
       chapterCount,
       rating,
@@ -121,7 +162,6 @@ export class WorkDAO {
       warnings,
     } = work;
 
-    // Ensure ID is provided
     if (!id) {
       throw new Error('Work ID is required');
     }
@@ -129,9 +169,9 @@ export class WorkDAO {
     await this.db.executeSql(
       `UPDATE works SET
                       title = ?, author = ?, kudos = ?, hits = ?, language = ?,
-                      updated = ?, bookmarks = ?, description = ?, currentChapter = ?,
-                      chapterCount = ?, rating = ?, category = ?, warningStatus = ?,
-                      isCompleted = ?
+                      updated = ?, bookmarks = ?, description = ?, descriptionHTML = ?,
+                      currentChapter = ?, chapterCount = ?, rating = ?, category = ?,
+                      warningStatus = ?, isCompleted = ?
        WHERE id = ?`,
       [
         title,
@@ -142,6 +182,7 @@ export class WorkDAO {
         updated,
         bookmarks,
         description,
+        descriptionHTML, // Added
         currentChapter,
         chapterCount,
         rating,

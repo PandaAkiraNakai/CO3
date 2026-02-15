@@ -31,6 +31,13 @@ import { bookmark } from '../web/other/bookmarks';
 import { normalizeWorkData } from '../storage/dao/WorkDAO';
 import { getJsonSettings } from '../storage/jsonSettings';
 import UserInfoScreen from './UserInfo';
+import HtmlTextRenderer from '../components/common/HtmlTextRenderer';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+  runOnJS
+} from 'react-native-reanimated';
 
 const ChapterItem = React.memo(({ chapter, index, currentTheme, onPress, showDate }) => {
   const hasProgress = chapter.progress !== undefined && chapter.progress !== null;
@@ -221,6 +228,8 @@ const ChapterInfoScreen = ({
   const [showDate, setShowDate] = useState(false);
   const [loadChapterRef, setLoadChapterRef] = useState(loadChapter);
 
+  const [jsonSettings, setJsonSettings] = useState();
+
   const showToast = (message, type = 'error') => {
     Toast.show({
       type: type,
@@ -240,6 +249,7 @@ const ChapterInfoScreen = ({
       if (settings?.showChapterDate !== undefined) {
         setShowDate(settings.showChapterDate);
       }
+      setJsonSettings(settings);
     });
   }, []);
 
@@ -558,6 +568,7 @@ const ChapterInfoScreen = ({
     tags: work.tags,
     warnings: work.warnings,
     description: work.description,
+    descriptionHTML: work.descriptionHTML,
     lastUpdated: work.updated ? new Date(work.updated).toLocaleDateString() : 'Unknown',
     likes: work.kudos,
     bookmarks: work.bookmarks,
@@ -604,47 +615,66 @@ const ChapterInfoScreen = ({
     </Modal>
   );
 
+  const COLLAPSED_HEIGHT = 90;
+  const [contentHeight, setContentHeight] = useState(0); // Measure actual size
+  const animatedHeight = useSharedValue(COLLAPSED_HEIGHT);
+
+  const toggleDescription = () => {
+    const isOpening = !isDescriptionExpanded;
+
+    animatedHeight.value = withTiming(isOpening ? contentHeight : COLLAPSED_HEIGHT, {
+      duration: 300
+    });
+
+    setIsDescriptionExpanded(isOpening);
+  };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    height: animatedHeight.value,
+    overflow: 'hidden',
+  }));
+
   const renderDescription = () => {
     if (!work?.description) return null;
 
-    const maxLines = 3;
-    const shouldShowGradient = !isDescriptionExpanded && work.description.length > 150;
+    const isLongDescription = work.description.length > 150;
 
     return (
       <View style={styles.descriptionContainer}>
-        <View style={styles.descriptionWrapper}>
-          <Text
-            style={[
-              styles.description,
-              { color: currentTheme.textColor },
-              !isDescriptionExpanded && { maxHeight: maxLines * 20 }
-            ]}
-            numberOfLines={isDescriptionExpanded ? undefined : maxLines}
+        <Animated.View style={[styles.descriptionWrapper, animatedStyle]}>
+          <View
+            style={styles.innerContent}
+            onLayout={(e) => {
+              const height = e.nativeEvent.layout.height;
+              // Only update if height is valid and different to prevent loops
+              if (height > 0 && Math.abs(height - contentHeight) > 1) {
+                setContentHeight(height);
+              }
+            }}
           >
-            {work.description}
-          </Text>
+            {jsonSettings?.preferHtml ? (
+              <HtmlTextRenderer currentTheme={currentTheme} html={work.descriptionHTML} />
+            ) : (
+              <Text style={[styles.description, { color: currentTheme.textColor }]}>
+                {work.description}
+              </Text>
+            )}
+          </View>
 
-          {shouldShowGradient && (
+          {!isDescriptionExpanded && isLongDescription && (
             <LinearGradient
-              colors={[
-                `${currentTheme.backgroundColor}00`,
-                `${currentTheme.backgroundColor}CC`,
-                currentTheme.backgroundColor
-              ]}
+              colors={[`${currentTheme.backgroundColor}00`, currentTheme.backgroundColor]}
               style={styles.descriptionGradient}
               pointerEvents="none"
             />
           )}
-        </View>
+        </Animated.View>
 
-        {(work.description.length > 150 || isDescriptionExpanded) && (
-          <TouchableOpacity
-            style={styles.expandButton}
-            onPress={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-          >
+        {isLongDescription && (
+          <TouchableOpacity style={styles.expandButton} onPress={toggleDescription}>
             <Icon
               name={isDescriptionExpanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
-              size={40}
+              size={32}
               color={currentTheme.primaryColor}
             />
           </TouchableOpacity>
@@ -970,9 +1000,26 @@ const styles = StyleSheet.create({
   },
   descriptionContainer: {
     marginBottom: 8,
+    marginTop: 10,
+    paddingHorizontal: 8,
   },
   descriptionWrapper: {
     position: 'relative',
+    width: '100%',
+    overflow: 'hidden',
+  },
+  innerContent: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+  },
+  measureHelper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    opacity: 0,
   },
   description: {
     fontSize: 14,
@@ -983,7 +1030,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 40,
+    height: 50,
   },
   expandButton: {
     alignSelf: 'center',

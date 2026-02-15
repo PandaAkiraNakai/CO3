@@ -11,6 +11,7 @@ export class Work {
                     tags = [],
                     warnings = [],
                     description = '',
+                    descriptionHTML = '',
                     chapters = [],
                     currentChapter = 1,
                     chapterCount = null,
@@ -30,6 +31,7 @@ export class Work {
     this.tags = tags;
     this.warnings = warnings;
     this.description = description;
+    this.descriptionHTML = descriptionHTML;
     this.chapters = chapters;
     this.currentChapter = currentChapter;
     this.chapterCount = chapterCount;

@@ -4,6 +4,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import BookDetailsModal from './BookDetailsModal';
 import ChapterInfoScreen from '../../screens/workScreen';
 import QuickActionsModal from './QuickActionsModal';
+import { getJsonSettings } from '../../storage/jsonSettings';
+import HtmlTextRenderer from '../common/HtmlTextRenderer';
 
 const imageMappings = {
   rating: {
@@ -39,7 +41,7 @@ const imageMappings = {
   },
 };
 
-const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, workDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, openTagSearch, showDate = true }) => {
+const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, workDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, openTagSearch, showDate = true, jsonSettings }) => {
   const [isMainModalOpen, setIsMainModalOpen] = useState(false);
   const [isAllTagsModalOpen, setIsAllTagsModalOpen] = useState(false);
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
@@ -200,9 +202,35 @@ const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, wor
               )}
 
               {showDescriptionInCard && (
-                  <Text style={[styles.description, { color: theme.textColor }]} numberOfLines={3}>
-                    {book.description}
-                  </Text>
+                  jsonSettings ? (
+                      jsonSettings.showFullDescription && jsonSettings.preferHtml ?
+                        <HtmlTextRenderer
+                          currentTheme={theme}
+                          html={book.descriptionHTML}
+                          extraTagsStyles={
+                            {
+                              p: {
+                                fontSize: 14,
+                                paddingBottom: 12,
+                              },
+                              span: {
+                                fontSize: 14,
+                                paddingBottom: 12,
+                              },
+                              a: {
+                                fontSize: 14,
+                                paddingBottom: 12,
+                              }
+                            }
+                          }
+                        />
+                        : <Text style={[styles.description, { color: theme.textColor }]} numberOfLines={jsonSettings ? jsonSettings.showFullDescription ? 0 : 3 : 3}>
+                          {book.description}
+                        </Text>
+                    ) :
+                    <Text style={[styles.description, { color: theme.textColor }]} numberOfLines={jsonSettings ? jsonSettings.showFullDescription ? 0 : 3 : 3}>
+                      {book.description}
+                    </Text>
               )}
 
               {showMetadataInCard && (

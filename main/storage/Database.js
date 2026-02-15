@@ -47,6 +47,7 @@ class Database {
                                           updated INTEGER,
                                           bookmarks INTEGER DEFAULT 0,
                                           description TEXT,
+                                          descriptionHTML TEXT,
                                           currentChapter INTEGER DEFAULT 1,
                                           chapterCount INTEGER,
                                           rating TEXT DEFAULT 'Not Rated',

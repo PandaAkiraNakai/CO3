@@ -6,6 +6,8 @@ import RenderHtml from 'react-native-render-html';
 export default function HtmlTextRenderer({ html, currentTheme, extraTagsStyles = {} }) {
   const { width } = useWindowDimensions();
 
+  console.log("html", html);
+
   const tagsStyles = useMemo(() => ({
     blockquote: {
       backgroundColor: currentTheme.inputBackground,

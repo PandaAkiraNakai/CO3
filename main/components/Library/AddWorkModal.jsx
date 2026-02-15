@@ -18,6 +18,7 @@ const AddWorkModal = ({ isOpen, onClose, onAdd, theme }) => {
     title: '',
     author: '',
     description: '',
+    descriptionHTML: '',
     tags: '',
     warnings: '',
     language: 'English',
@@ -74,6 +75,7 @@ const AddWorkModal = ({ isOpen, onClose, onAdd, theme }) => {
       updated: Date.now(),
       currentChapter: 1,
       chapterCount: formData.isCompleted ? 1 : null,
+      id: Date.now().toString(),
     };
 
     onAdd(workData);
@@ -81,6 +83,7 @@ const AddWorkModal = ({ isOpen, onClose, onAdd, theme }) => {
       title: '',
       author: '',
       description: '',
+      descriptionHTML: '',
       tags: '',
       warnings: '',
       language: 'English',
@@ -161,7 +164,6 @@ const AddWorkModal = ({ isOpen, onClose, onAdd, theme }) => {
                 />
               </View>
 
-              {/* Rating Picker */}
               <View style={styles.inputGroup}>
                 <Text style={[styles.label, { color: theme.textColor }]}>
                   Content Rating
@@ -188,7 +190,6 @@ const AddWorkModal = ({ isOpen, onClose, onAdd, theme }) => {
                 </View>
               </View>
 
-              {/* Category Picker */}
               <View style={styles.inputGroup}>
                 <Text style={[styles.label, { color: theme.textColor }]}>
                   Relationship Category
@@ -221,7 +222,6 @@ const AddWorkModal = ({ isOpen, onClose, onAdd, theme }) => {
                 </View>
               </View>
 
-              {/* Warning Status Picker */}
               <View style={styles.inputGroup}>
                 <Text style={[styles.label, { color: theme.textColor }]}>
                   Warning Status
@@ -250,7 +250,6 @@ const AddWorkModal = ({ isOpen, onClose, onAdd, theme }) => {
                 </View>
               </View>
 
-              {/* Completion Status Picker */}
               <View style={styles.inputGroup}>
                 <Text style={[styles.label, { color: theme.textColor }]}>
                   Completion Status
@@ -274,7 +273,7 @@ const AddWorkModal = ({ isOpen, onClose, onAdd, theme }) => {
                   >
                     {completionStatuses.map(status => (
                       <Picker.Item
-                        key={status.value}
+                        key={status.label}
                         label={status.label}
                         value={status.value}
                       />
@@ -285,7 +284,7 @@ const AddWorkModal = ({ isOpen, onClose, onAdd, theme }) => {
 
               <View style={styles.inputGroup}>
                 <Text style={[styles.label, { color: theme.textColor }]}>
-                  Description
+                  Description (Plain Text)
                 </Text>
                 <TextInput
                   style={[
@@ -301,6 +300,30 @@ const AddWorkModal = ({ isOpen, onClose, onAdd, theme }) => {
                     handleInputChange('description', value)
                   }
                   placeholder="Enter book description"
+                  placeholderTextColor={theme.placeholderColor}
+                  multiline={true}
+                  numberOfLines={4}
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: theme.textColor }]}>
+                  Description (HTML)
+                </Text>
+                <TextInput
+                  style={[
+                    styles.textArea,
+                    {
+                      backgroundColor: theme.inputBackground,
+                      color: theme.textColor,
+                      borderColor: theme.borderColor,
+                    },
+                  ]}
+                  value={formData.descriptionHTML}
+                  onChangeText={value =>
+                    handleInputChange('descriptionHTML', value)
+                  }
+                  placeholder="Enter HTML description (optional)"
                   placeholderTextColor={theme.placeholderColor}
                   multiline={true}
                   numberOfLines={4}

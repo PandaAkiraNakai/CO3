@@ -13,6 +13,9 @@ const DEFAULT_SETTINGS = {
   compactNotifications: false,
 
   showChapterDate: false,
+
+  showFullDescription: false,
+  preferHtml: false,
 };
 
 export async function getJsonSettings() {
