@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  DeviceEventEmitter,
   FlatList,
   Linking,
   Modal,
@@ -16,7 +17,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { LinearGradient } from 'react-native-linear-gradient';
 import BookDetailsModal from '../components/Library/BookDetailsModal';
 import { fetchWorkFromWorkID } from '../web/worksScreen/fetchWork';
-import { fetchChapter } from '../web/worksScreen/fetchChapter';
+import { fetchChapterWithTheme } from '../web/worksScreen/fetchChapter';
 import ChapterReader from './chapterReader';
 import {
   navigateToNextChapter,
@@ -35,20 +36,128 @@ import HtmlTextRenderer from '../components/common/HtmlTextRenderer';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
-  runOnJS
+  withTiming
 } from 'react-native-reanimated';
+import { processQueue } from '../downloads/DownloadManager';
+import {
+  addToDownloadQueue,
+  getDownloadQueue,
+} from '../downloads/DownloadQueue';
+import {
+  deleteDownloaded,
+  isDownloaded,
+} from '../downloads/Downloader';
+
+const ITEM_HEIGHT_COMPACT = 56;
+const ITEM_HEIGHT_EXPANDED = 72;
 
 const ChapterItem = React.memo(({ chapter, index, currentTheme, onPress, showDate }) => {
+  const [isInQueue, setIsInQueue] = useState(false);
+  const [hasFailed, setHasFailed] = useState(false);
+  const [isDownloadedFile, setIsDownloadedFile] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
+  const isMounted = useRef(true);
+
   const hasProgress = chapter.progress !== undefined && chapter.progress !== null;
   const isRead = hasProgress && chapter.progress >= 0.98;
 
   const dateText = chapter.date || "";
   const progressText = hasProgress ? `${(chapter.progress * 100).toFixed(0)}%` : "";
 
-  const separator = (dateText && progressText) ? " | " : "";
-  const subtitleRaw = `${dateText}${separator}${progressText}`;
-  const subtitleToRender = subtitleRaw || " ";
+  const subtitleParts = [];
+  if (dateText) subtitleParts.push(dateText);
+  if (showDate && hasProgress) subtitleParts.push(progressText);
+  const subtitleToRender = subtitleParts.join(" | ");
+
+  useEffect(() => {
+    isMounted.current = true;
+    const checkStatus = async () => {
+      if (!chapter.workId || !chapter.id) return;
+      const queue = await getDownloadQueue();
+      const failedJson = await AsyncStorage.getItem('failedDownloads');
+      const failedList = failedJson ? JSON.parse(failedJson) : [];
+      const exists = await isDownloaded(chapter.workId, chapter.id);
+
+      if (isMounted.current) {
+        setIsInQueue(queue.some(q => String(q.chapterId) === String(chapter.id)));
+        setHasFailed(failedList.some(f => String(f.chapterId) === String(chapter.id)));
+        setIsDownloadedFile(exists);
+      }
+    };
+    checkStatus();
+
+    const qSub = DeviceEventEmitter.addListener('queue_updated', (q) => {
+      if (isMounted.current) {
+        setIsInQueue(q.some(item => String(item.chapterId) === String(chapter.id)));
+      }
+    });
+
+    const fSub = DeviceEventEmitter.addListener('failures_updated', (f) => {
+      if (isMounted.current) {
+        setHasFailed(f.some(item => String(item.chapterId) === String(chapter.id)));
+      }
+    });
+
+    const cSub = DeviceEventEmitter.addListener('download_completed', (data) => {
+      if (isMounted.current && String(data.chapterId) === String(chapter.id)) {
+        setIsInQueue(false);
+        setIsDownloadedFile(data.success);
+        if (!data.success) setHasFailed(true);
+      }
+    });
+
+    return () => {
+      isMounted.current = false;
+      qSub.remove();
+      fSub.remove();
+      cSub.remove();
+    };
+  }, [chapter.id, chapter.workId]);
+
+  const handleDownloadPress = async () => {
+    if (isInQueue) return;
+    if (isDownloadedFile) {
+      if (showDelete) {
+        try {
+          setIsInQueue(true);
+          await deleteDownloaded(chapter.workId, chapter.id);
+          setIsDownloadedFile(false);
+          setShowDelete(false);
+        } catch (error) {
+          Toast.show({ type: "error", text1: "Error deleting", text2: error.message });
+        } finally {
+          if (isMounted.current) setIsInQueue(false);
+        }
+      } else {
+        setShowDelete(true);
+        setTimeout(() => {
+          if (isMounted.current) setShowDelete(false);
+        }, 3000);
+      }
+      return;
+    }
+
+    if (hasFailed) {
+      const failedJson = await AsyncStorage.getItem('failedDownloads');
+      const failedList = failedJson ? JSON.parse(failedJson) : [];
+      const newList = failedList.filter(f => String(f.chapterId) !== String(chapter.id));
+      await AsyncStorage.setItem('failedDownloads', JSON.stringify(newList));
+      setHasFailed(false);
+      DeviceEventEmitter.emit('failures_updated', newList);
+    }
+
+    setIsInQueue(true);
+    await addToDownloadQueue({ workId: chapter.workId, chapterId: chapter.id });
+    processQueue();
+  };
+
+  const renderDownloadIcon = () => {
+    if (isInQueue) return <ActivityIndicator size="small" color={currentTheme.primaryColor} />;
+    if (isDownloadedFile && showDelete) return <Icon name="delete" size={24} color={'#ef4444'} />;
+    if (isDownloadedFile) return <Icon name="check-circle" size={24} color={currentTheme.primaryColor} />;
+    if (hasFailed) return <Icon name="error-outline" size={24} color="#ef4444" />;
+    return <Icon name="download" size={24} color={currentTheme.secondaryTextColor} />;
+  };
 
   return (
     <TouchableOpacity
@@ -56,7 +165,8 @@ const ChapterItem = React.memo(({ chapter, index, currentTheme, onPress, showDat
         styles.chapterItem,
         {
           borderBottomColor: currentTheme.inputBackground,
-          borderBottomWidth: 1
+          borderBottomWidth: 1,
+          height: showDate ? ITEM_HEIGHT_EXPANDED : ITEM_HEIGHT_COMPACT
         }
       ]}
       onPress={onPress}
@@ -71,37 +181,39 @@ const ChapterItem = React.memo(({ chapter, index, currentTheme, onPress, showDat
         >
           {chapter.name || `Chapter ${index + 1}`}
         </Text>
-
         {showDate && (
-          <Text style={[styles.chapterDate, { color: currentTheme.secondaryTextColor }]}>
-            {subtitleToRender}
+          <Text
+            numberOfLines={1}
+            style={[styles.chapterDate, { color: currentTheme.secondaryTextColor }]}
+          >
+            {subtitleToRender || " "}
           </Text>
         )}
       </View>
 
-      {/* Only show right-side progress if date is hidden (compact mode) */}
-      {!showDate && hasProgress && (
-        <View style={styles.rightProgressContainer}>
+      <View style={styles.rightActionContainer}>
+        {!showDate && hasProgress && (
           <Text style={[styles.progressRight, { color: currentTheme.secondaryTextColor }]}>
             {progressText}
           </Text>
-        </View>
-      )}
+        )}
 
-      <Icon
-        name="chevron-right"
-        size={20}
-        color={currentTheme.iconColor}
-        style={styles.chevron}
-      />
+        <TouchableOpacity
+          hitSlop={{ top: 20, bottom: 20, left: 10, right: 10 }}
+          onPress={handleDownloadPress}
+          disabled={isInQueue}
+          style={styles.downloadIconWrapper}
+        >
+          {renderDownloadIcon()}
+        </TouchableOpacity>
+
+        <Icon name="chevron-right" size={20} color={currentTheme.iconColor} style={styles.chevron} />
+      </View>
     </TouchableOpacity>
   );
 });
 
-/**
- * A wrapper component that manages the state and logic for the ChapterReader.
- * It handles chapter navigation and provides a consistent header with a back button.
- */
+
 const ReaderWrapper = ({
                          initialChapterData,
                          currentTheme,
@@ -115,12 +227,10 @@ const ReaderWrapper = ({
   const [chapterData, setChapterData] = useState(initialChapterData);
   const [loading, setLoading] = useState(false);
 
-  // Removes the reader from the screen stack to go back.
   const handleBack = () => {
     setScreens(prev => prev.slice(0, -1));
   };
 
-  // Callback for when a new chapter's content has been fetched.
   const handleChapterChange = (newChapterData) => {
     if (newChapterData) {
       setChapterData(prevData => ({
@@ -131,7 +241,6 @@ const ReaderWrapper = ({
     setLoading(false);
   };
 
-  // Fetches and displays the next chapter.
   const handleNextChapter = useCallback(async (newChapterData) => {
     if (loading || !chapterData.hasNextChapter) return;
     setLoading(true);
@@ -146,7 +255,6 @@ const ReaderWrapper = ({
     });
   }, [loading, chapterData, chapterList, currentTheme, historyDAO, settingsDAO]);
 
-  // Fetches and displays the previous chapter.
   const handlePreviousChapter = useCallback(async () => {
     if (loading || !chapterData.hasPreviousChapter) return;
     setLoading(true);
@@ -225,6 +333,7 @@ const ChapterInfoScreen = ({
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [categoryAction, setCategoryAction] = useState(null);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [downloadMenuVisible, setDownloadMenuVisible] = useState(false);
   const [showDate, setShowDate] = useState(false);
   const [loadChapterRef, setLoadChapterRef] = useState(loadChapter);
 
@@ -362,7 +471,7 @@ const ChapterInfoScreen = ({
         }
 
         if (chapterToLoad && actualIndex !== -1 && actualIndex !== 0) {
-          const chapterContent = await fetchChapter(workId, chapterToLoad.id, currentTheme, settingsDAO);
+          const chapterContent = await fetchChapterWithTheme(workId, chapterToLoad.id, currentTheme, settingsDAO);
 
           if (chapterContent) {
             const initialChapterData = {
@@ -518,7 +627,7 @@ const ChapterInfoScreen = ({
       }
 
       let chapterContent;
-      chapterContent = await fetchChapter(workId, chapter.id, currentTheme, settingsDAO);
+      chapterContent = await fetchChapterWithTheme(workId, chapter.id, currentTheme, settingsDAO);
 
       if (!chapterContent) {
         console.error("Could not fetch chapter content. Please try again.");
@@ -576,6 +685,32 @@ const ChapterInfoScreen = ({
     language: work.language,
   }), []);
 
+  function getTextForNb(nb) {
+    switch (nb) {
+      case 1:
+        return "Next chapter"
+      case -1:
+        return "Unread"
+      case -2:
+        return "All"
+      default:
+        return `Next ${nb} chapters`
+    }
+  }
+
+  const menuDownloadButton = (nb) => {
+    return (
+      <TouchableOpacity
+        style={styles.menuItem}
+        onPress={() => downloadNextChapters(nb)}
+        key={nb}
+      >
+        <Icon name="download" size={20} color={currentTheme.textColor} />
+        <Text style={[styles.menuItemText, { color: currentTheme.textColor }]}>{getTextForNb(nb)}</Text>
+      </TouchableOpacity>
+    )
+  }
+
   const renderHeaderMenu = () => (
     <Modal
       transparent={true}
@@ -614,6 +749,41 @@ const ChapterInfoScreen = ({
       </Pressable>
     </Modal>
   );
+
+  const renderDownloadHeaderMenu = () => (
+    <Modal
+      transparent={true}
+      visible={downloadMenuVisible}
+      onRequestClose={() => setDownloadMenuVisible(false)}
+      animationType="fade"
+    >
+      <Pressable
+        style={styles.menuOverlay}
+        onPress={() => setDownloadMenuVisible(false)}
+      >
+        <View
+          style={[
+            styles.menuContainer,
+            { backgroundColor: currentTheme.headerBackground, borderColor: currentTheme.borderColor }
+          ]}
+        >
+
+          {[1, 5, 10, 25, -1, -2].map(menuDownloadButton)}
+
+          <View style={[styles.menuDivider, { backgroundColor: currentTheme.borderColor }]} />
+
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={handleMarkForLater}
+          >
+            <Icon name="delete" size={20} color={currentTheme.textColor} />
+            <Text style={[styles.menuItemText, { color: currentTheme.textColor }]}>Delete all</Text>
+          </TouchableOpacity>
+        </View>
+      </Pressable>
+    </Modal>
+  );
+
 
   const COLLAPSED_HEIGHT = 90;
   const [contentHeight, setContentHeight] = useState(0); // Measure actual size
@@ -757,19 +927,16 @@ const ChapterInfoScreen = ({
 
   const renderChapterItem = useCallback(({ item }) => (
     <ChapterItem
-      chapter={{ ...item, progress: chapterProgress[item.id] }}
+      chapter={{ ...item, workId: workId, progress: chapterProgress[item.id] }}
       index={item.originalIndex}
       currentTheme={currentTheme}
       onPress={() => handleChapterPress(item, item.originalIndex)}
       showDate={showDate}
     />
-  ), [currentTheme, handleChapterPress, chapterProgress, showDate]);
-
-  const ITEM_HEIGHT_NO_DATE = 45;
-  const ITEM_HEIGHT_WITH_DATE = 63;
+  ), [currentTheme, handleChapterPress, chapterProgress, showDate, workId]);
 
   const getItemLayout = useCallback((data, index) => {
-    const itemHeight = showDate ? ITEM_HEIGHT_WITH_DATE : ITEM_HEIGHT_NO_DATE;
+    const itemHeight = showDate ? ITEM_HEIGHT_EXPANDED : ITEM_HEIGHT_COMPACT;
     return { length: itemHeight, offset: itemHeight * index, index };
   }, [showDate]);
 
@@ -859,22 +1026,82 @@ const ChapterInfoScreen = ({
     );
   }
 
-  const continueReading = async function() {
-    setIsLoadingContinue(true)
+  async function getContinueChapter() {
     for (let i = 0; i < chapters.length; i++) {
-      let chapter = chapters[i]
-      let progress = await progressDAO.get(workId, chapter.id)
+      let chapter = chapters[i];
+      let progress = await progressDAO.get(workId, chapter.id);
       if (progress < 0.97) {
-        await handleChapterPress(chapter, i)
-        setIsLoadingContinue(false)
-        return
+        return [chapter, i];
       }
     }
-
-    let lastChapter = chapters[chapters.length - 1]
-    await handleChapterPress(lastChapter, chapters.length - 1)
-    setIsLoadingContinue(false)
   }
+
+  async function downloadNextChapters(nb) {
+    setDownloadMenuVisible(false);
+    let startIndex = 0;
+
+    if (nb === -2) {
+      startIndex = 0;
+    } else {
+      const result = await getContinueChapter();
+      if (!result) {
+        console.log("Book is finished or fully read.");
+        return;
+      }
+      startIndex = result[1];
+    }
+
+    const chapToDl = [];
+    let chaptersFound = 0;
+    let currentIndex = startIndex;
+
+    while (currentIndex < chapters.length) {
+
+      if (nb > 0 && chaptersFound >= nb) {
+        break;
+      }
+
+      const chapter = chapters[currentIndex];
+      const chId = chapter.id;
+      console.log(chapter);
+
+      const alreadyDownloaded = await isDownloaded(workId, chId);
+
+      if (!alreadyDownloaded) {
+        chapToDl.push({ workId: workId, chapterId: chId });
+        chaptersFound++;
+      }
+
+      currentIndex++;
+    }
+
+    if (chapToDl.length > 0) {
+      console.log(`Adding ${chapToDl.length} chapters to queue.`);
+      await addToDownloadQueue(chapToDl);
+      await processQueue();
+    } else {
+      showToast("No new chapters to download", 'info');
+    }
+
+    setDownloadMenuVisible(false);
+  }
+
+  const continueReading = async function() {
+    setIsLoadingContinue(true);
+
+    const result = await getContinueChapter();
+
+    if (result) {
+      const [chapter, toLoad] = result;
+      await handleChapterPress(chapter, toLoad);
+      setIsLoadingContinue(false);
+      return;
+    }
+
+    let lastChapter = chapters[chapters.length - 1];
+    await handleChapterPress(lastChapter, chapters.length - 1);
+    setIsLoadingContinue(false);
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
@@ -888,12 +1115,16 @@ const ChapterInfoScreen = ({
         <Text style={[styles.headerTitle, { color: currentTheme.textColor }]} numberOfLines={1}>
           {work.title}
         </Text>
+        <TouchableOpacity onPress={() => setDownloadMenuVisible(true)} style={styles.menuButton}>
+          <Icon name="download" size={24} color={currentTheme.iconColor} />
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.menuButton}>
           <Icon name="more-vert" size={24} color={currentTheme.iconColor} />
         </TouchableOpacity>
       </View>
 
       {renderHeaderMenu()}
+      {renderDownloadHeaderMenu()}
 
       <FlatList
         data={[...chapters].map((chapter, originalIndex) => ({ ...chapter, originalIndex })).reverse()}
@@ -1060,8 +1291,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 0,
+    justifyContent: 'space-between',
   },
   chapterContent: {
     flex: 1,
@@ -1076,18 +1306,18 @@ const styles = StyleSheet.create({
   progressRight: {
     fontSize: 12,
     fontWeight: '500',
+    marginRight: 8,
+    minWidth: 35,
+    textAlign: 'right',
   },
   chapterTitle: {
     fontSize: 16,
     fontWeight: '500',
     marginBottom: 0,
-    lineHeight: 20,
   },
   chapterDate: {
     fontSize: 12,
-    marginTop: 2,
-    height: 16,
-    lineHeight: 16,
+    marginTop: 4,
   },
   loadingContainer: {
     flex: 1,
@@ -1197,9 +1427,26 @@ const styles = StyleSheet.create({
     height: 1,
     width: '100%',
   },
+  downloadContainer: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  rightActionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexShrink: 0,
+  },
+  downloadIconWrapper: {
+    padding: 4,
+    width: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   chevron: {
     marginLeft: 4,
-  }
+  },
 });
 
 export default ChapterInfoScreen;

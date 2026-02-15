@@ -1,73 +1,91 @@
 import ky from 'ky';
+import { getDownloaded, isDownloaded } from '../../downloads/Downloader';
 
 let DomParser = require('react-native-html-parser').DOMParser;
 
-export async function fetchChapter(workId, chapterId, currentTheme = null, settingsDAO) {
+export async function fetchChapter(workId, chapterId) {
+  let url;
+  if (!chapterId || String(chapterId) === String(workId)) {
+    url = `https://archiveofourown.org/works/${workId}?view_adult=true`;
+  } else {
+    url = `https://archiveofourown.org/works/${workId}/chapters/${chapterId}?view_adult=true`;
+  }
+
+  console.log(`Fetching chapter from: ${url}`);
+  const response = await ky.get(url).text();
+  const doc = new DomParser().parseFromString(response, 'text/html');
+
+  let chapterDiv = doc.getElementById('workskin');
+
+  if (!chapterDiv) {
+    const userstuffDivs = doc.getElementsByClassName('userstuff');
+    if (userstuffDivs.length > 0) {
+      let longest = userstuffDivs[0];
+      let maxLen = 0;
+      for (let i = 0; i < userstuffDivs.length; i++) {
+        const txt = getElementText(userstuffDivs[i]) || '';
+        if (txt.length > maxLen) {
+          maxLen = txt.length;
+          longest = userstuffDivs[i];
+        }
+      }
+      chapterDiv = longest;
+    }
+  }
+
+  if (!chapterDiv) {
+    console.log('No chapter content found');
+    return null;
+  }
+
+  console.log('chapterDiv', chapterDiv);
+
+  let cssStyles = '';
+
+  const workDiv = doc.getElementsByClassName('work')[0];
+  if (workDiv) {
+    const styleElements = workDiv.getElementsByTagName('style');
+    for (let i = 0; i < styleElements.length; i++) {
+      const styleContent = getElementText(styleElements[i]);
+      if (styleContent) {
+        cssStyles += styleContent + '\n';
+      }
+    }
+  }
+
+  if (chapterDiv.getAttribute('id') === 'workskin') {
+    const styleElements = chapterDiv.getElementsByTagName('style');
+    for (let i = 0; i < styleElements.length; i++) {
+      const styleContent = getElementText(styleElements[i]);
+      if (styleContent) cssStyles += styleContent + '\n';
+    }
+  }
+
+  const allStyleElements = doc.getElementsByTagName('style');
+  for (let i = 0; i < allStyleElements.length; i++) {
+    const styleContent = getElementText(allStyleElements[i]);
+    if (styleContent && styleContent.includes('#workskin')) {
+      cssStyles += styleContent + '\n';
+    }
+  }
+
+  return [getElementHtml(chapterDiv), cssStyles ];
+}
+
+export async function fetchChapterWithTheme(workId, chapterId, currentTheme = null, settingsDAO) {
   try {
-    let url;
-    if (!chapterId || String(chapterId) === String(workId)) {
-      url = `https://archiveofourown.org/works/${workId}?view_adult=true`;
-    } else {
-      url = `https://archiveofourown.org/works/${workId}/chapters/${chapterId}?view_adult=true`;
+
+    const isDL = await isDownloaded(workId, chapterId);
+
+    if (isDL) {
+      console.log(`Using downloaded resource for chapter ${chapterId} on work ${workId}`);
     }
 
-    console.log(`Fetching chapter from: ${url}`);
-    const response = await ky.get(url).text();
-    const doc = new DomParser().parseFromString(response, "text/html");
+    const dataSource = isDL
+      ? getDownloaded
+      : fetchChapter;
 
-    let chapterDiv = doc.getElementById("workskin");
-
-    if (!chapterDiv) {
-      const userstuffDivs = doc.getElementsByClassName("userstuff");
-      if (userstuffDivs.length > 0) {
-        let longest = userstuffDivs[0];
-        let maxLen = 0;
-        for(let i=0; i<userstuffDivs.length; i++) {
-          const txt = getElementText(userstuffDivs[i]) || "";
-          if (txt.length > maxLen) {
-            maxLen = txt.length;
-            longest = userstuffDivs[i];
-          }
-        }
-        chapterDiv = longest;
-      }
-    }
-
-    if (!chapterDiv) {
-      console.log("No chapter content found");
-      return null;
-    }
-
-    let cssStyles = "";
-
-    const workDiv = doc.getElementsByClassName("work")[0];
-    if (workDiv) {
-      const styleElements = workDiv.getElementsByTagName("style");
-      for (let i = 0; i < styleElements.length; i++) {
-        const styleContent = getElementText(styleElements[i]);
-        if (styleContent) {
-          cssStyles += styleContent + "\n";
-        }
-      }
-    }
-
-    if (chapterDiv.getAttribute("id") === "workskin") {
-      const styleElements = chapterDiv.getElementsByTagName("style");
-      for (let i = 0; i < styleElements.length; i++) {
-        const styleContent = getElementText(styleElements[i]);
-        if (styleContent) cssStyles += styleContent + "\n";
-      }
-    }
-
-    const allStyleElements = doc.getElementsByTagName("style");
-    for (let i = 0; i < allStyleElements.length; i++) {
-      const styleContent = getElementText(allStyleElements[i]);
-      if (styleContent && styleContent.includes('#workskin')) {
-        cssStyles += styleContent + "\n";
-      }
-    }
-
-    const chapterHtml = getElementHtml(chapterDiv);
+    const [chapterHtml, cssStyles] = await dataSource(workId, chapterId);
 
     const completeHtml = await createCompleteHtml(chapterHtml, cssStyles, currentTheme, settingsDAO);
 

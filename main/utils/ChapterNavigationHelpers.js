@@ -1,4 +1,4 @@
-import { fetchChapter } from '../web/worksScreen/fetchChapter';
+import { fetchChapterWithTheme } from '../web/worksScreen/fetchChapter';
 
 /**
  * Navigate to the next chapter
@@ -38,7 +38,7 @@ export const navigateToNextChapter = async ({
     }
 
     // Fetch the next chapter content
-    const nextChapterContent = await fetchChapter(
+    const nextChapterContent = await fetchChapterWithTheme(
       workId,
       nextChapter.id,
       currentTheme,
@@ -116,7 +116,7 @@ export const navigateToPreviousChapter = async ({
     }
 
     // Fetch the previous chapter content
-    const previousChapterContent = await fetchChapter(
+    const previousChapterContent = await fetchChapterWithTheme(
       workId,
       previousChapter.id,
       currentTheme,
@@ -275,7 +275,7 @@ export const initializeChapterReader = async ({
     const currentChapter = chapterList[currentChapterIndex];
 
     // Fetch chapter content
-    const htmlContent = await fetchChapter(workId, chapterId, currentTheme, settingsDAO);
+    const htmlContent = await fetchChapterWithTheme(workId, chapterId, currentTheme, settingsDAO);
 
     if (!htmlContent) {
       throw new Error('Failed to fetch chapter content');

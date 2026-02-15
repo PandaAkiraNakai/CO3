@@ -14,6 +14,7 @@ import HtmlTextRenderer from '../components/common/HtmlTextRenderer';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import BookmarksScreen from './more/BookmarksScreen';
 import UserWorkScreen from './more/UserWorkScreen';
+import LoadingSpinner from '../components/History/Spinner';
 
 export default function UserInfoScreen({
                                          currentTheme,
@@ -28,16 +29,66 @@ export default function UserInfoScreen({
                                          kudoHistoryDAO,
                                        }) {
   const [userInfo, setUserInfo] = useState();
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    getUserInfo(username).then(data => {
-      const bioHtml = data.bio ? data.bio.toString() : undefined;
-      setUserInfo({ ...data, bio: bioHtml });
-    }).catch(console.log);
+    loadUserInfo()
   }, [username]);
 
+  const loadUserInfo = async () => {
+    console.log('loadUserInfo');
+    setError(false);
+    setUserInfo(undefined);
+
+    getUserInfo(username)
+      .then((data) => {
+        const bioHtml = data.bio ? data.bio.toString() : undefined;
+        setUserInfo({ ...data, bio: bioHtml });
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(true);
+      });
+  };
+
   function userHeader() {
-    if (!userInfo) return <ActivityIndicator style={styles.loader} />;
+    if (error) {
+      return (
+        <SafeAreaView
+          style={[
+            styles.container,
+            { backgroundColor: currentTheme.backgroundColor },
+          ]}
+        >
+          <View style={styles.errorContainer}>
+            <Icon
+              name="error-outline"
+              size={48}
+              color={currentTheme.iconColor}
+            />
+            <Text style={[styles.errorText, { color: currentTheme.textColor }]}>
+              Failed to load user data
+            </Text>
+            <TouchableOpacity
+              style={[
+                styles.retryButton,
+                { backgroundColor: currentTheme.primaryColor },
+              ]}
+              onPress={loadUserInfo}
+            >
+              <Text style={styles.retryButtonText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      );
+    }
+
+    if (!userInfo) return (
+      <LoadingSpinner
+        currentTheme={currentTheme}
+        message="Loading profile..."
+      />
+    );
 
     return (
       <SafeAreaView>
@@ -196,5 +247,26 @@ const styles = StyleSheet.create({
   bookMarkButtonText: {
     fontWeight: 'bold',
     fontSize: 20,
-  }
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  errorText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginVertical: 16,
+  },
+  retryButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });

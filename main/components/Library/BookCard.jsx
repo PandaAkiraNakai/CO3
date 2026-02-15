@@ -6,6 +6,7 @@ import ChapterInfoScreen from '../../screens/workScreen';
 import QuickActionsModal from './QuickActionsModal';
 import { getJsonSettings } from '../../storage/jsonSettings';
 import HtmlTextRenderer from '../common/HtmlTextRenderer';
+import UserInfoScreen from '../../screens/UserInfo';
 
 const imageMappings = {
   rating: {
@@ -177,7 +178,20 @@ const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, wor
             ]}>
               {book.title}
             </Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+              setScreens(p => [...p, <UserInfoScreen
+                currentTheme={theme}
+                username={book.author}
+                onBack={() => setScreens(prev => prev.slice(0, -1))}
+                setScreens={setScreens}
+                workDAO={workDAO}
+                libraryDAO={libraryDAO}
+                historyDAO={historyDAO}
+                settingsDAO={settingsDAO}
+                progressDAO={progressDAO}
+                kudoHistoryDAO={kudoHistoryDAO}
+              />])
+            }}>
                 <Text style={[
                     styles.author,
                     { color: theme.secondaryTextColor },
