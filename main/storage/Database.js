@@ -1,8 +1,11 @@
 import SQLite from 'react-native-sqlite-storage';
 import RNFS from 'react-native-fs';
 import { Platform } from 'react-native';
+import { from1to2 } from './dbMigration';
 
 SQLite.enablePromise(true);
+
+const TARGET_VERSION = 2;
 
 let instance = null;
 
@@ -23,8 +26,14 @@ class Database {
     if (this.db) {
       return this.db;
     }
-    this.db = await SQLite.openDatabase({ name: 'library.db', location: 'default' });
+    this.db = await SQLite.openDatabase({
+      name: 'library.db',
+      location: 'default',
+    });
+
     await this.initializeSchema();
+    await this.runMigrations();
+
     return this.db;
   }
 
@@ -35,101 +44,116 @@ class Database {
     }
   }
 
+  async getDatabaseVersion() {
+    try {
+      const [results] = await this.db.executeSql('PRAGMA user_version;');
+      const version = results.rows.item(0).user_version;
+      return version === 0 ? 1 : version;
+    } catch (error) {
+      console.error("Failed to get database version:", error);
+      return 1;
+    }
+  }
+
+  async setDatabaseVersion(version) {
+    await this.db.executeSql(`PRAGMA user_version = ${version};`);
+  }
+
   async initializeSchema() {
     const queries = [
       `CREATE TABLE IF NOT EXISTS works (
-                                          id TEXT PRIMARY KEY,
-                                          title TEXT NOT NULL,
-                                          author TEXT NOT NULL,
-                                          kudos INTEGER DEFAULT 0,
-                                          hits INTEGER DEFAULT 0,
-                                          language TEXT,
-                                          updated INTEGER,
-                                          bookmarks INTEGER DEFAULT 0,
-                                          description TEXT,
-                                          descriptionHTML TEXT,
-                                          currentChapter INTEGER DEFAULT 1,
-                                          chapterCount INTEGER,
-                                          rating TEXT DEFAULT 'Not Rated',
-                                          category TEXT DEFAULT 'None',
-                                          warningStatus TEXT DEFAULT 'NoWarningsApply',
-                                          isCompleted INTEGER
-       );`,
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        author TEXT NOT NULL,
+        kudos INTEGER DEFAULT 0,
+        hits INTEGER DEFAULT 0,
+        language TEXT,
+        updated INTEGER,
+        bookmarks INTEGER DEFAULT 0,
+        description TEXT,
+        descriptionHTML TEXT,
+        currentChapter INTEGER DEFAULT 1,
+        chapterCount INTEGER,
+        rating TEXT DEFAULT 'Not Rated',
+        category TEXT DEFAULT 'None',
+        warningStatus TEXT DEFAULT 'NoWarningsApply',
+        isCompleted INTEGER
+      );`,
       `CREATE TABLE IF NOT EXISTS chapters (
-                                             id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                             workId TEXT NOT NULL,
-                                             number INTEGER NOT NULL,
-                                             name TEXT,
-                                             date INTEGER,
-                                             FOREIGN KEY (workId) REFERENCES works (id) ON DELETE CASCADE
-        );`,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        workId TEXT NOT NULL,
+        number INTEGER NOT NULL,
+        name TEXT,
+        date INTEGER,
+        FOREIGN KEY (workId) REFERENCES works (id) ON DELETE CASCADE
+      );`,
       `CREATE TABLE IF NOT EXISTS progress_entries (
-                                                     workId TEXT NOT NULL,
-                                                     chapterID INTEGER NOT NULL,
-                                                     progress REAL DEFAULT 0.0,
-                                                     PRIMARY KEY (workId, chapterID),
+        workId TEXT NOT NULL,
+        chapterID INTEGER NOT NULL,
+        progress REAL DEFAULT 0.0,
+        PRIMARY KEY (workId, chapterID),
         FOREIGN KEY (workId) REFERENCES works (id) ON DELETE CASCADE,
         FOREIGN KEY (chapterID) REFERENCES chapters (id) ON DELETE CASCADE
-        );`,
+      );`,
       `CREATE TABLE IF NOT EXISTS tags (
-                                         id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                         name TEXT UNIQUE NOT NULL
-       );`,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL
+      );`,
       `CREATE TABLE IF NOT EXISTS work_tags (
-                                              workId TEXT NOT NULL,
-                                              tagId INTEGER NOT NULL,
-                                              FOREIGN KEY (workId) REFERENCES works (id) ON DELETE CASCADE,
+        workId TEXT NOT NULL,
+        tagId INTEGER NOT NULL,
+        FOREIGN KEY (workId) REFERENCES works (id) ON DELETE CASCADE,
         FOREIGN KEY (tagId) REFERENCES tags (id) ON DELETE CASCADE,
         PRIMARY KEY (workId, tagId)
-        );`,
+      );`,
       `CREATE TABLE IF NOT EXISTS warnings (
-                                             id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                             name TEXT UNIQUE NOT NULL
-       );`,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL
+      );`,
       `CREATE TABLE IF NOT EXISTS work_warnings (
-                                                  workId TEXT NOT NULL,
-                                                  warningId INTEGER NOT NULL,
-                                                  FOREIGN KEY (workId) REFERENCES works (id) ON DELETE CASCADE,
+        workId TEXT NOT NULL,
+        warningId INTEGER NOT NULL,
+        FOREIGN KEY (workId) REFERENCES works (id) ON DELETE CASCADE,
         FOREIGN KEY (warningId) REFERENCES warnings (id) ON DELETE CASCADE,
         PRIMARY KEY (workId, warningId)
-        );`,
+      );`,
       `CREATE TABLE IF NOT EXISTS history (
-                                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                            workId TEXT NOT NULL,
-                                            date INTEGER NOT NULL,
-                                            chapter INTEGER NOT NULL,
-                                            chapterEnd INTEGER,
-                                            FOREIGN KEY (workId) REFERENCES works (id) ON DELETE CASCADE
-        );`,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        workId TEXT NOT NULL,
+        date INTEGER NOT NULL,
+        chapter INTEGER NOT NULL,
+        chapterEnd INTEGER,
+        FOREIGN KEY (workId) REFERENCES works (id) ON DELETE CASCADE
+      );`,
       `CREATE TABLE IF NOT EXISTS kudo_history (
-                                                 workId TEXT PRIMARY KEY,
-                                                 date INTEGER NOT NULL,
-                                                 FOREIGN KEY (workId) REFERENCES works (id) ON DELETE CASCADE
-        );`,
+        workId TEXT PRIMARY KEY,
+        date INTEGER NOT NULL,
+        FOREIGN KEY (workId) REFERENCES works (id) ON DELETE CASCADE
+      );`,
       `CREATE TABLE IF NOT EXISTS settings (
-                                             id INTEGER PRIMARY KEY, -- Should always be 1
-                                             theme TEXT DEFAULT 'light',
-                                             isIncognitoMode INTEGER DEFAULT 0, -- SQLite stores booleans as 0 or 1
-                                             viewMode TEXT DEFAULT 'full',
-                                             fontSize REAL DEFAULT 1.0,
-                                             useCustomSize INTEGER DEFAULT 0
-       );`,
+        id INTEGER PRIMARY KEY,
+        theme TEXT DEFAULT 'light',
+        isIncognitoMode INTEGER DEFAULT 0,
+        viewMode TEXT DEFAULT 'full',
+        fontSize REAL DEFAULT 1.0,
+        useCustomSize INTEGER DEFAULT 0
+      );`,
       `CREATE TABLE IF NOT EXISTS library (
-                                            workId TEXT PRIMARY KEY,
-                                            dateAdded INTEGER NOT NULL,
-                                            collection TEXT DEFAULT 'default',
-                                            readIndex INTEGER DEFAULT 0,
-                                            FOREIGN KEY (workId) REFERENCES works (id) ON DELETE CASCADE
-        );`,
+        workId TEXT PRIMARY KEY,
+        dateAdded INTEGER NOT NULL,
+        collection TEXT DEFAULT 'default',
+        readIndex INTEGER DEFAULT 0,
+        FOREIGN KEY (workId) REFERENCES works (id) ON DELETE CASCADE
+      );`,
       `CREATE TABLE IF NOT EXISTS updates (
-                                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                            workId TEXT NOT NULL,
-                                            chapterNumber INTEGER NOT NULL,
-                                            chapterID INTEGER NOT NULL,
-                                            date INTEGER NOT NULL,
-                                            FOREIGN KEY (workId) REFERENCES works (id) ON DELETE CASCADE,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        workId TEXT NOT NULL,
+        chapterNumber INTEGER NOT NULL,
+        chapterID INTEGER NOT NULL,
+        date INTEGER NOT NULL,
+        FOREIGN KEY (workId) REFERENCES works (id) ON DELETE CASCADE,
         FOREIGN KEY (chapterID) REFERENCES chapters (id) ON DELETE CASCADE
-        );`,
+      );`,
       `CREATE INDEX IF NOT EXISTS idx_updates_workId ON updates (workId);`,
       `CREATE INDEX IF NOT EXISTS idx_updates_date ON updates (date);`,
       `CREATE INDEX IF NOT EXISTS idx_chapters_workId ON chapters (workId);`,
@@ -137,7 +161,6 @@ class Database {
       `CREATE INDEX IF NOT EXISTS idx_tags_name ON tags (name);`,
       `CREATE INDEX IF NOT EXISTS idx_warnings_name ON warnings (name);`,
       `CREATE INDEX IF NOT EXISTS idx_progress_workId_chapterId ON progress_entries (workId, chapterID);`,
-
       `CREATE INDEX IF NOT EXISTS idx_library_readIndex ON library (readIndex);`,
       `CREATE INDEX IF NOT EXISTS idx_library_dateAdded ON library (dateAdded);`,
       `CREATE INDEX IF NOT EXISTS idx_library_collection ON library (collection);`
@@ -147,8 +170,10 @@ class Database {
       for (const query of queries) {
         await this.db.executeSql(query);
       }
-      const [settingsCheck] = await this.db.executeSql('SELECT COUNT(*) FROM settings WHERE id = 1');
-      if (settingsCheck.rows.item(0)['COUNT(*)'] === 0) {
+      const [settingsCheck] = await this.db.executeSql(
+        'SELECT COUNT(*) as count FROM settings WHERE id = 1'
+      );
+      if (settingsCheck.rows.item(0).count === 0) {
         await this.db.executeSql(
           `INSERT INTO settings (id, theme, isIncognitoMode, viewMode, fontSize, useCustomSize) VALUES (?, ?, ?, ?, ?, ?)`,
           [1, 'light', 0, 'full', 1.0, 0]
@@ -157,6 +182,18 @@ class Database {
     } catch (error) {
       console.error("Error initializing schema:", error);
       throw error;
+    }
+  }
+
+  async runMigrations() {
+    let currentVersion = await this.getDatabaseVersion();
+
+    if (currentVersion < TARGET_VERSION) {
+      await from1to2(this.db);
+    }
+
+    if (currentVersion < TARGET_VERSION) {
+      await this.setDatabaseVersion(TARGET_VERSION);
     }
   }
 }
@@ -189,7 +226,6 @@ export async function exportDb(db) {
     });
 
     await RNFS.mkdir(exportDir, { NSURLIsExcludedFromBackupKey: false });
-
     await RNFS.copyFile(dbPath, exportPath);
 
     if (dbWasOpen) {
@@ -199,7 +235,6 @@ export async function exportDb(db) {
     return exportPath;
   } catch (error) {
     console.error('Database export failed:', error);
-
     if (dbWasOpen) {
       try {
         await db.open();
@@ -207,7 +242,6 @@ export async function exportDb(db) {
         console.error('Failed to reopen database:', reopenError);
       }
     }
-
     throw error;
   }
 }
