@@ -17,7 +17,7 @@ The goal is to give you a better reading experience on your phone with features 
 - ~~Update notifications when new chapters come out~~ (Done !)
 - ~~Bookmarks~~ (Done !)
 - View and read comments
-- User profile pages
+- ~~User profile pages~~ (Done !)
 - Statistics screen
 - Download works to read offline
 
