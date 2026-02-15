@@ -5,6 +5,43 @@ export class LibraryDAO {
     this.db = db;
   }
 
+  // Private helper to map database rows to the Work model
+  async _mapWorkRow(row) {
+    const workData = {
+      id: row.id,
+      title: row.title,
+      author: row.author,
+      kudos: row.kudos,
+      hits: row.hits,
+      language: row.language,
+      updated: row.updated,
+      bookmarks: row.bookmarks,
+      description: row.description,
+      descriptionHTML: row.descriptionHTML, // Correctly mapped here
+      currentChapter: row.currentChapter,
+      chapterCount: row.chapterCount,
+      rating: row.rating,
+      category: row.category,
+      warningStatus: row.warningStatus,
+      isCompleted: row.isCompleted ? Boolean(row.isCompleted) : null,
+    };
+
+    // Get tags and warnings for this work
+    workData.tags = await this.getTagsForWork(row.id);
+    workData.warnings = await this.getWarningsForWork(row.id);
+
+    const libraryData = {
+      dateAdded: row.dateAdded,
+      collection: row.collection,
+      readIndex: row.readIndex,
+    };
+
+    return {
+      work: new Work(workData),
+      library: libraryData,
+    };
+  }
+
   async add(workId, collection = 'Default') {
     if (!workId) {
       throw new Error('Work ID is required');
@@ -83,10 +120,10 @@ export class LibraryDAO {
 
     const query = `
       SELECT l.*, w.* FROM library l
-                             JOIN works w ON l.workId = w.id
+      JOIN works w ON l.workId = w.id
       WHERE 1=1 ${whereClause}
-            ${orderBy}
-        LIMIT ? OFFSET ?
+      ${orderBy}
+      LIMIT ? OFFSET ?
     `;
 
     const [results] = await this.db.executeSql(query, [
@@ -98,38 +135,7 @@ export class LibraryDAO {
 
     for (let i = 0; i < results.rows.length; i++) {
       const row = results.rows.item(i);
-      const workData = {
-        id: row.id,
-        title: row.title,
-        author: row.author,
-        kudos: row.kudos,
-        hits: row.hits,
-        language: row.language,
-        updated: row.updated,
-        bookmarks: row.bookmarks,
-        description: row.description,
-        currentChapter: row.currentChapter,
-        chapterCount: row.chapterCount,
-        rating: row.rating,
-        category: row.category,
-        warningStatus: row.warningStatus,
-        isCompleted: row.isCompleted ? Boolean(row.isCompleted) : null,
-      };
-
-      // Get tags and warnings for this work
-      workData.tags = await this.getTagsForWork(row.id);
-      workData.warnings = await this.getWarningsForWork(row.id);
-
-      const libraryData = {
-        dateAdded: row.dateAdded,
-        collection: row.collection,
-        readIndex: row.readIndex,
-      };
-
-      works.push({
-        work: new Work(workData),
-        library: libraryData,
-      });
+      works.push(await this._mapWorkRow(row));
     }
 
     return works;
@@ -158,10 +164,10 @@ export class LibraryDAO {
 
   async getCollectionsWithCounts() {
     const [results] = await this.db.executeSql(`
-    SELECT collection, COUNT(*) as count FROM library 
-    GROUP BY collection 
-    ORDER BY count DESC
-  `);
+      SELECT collection, COUNT(*) as count FROM library 
+      GROUP BY collection 
+      ORDER BY count DESC
+    `);
     return Array.from({ length: results.rows.length }, (_, i) => ({
       name: results.rows.item(i).collection,
       count: results.rows.item(i).count,
@@ -189,7 +195,7 @@ export class LibraryDAO {
 
     const query = `
       SELECT COUNT(*) as total FROM library l
-                                      JOIN works w ON l.workId = w.id
+      JOIN works w ON l.workId = w.id
       WHERE 1=1 ${whereClause}
     `;
 
@@ -208,11 +214,9 @@ export class LibraryDAO {
   ) {
     const offset = (page - 1) * pageSize;
 
-    // Build WHERE clause for filters
     let whereClause = '';
     let whereParams = [];
 
-    // Add search conditions
     const searchPattern = `%${searchTerm}%`;
     whereClause += ` AND (
       w.title LIKE ? OR 
@@ -250,7 +254,6 @@ export class LibraryDAO {
       whereParams.push(endDate);
     }
 
-    // Build ORDER BY clause
     let orderBy = '';
     switch (sortType) {
       case 'lastRead':
@@ -268,10 +271,10 @@ export class LibraryDAO {
 
     const query = `
       SELECT l.*, w.* FROM library l
-                             JOIN works w ON l.workId = w.id
+      JOIN works w ON l.workId = w.id
       WHERE 1=1 ${whereClause}
-            ${orderBy}
-        LIMIT ? OFFSET ?
+      ${orderBy}
+      LIMIT ? OFFSET ?
     `;
 
     const [results] = await this.db.executeSql(query, [
@@ -283,39 +286,7 @@ export class LibraryDAO {
 
     for (let i = 0; i < results.rows.length; i++) {
       const row = results.rows.item(i);
-      const workData = {
-        id: row.id,
-        title: row.title,
-        author: row.author,
-        kudos: row.kudos,
-        hits: row.hits,
-        language: row.language,
-        updated: row.updated,
-        bookmarks: row.bookmarks,
-        description: row.description,
-        currentChapter: row.currentChapter,
-        chapterCount: row.chapterCount,
-        rating: row.rating,
-        category: row.category,
-        warningStatus: row.warningStatus,
-        isCompleted: row.isCompleted ? Boolean(row.isCompleted) : null,
-      };
-
-      // Get tags and warnings for this work
-      workData.tags = await this.getTagsForWork(row.id);
-      workData.warnings = await this.getWarningsForWork(row.id);
-
-      // Add library-specific data
-      const libraryData = {
-        dateAdded: row.dateAdded,
-        collection: row.collection,
-        readIndex: row.readIndex,
-      };
-
-      works.push({
-        work: new Work(workData),
-        library: libraryData,
-      });
+      works.push(await this._mapWorkRow(row));
     }
 
     return works;
@@ -330,7 +301,6 @@ export class LibraryDAO {
     let whereClause = '';
     let whereParams = [];
 
-    // Add search conditions
     const searchPattern = `%${searchTerm}%`;
     whereClause += ` AND (
       w.title LIKE ? OR 
@@ -370,7 +340,7 @@ export class LibraryDAO {
 
     const query = `
       SELECT COUNT(*) as total FROM library l
-                                      JOIN works w ON l.workId = w.id
+      JOIN works w ON l.workId = w.id
       WHERE 1=1 ${whereClause}
     `;
 
@@ -420,14 +390,13 @@ export class LibraryDAO {
     return results.rows.item(0).count > 0;
   }
 
-  // Helper methods to get tags and warnings (reused from WorkDAO)
   async getTagsForWork(workId) {
     const [results] = await this.db.executeSql(
       `
-      SELECT t.name FROM tags t
-                           JOIN work_tags wt ON t.id = wt.tagId
-      WHERE wt.workId = ?
-    `,
+        SELECT t.name FROM tags t
+                             JOIN work_tags wt ON t.id = wt.tagId
+        WHERE wt.workId = ?
+      `,
       [workId],
     );
 
@@ -441,7 +410,7 @@ export class LibraryDAO {
     const [results] = await this.db.executeSql(
       `
       SELECT w.name FROM warnings w
-                           JOIN work_warnings ww ON w.id = ww.warningId
+      JOIN work_warnings ww ON w.id = ww.warningId
       WHERE ww.workId = ?
     `,
       [workId],

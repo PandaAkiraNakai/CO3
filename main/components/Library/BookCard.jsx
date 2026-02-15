@@ -177,13 +177,15 @@ const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, wor
             ]}>
               {book.title}
             </Text>
-            <Text style={[
-              styles.author,
-              { color: theme.secondaryTextColor },
-              isSmall && styles.smallAuthor
-            ]}>
-              by {book.author}
-            </Text>
+            <TouchableOpacity>
+                <Text style={[
+                    styles.author,
+                    { color: theme.secondaryTextColor },
+                    isSmall && styles.smallAuthor
+                ]}>
+                    by {book.author}
+                </Text>
+            </TouchableOpacity>
           </View>
         </View>
 

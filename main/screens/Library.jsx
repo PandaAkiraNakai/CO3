@@ -238,6 +238,7 @@ const LibraryScreen = ({
       tags: work.tags,
       warnings: work.warnings,
       description: work.description,
+      descriptionHTML: work.descriptionHTML,
       lastUpdated: work.updated ? new Date(work.updated).toLocaleDateString() : 'Unknown',
       likes: work.kudos,
       bookmarks: work.bookmarks,
