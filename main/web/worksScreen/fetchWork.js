@@ -56,7 +56,6 @@ function extractWorkMetadata(doc) {
     hits: null
   };
 
-  // Find the main dl element with class "work meta group"
   const dlElements = doc.getElementsByTagName("dl");
   let metaDL = null;
   for (let i = 0; i < dlElements.length; i++) {
@@ -104,7 +103,6 @@ function extractWorkMetadata(doc) {
         }
       }
     } else if (dtClass === "stats") {
-      // Handle nested stats dl
       const statsDL = ddElement.getElementsByTagName("dl")?.[0];
       if (statsDL) {
         const statsDTs = statsDL.getElementsByTagName("dt");
@@ -127,7 +125,6 @@ function extractWorkMetadata(doc) {
           } else if (statClass === "kudos") {
             result.kudos = parseInt(statText?.replace(/,/g, '') || '0', 10) || 0;
           } else if (statClass === "bookmarks") {
-            // Check if bookmarks is a link
             const bookmarkLink = statsDDs[j].getElementsByTagName("a")?.[0];
             const bookmarkText = bookmarkLink ? getElementText(bookmarkLink) : statText;
             result.bookmarks = parseInt(bookmarkText?.replace(/,/g, '') || '0', 10) || 0;
@@ -227,13 +224,33 @@ export function extractWorkContent(doc) {
   return result;
 }
 
-export async function fetchWorkFromWorkID(workId) {
+export async function fetchWorkFromWorkID(workId, workDAO, chapterDAO, force = false) {
   try {
-    const url = `https://archiveofourown.org/works/${workId}?view_adult=true`;
+    if (!force) {
+      const cachedWork = await workDAO.get(workId);
 
-    console.log(`Fetching work from: ${url}`);
+      if (cachedWork) {
+        const cachedChapters = await chapterDAO.getChaptersForWork(workId);
+
+        if (cachedChapters && cachedChapters.length > 0) {
+          console.log(
+            `[Cache] Returning complete work ${workId} with ${cachedChapters.length} chapters.`,
+          );
+          cachedWork.chapters = cachedChapters;
+          return cachedWork;
+        } else {
+          console.log(
+            `[Cache] Work ${workId} exists, but has NO chapters. Fetching from web...`,
+          );
+        }
+      }
+    }
+
+    const url = `https://archiveofourown.org/works/${workId}?view_adult=true`;
+    console.log(`[Web] Fetching work from: ${url}`);
+
     const response = await ky.get(url).text();
-    const doc = new DomParser().parseFromString(response, "text/html");
+    const doc = new DomParser().parseFromString(response, 'text/html');
 
     if (!doc) {
       console.error(`Failed to parse HTML for work ${workId}`);
@@ -242,57 +259,75 @@ export async function fetchWorkFromWorkID(workId) {
 
     const metadata = extractWorkMetadata(doc);
     const content = extractWorkContent(doc);
-    let chapters = (await getJsonSettings()).showChapterDate ? await fetchChapters(workId) : extractChapters(doc);
 
-    if (!chapters || chapters.length === 0) {
-      console.log("No chapters found. Assuming One-Shot.");
-      chapters = [{
-        id: workId,
-        workId: workId,
-        number: 1,
-        name: "One-shot",
-        date: metadata.published ? new Date(metadata.published).toISOString().split('T')[0] : null
-      }];
+    let rawChapters = (await getJsonSettings()).showChapterDate
+      ? await fetchChapters(workId)
+      : extractChapters(doc);
+
+    if (!rawChapters || rawChapters.length === 0) {
+      console.log('No chapters found in dropdown. Assuming One-Shot.');
+      rawChapters = [
+        {
+          id: -parseInt(workId, 10),
+          workId: workId,
+          number: 1,
+          name: content.title || 'One-shot',
+          date: metadata.published
+            ? new Date(metadata.published).getTime()
+            : Date.now(),
+        },
+      ];
     }
 
-    const chapterInfo = parseChapters(metadata.chapters);
+    const cleanChapters = rawChapters.map((ch, index) => ({
+      id: ch.id,
+      workId: workId,
+      number: ch.number || index + 1,
+      name: ch.name || `Chapter ${index + 1}`,
+      date: ch.date ? new Date(ch.date).getTime() : Date.now(),
+    }));
 
-    // Determine completion status
+    const chapterInfo = parseChapters(metadata.chapters);
     const isCompleted = metadata.completed !== null;
 
-    // Determine warning status
-    const warningStatus = metadata.warnings.length > 0 &&
-    metadata.warnings.some(warning => warning.includes("Choose Not To Use Archive Warnings"))
-      ? "Choose Not To Use Archive Warnings"
-      : metadata.warnings.length > 0 ? "Yes" : "No";
-
-    let fullDescriptionHTML = "";
+    const warningStatus = metadata.warnings.some(w =>
+      w.includes('Choose Not To Use Archive Warnings'),
+    )
+      ? 'Choose Not To Use Archive Warnings'
+      : metadata.warnings.length > 0
+      ? 'Yes'
+      : 'No';
 
     const work = new Work({
       id: workId,
-      title: content.title || null,
-      author: content.author || null,
+      title: content.title || 'Unknown Title',
+      author: content.author || 'Anonymous',
       kudos: metadata.kudos || 0,
       hits: metadata.hits || 0,
-      language: metadata.language || null,
-      updated: metadata.completed || metadata.published || null,
+      language: metadata.language || 'English',
+      updated: metadata.published || Date.now(),
       bookmarks: metadata.bookmarks || 0,
       tags: metadata.tags || [],
       warnings: metadata.warnings || [],
-      description: content.summary || null,
-      descriptionHTML: content.summaryHTML.toString() || null,
-      chapters: chapters,
+      description: content.summary || '',
+      descriptionHTML: content.summaryHTML || '',
+      chapters: cleanChapters,
       currentChapter: chapterInfo.current,
-      chapterCount: chapterInfo.total || chapters.length,
-      rating: metadata.rating || null,
-      category: metadata.category || null,
+      chapterCount: chapterInfo.total || cleanChapters.length,
+      rating: metadata.rating || 'Not Rated',
+      category: metadata.category || 'None',
       warningStatus: warningStatus,
-      isCompleted: isCompleted
+      isCompleted: isCompleted ? 1 : 0,
     });
 
-    console.log(`Successfully fetched work: ${content.title || 'Unknown Title'}`);
-    return work;
+    console.log(`[DB] Updating Work Metadata...`);
+    await workDAO.add(work);
 
+    console.log(`[DB] Syncing ${cleanChapters.length} chapters...`);
+    await chapterDAO.syncChaptersForWork(workId, cleanChapters);
+
+    console.log(`Successfully fetched and cached: ${work.title}`);
+    return work;
   } catch (error) {
     console.error(`Error fetching work ${workId}:`, error);
     return null;

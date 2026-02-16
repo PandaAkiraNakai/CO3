@@ -43,7 +43,6 @@ export default async function sendKudo(workId) {
       return true;
     }
 
-    // Alternative check: look at response text for success indicators
     const responseText = await response.text();
     if (
       responseText.includes('Thank you for leaving kudos!') ||

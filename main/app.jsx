@@ -45,6 +45,7 @@ import { getJsonSettings } from './storage/jsonSettings';
 import { UpdateDAO } from './storage/dao/UpdateDAO';
 import notifee from '@notifee/react-native';
 import { Linking } from 'react-native';
+import { ChapterDAO } from './storage/dao/ChapterDAO';
 
 const AppWrapper = () => {
   return (
@@ -166,6 +167,7 @@ const App = () => {
   const [kudoDAO, setKudoDAO] = useState(null);
   const [kudoHistoryDAO, setKudoHistoryDAO] = useState(null);
   const [updateDAO, setupdateDAO] = useState(null);
+  const [chapterDAO, setChapterDAO] = useState(null);
 
   const [screens, setScreens] = useState([]);
 
@@ -216,6 +218,7 @@ const App = () => {
           kudoHistoryDAO={kudoHistoryDAO}
           openTagSearch={openTagSearch}
           url={url}
+          chapterDAO={chapterDAO}
         />
       ]);
     };
@@ -258,9 +261,7 @@ const App = () => {
         if (initialNotification.notification.id === 'updateComplete') {
           setActiveScreen('update');
         } else if (initialNotification.notification.data?.action === 'OPEN_WORK') {
-          // Handle cold start from individual notification
           const { workId, chapterId } = initialNotification.notification.data;
-          // We need to wait for DB to init, so we might need a small delay or check
           setTimeout(() => handleNotificationOpen(workId, chapterId), 1000);
         }
       }
@@ -283,7 +284,7 @@ const App = () => {
 
     try {
       const { fetchWorkFromWorkID } = require('./web/worksScreen/fetchWork');
-      const work = await fetchWorkFromWorkID(workId);
+      const work = await fetchWorkFromWorkID(workId, workDAO, chapterDAO);
 
       if (!work) return;
 
@@ -318,6 +319,7 @@ const App = () => {
           kudoHistoryDAO={ctx.kudoHistoryDAO}
           openTagSearch={openTagSearch}
           loadChapter={loadChapterIndex}
+          chapterDAO={ctx.chapterDAO}
         />
       ]);
 
@@ -373,6 +375,7 @@ const App = () => {
       const newProgressDAO = new ProgressDAO(db);
       const newKudoHistoryDAO = new KudoHistoryDAO(db);
       const newUpdateDAO = new UpdateDAO(db);
+      const newChapterDAO = new ChapterDAO(db);
 
       setDatabaseObj(db)
       setWorkDAO(newWorkDAO);
@@ -382,6 +385,7 @@ const App = () => {
       setProgressDAO(newProgressDAO);
       setKudoHistoryDAO(newKudoHistoryDAO)
       setupdateDAO(newUpdateDAO);
+      setChapterDAO(newChapterDAO);
 
       const loadedSettings = await newSettingsDAO.getSettings();
       setTheme(loadedSettings.theme);
@@ -521,6 +525,7 @@ const App = () => {
       setSelectedTag,
       updateDAO,
       databaseObj,
+      chapterDAO
     };
 
     switch (activeScreen) {

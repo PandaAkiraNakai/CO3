@@ -101,45 +101,6 @@ export class WorkDAO {
     return works;
   }
 
-  async get(id) {
-    const [results] = await this.db.executeSql(
-      'SELECT * FROM works WHERE id = ?',
-      [id],
-    );
-    if (results.rows.length === 0) return null;
-
-    const workData = results.rows.item(0);
-    workData.tags = await this.getTagsForWork(id);
-    workData.warnings = await this.getWarningsForWork(id);
-
-    return new Work({
-      ...workData,
-      isCompleted: workData.isCompleted ? Boolean(workData.isCompleted) : null,
-    });
-  }
-
-  async getAll() {
-    const [results] = await this.db.executeSql('SELECT * FROM works');
-    const works = [];
-
-    for (let i = 0; i < results.rows.length; i++) {
-      const workData = results.rows.item(i);
-      workData.tags = await this.getTagsForWork(workData.id);
-      workData.warnings = await this.getWarningsForWork(workData.id);
-
-      works.push(
-        new Work({
-          ...workData,
-          isCompleted: workData.isCompleted
-            ? Boolean(workData.isCompleted)
-            : null,
-        }),
-      );
-    }
-
-    return works;
-  }
-
   async update(work) {
     const {
       id,

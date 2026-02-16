@@ -34,9 +34,12 @@ import { getJsonSettings } from '../storage/jsonSettings';
 import UserInfoScreen from './UserInfo';
 import HtmlTextRenderer from '../components/common/HtmlTextRenderer';
 import Animated, {
+  Extrapolate,
+  Extrapolation,
+  interpolate,
   useAnimatedStyle,
   useSharedValue,
-  withTiming
+  withTiming,
 } from 'react-native-reanimated';
 import { processQueue } from '../downloads/DownloadManager';
 import {
@@ -47,6 +50,7 @@ import {
   deleteDownloaded,
   isDownloaded,
 } from '../downloads/Downloader';
+import { WorkDescription } from '../components/WorkScreen/DescriptionComponent';
 
 const ITEM_HEIGHT_COMPACT = 56;
 const ITEM_HEIGHT_EXPANDED = 72;
@@ -106,11 +110,20 @@ const ChapterItem = React.memo(({ chapter, index, currentTheme, onPress, showDat
       }
     });
 
+    const rSub = DeviceEventEmitter.addListener('chapter_deleted', (data) => {
+      if (isMounted.current && String(data.chapterId) === String(chapter.id)) {
+        setIsInQueue(false);
+        setIsDownloadedFile(!data.success);
+        if (!data.success) setHasFailed(true);
+      }
+    });
+
     return () => {
       isMounted.current = false;
       qSub.remove();
       fSub.remove();
       cSub.remove();
+      rSub.remove();
     };
   }, [chapter.id, chapter.workId]);
 
@@ -153,7 +166,7 @@ const ChapterItem = React.memo(({ chapter, index, currentTheme, onPress, showDat
 
   const renderDownloadIcon = () => {
     if (isInQueue) return <ActivityIndicator size="small" color={currentTheme.primaryColor} />;
-    if (isDownloadedFile && showDelete) return <Icon name="delete" size={24} color={'#ef4444'} />;
+    if (isDownloadedFile && showDelete) return <Icon name="delete" size={24} color={currentTheme.warningBackground} />;
     if (isDownloadedFile) return <Icon name="check-circle" size={24} color={currentTheme.primaryColor} />;
     if (hasFailed) return <Icon name="error-outline" size={24} color="#ef4444" />;
     return <Icon name="download" size={24} color={currentTheme.secondaryTextColor} />;
@@ -312,7 +325,8 @@ const ChapterInfoScreen = ({
                              loadChapter,
                              kudoHistoryDAO,
                              openTagSearch,
-                             url
+                             url,
+                             chapterDAO
                            }) => {
   const [work, setWork] = useState(null);
   const [chapters, setChapters] = useState([]);
@@ -411,6 +425,7 @@ const ChapterInfoScreen = ({
       }
 
       await libraryDAO.add(workId, collection);
+
       setInLibrary(true);
       showToast(
         `Added to library${collection !== 'Default' ? ` in "${collection}"` : ''}`,
@@ -432,7 +447,7 @@ const ChapterInfoScreen = ({
       setError(null);
 
       const [workData, progressData] = await Promise.all([
-        fetchWorkFromWorkID(workId),
+        fetchWorkFromWorkID(workId, workDAO, chapterDAO),
         progressDAO.getProgressList(workId),
       ]);
 
@@ -505,6 +520,7 @@ const ChapterInfoScreen = ({
                   openTagSearch={openTagSearch}
                   loadChapter={null}
                   url={null}
+                  chapterDAO={chapterDAO}
                 />
               );
 
@@ -774,7 +790,7 @@ const ChapterInfoScreen = ({
 
           <TouchableOpacity
             style={styles.menuItem}
-            onPress={handleMarkForLater}
+            onPress={deleteAllChapters}
           >
             <Icon name="delete" size={20} color={currentTheme.textColor} />
             <Text style={[styles.menuItemText, { color: currentTheme.textColor }]}>Delete all</Text>
@@ -783,75 +799,6 @@ const ChapterInfoScreen = ({
       </Pressable>
     </Modal>
   );
-
-
-  const COLLAPSED_HEIGHT = 90;
-  const [contentHeight, setContentHeight] = useState(0); // Measure actual size
-  const animatedHeight = useSharedValue(COLLAPSED_HEIGHT);
-
-  const toggleDescription = () => {
-    const isOpening = !isDescriptionExpanded;
-
-    animatedHeight.value = withTiming(isOpening ? contentHeight : COLLAPSED_HEIGHT, {
-      duration: 300
-    });
-
-    setIsDescriptionExpanded(isOpening);
-  };
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    height: animatedHeight.value,
-    overflow: 'hidden',
-  }));
-
-  const renderDescription = () => {
-    if (!work?.description) return null;
-
-    const isLongDescription = work.description.length > 150;
-
-    return (
-      <View style={styles.descriptionContainer}>
-        <Animated.View style={[styles.descriptionWrapper, animatedStyle]}>
-          <View
-            style={styles.innerContent}
-            onLayout={(e) => {
-              const height = e.nativeEvent.layout.height;
-              // Only update if height is valid and different to prevent loops
-              if (height > 0 && Math.abs(height - contentHeight) > 1) {
-                setContentHeight(height);
-              }
-            }}
-          >
-            {jsonSettings?.preferHtml ? (
-              <HtmlTextRenderer currentTheme={currentTheme} html={work.descriptionHTML} />
-            ) : (
-              <Text style={[styles.description, { color: currentTheme.textColor }]}>
-                {work.description}
-              </Text>
-            )}
-          </View>
-
-          {!isDescriptionExpanded && isLongDescription && (
-            <LinearGradient
-              colors={[`${currentTheme.backgroundColor}00`, currentTheme.backgroundColor]}
-              style={styles.descriptionGradient}
-              pointerEvents="none"
-            />
-          )}
-        </Animated.View>
-
-        {isLongDescription && (
-          <TouchableOpacity style={styles.expandButton} onPress={toggleDescription}>
-            <Icon
-              name={isDescriptionExpanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
-              size={32}
-              color={currentTheme.primaryColor}
-            />
-          </TouchableOpacity>
-        )}
-      </View>
-    );
-  };
 
   const renderActionButtons = () => (
     <View style={styles.actionButtonsContainer}>
@@ -959,6 +906,7 @@ const ChapterInfoScreen = ({
               kudoHistoryDAO={kudoHistoryDAO}
               libraryDAO={libraryDAO}
               workDAO={workDAO}
+              chapterDAO={chapterDAO}
             />
           ]})
         }}
@@ -969,7 +917,11 @@ const ChapterInfoScreen = ({
       </TouchableOpacity>
 
       {renderActionButtons()}
-      {renderDescription()}
+      <WorkDescription
+        work={work}
+        currentTheme={currentTheme}
+        jsonSettings={jsonSettings}
+      />
 
       <View style={[styles.sectionHeader, { borderBottomColor: currentTheme.borderColor, marginTop: 8 }]}>
         <Text style={[styles.sectionTitle, { color: currentTheme.textColor }]}>
@@ -1078,15 +1030,25 @@ const ChapterInfoScreen = ({
     if (chapToDl.length > 0) {
       console.log(`Adding ${chapToDl.length} chapters to queue.`);
       await addToDownloadQueue(chapToDl);
+      showToast(`Added ${chapToDl.length} chapters to dl list.`, 'success');
       await processQueue();
     } else {
-      showToast("No new chapters to download", 'info');
+      showToast("No new chapters to download", 'error');
     }
 
     setDownloadMenuVisible(false);
   }
 
-  const continueReading = async function() {
+  async function deleteAllChapters() {
+    setDownloadMenuVisible(false);
+    for (const chapter of chapters) {
+      if (await isDownloaded(workId, chapter.id)) {
+        await deleteDownloaded(workId, chapter.id);
+      }
+    }
+  }
+
+  const continueReading = async function()  {
     setIsLoadingContinue(true);
 
     const result = await getContinueChapter();
@@ -1230,14 +1192,26 @@ const styles = StyleSheet.create({
     lineHeight: 14,
   },
   descriptionContainer: {
-    marginBottom: 8,
     marginTop: 10,
-    paddingHorizontal: 8,
+    paddingHorizontal: 16,
+    position: 'relative',
+    // Ensure no 'flex: 1' here usually
+  },
+  hiddenMeasurer: {
+    position: 'absolute',
+    top: 0,
+    left: 16, // Must match paddingHorizontal of container
+    right: 16,
+    opacity: 0,
+    zIndex: -10,
   },
   descriptionWrapper: {
-    position: 'relative',
     width: '100%',
-    overflow: 'hidden',
+    overflow: 'hidden', // Essential for the fold effect
+    position: 'relative',
+  },
+  contentPadding: {
+    paddingBottom: 10,
   },
   innerContent: {
     position: 'absolute',
@@ -1261,13 +1235,15 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 50,
+    height: 60,
+    zIndex: 2,
   },
   expandButton: {
     alignSelf: 'center',
-    padding: 8,
-    marginTop: -15,
-    zIndex: 1,
+    paddingVertical: 4,
+    width: '100%',
+    alignItems: 'center',
+    zIndex: 10,
   },
   chaptersListContentContainer: {
     paddingBottom: 16,

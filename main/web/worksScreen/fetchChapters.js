@@ -42,7 +42,6 @@ function parseChapterElements(chapterElements, workId) {
       }
     }
 
-    // Clean up date text - remove parentheses
     const cleanDate = dateText ? dateText.replace(/[()]/g, '') : null;
 
     return new Chapter({
@@ -62,14 +61,12 @@ export async function fetchChapters(workId) {
     const response = await ky.get(url).text();
     const doc = new DomParser().parseFromString(response, "text/html");
 
-    // Find the chapter index list
     const chapterList = doc.getElementsByClassName("chapter index group")[0];
     if (!chapterList) {
       console.log("No chapter list found");
       return [];
     }
 
-    // Get all list items from the chapter list
     const chapterElements = Array.from(chapterList.getElementsByTagName("li"));
 
     const chapters = parseChapterElements(chapterElements, workId);

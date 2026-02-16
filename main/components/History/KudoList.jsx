@@ -14,6 +14,7 @@ const KudoHistoryList = ({
   historyDAO,
   progressDAO,
   kudoHistoryDAO,
+  chapterDAO
 }) => {
   const groupHistoryByDate = historyItems => {
     if (!historyItems || historyItems.length === 0) {
@@ -39,7 +40,6 @@ const KudoHistoryList = ({
       {groupHistoryByDate(history).map(([dateKey, items]) => (
         <View key={dateKey} style={styles.dateGroup}>
           <Text style={[styles.dateHeader, { color: currentTheme.textColor }]}>
-            {/* This part correctly formats the valid dateKey for display */}
             {new Date(dateKey).toLocaleDateString('en-US', {
               weekday: 'long',
               year: 'numeric',
@@ -60,12 +60,12 @@ const KudoHistoryList = ({
               progressDAO={progressDAO}
               kudoHistoryDAO={kudoHistoryDAO}
               hasChapter={false}
+              chapterDAO={chapterDAO}
             />
           ))}
         </View>
       ))}
 
-      {/* Loading indicator for pagination */}
       {loadingMore && (
         <View style={styles.loadingMore}>
           <ActivityIndicator size="small" color={currentTheme.primaryColor} />
@@ -80,7 +80,6 @@ const KudoHistoryList = ({
         </View>
       )}
 
-      {/* End of list message */}
       {!hasMore && history.length > 0 && (
         <View style={styles.endOfList}>
           <Text

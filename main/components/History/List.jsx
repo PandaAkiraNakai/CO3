@@ -14,6 +14,7 @@ const HistoryList = ({
   historyDAO,
   progressDAO,
   kudoHistoryDAO,
+  chapterDAO
 }) => {
   const groupHistoryByDate = historyItems => {
     if (!historyItems || historyItems.length === 0) {
@@ -39,7 +40,6 @@ const HistoryList = ({
       {groupHistoryByDate(history).map(([dateKey, items]) => (
         <View key={dateKey} style={styles.dateGroup}>
           <Text style={[styles.dateHeader, { color: currentTheme.textColor }]}>
-            {/* This part correctly formats the valid dateKey for display */}
             {new Date(dateKey).toLocaleDateString('en-US', {
               weekday: 'long',
               year: 'numeric',
@@ -59,6 +59,7 @@ const HistoryList = ({
               historyDAO={historyDAO}
               progressDAO={progressDAO}
               kudoHistoryDAO={kudoHistoryDAO}
+              chapterDAO={chapterDAO}
             />
           ))}
         </View>

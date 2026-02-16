@@ -42,7 +42,7 @@ const imageMappings = {
   },
 };
 
-const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, workDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, openTagSearch, showDate = true, jsonSettings }) => {
+const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, workDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, openTagSearch, showDate = true, jsonSettings, chapterDAO }) => {
   const [isMainModalOpen, setIsMainModalOpen] = useState(false);
   const [isAllTagsModalOpen, setIsAllTagsModalOpen] = useState(false);
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
@@ -100,6 +100,7 @@ const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, wor
               progressDAO={progressDAO}
               kudoHistoryDAO={kudoHistoryDAO}
               openTagSearch={openTagSearch}
+              chapterDAO={chapterDAO}
             />
           ])}}
           onLongPress={() => {
@@ -190,6 +191,7 @@ const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, wor
                 settingsDAO={settingsDAO}
                 progressDAO={progressDAO}
                 kudoHistoryDAO={kudoHistoryDAO}
+                chapterDAO={chapterDAO}
               />])
             }}>
                 <Text style={[

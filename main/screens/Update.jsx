@@ -25,6 +25,7 @@ const UpdateScreen = ({
   kudoHistoryDAO,
   openTagSearch,
   databaseObj,
+  chapterDAO,
 }) => {
   const [updates, setUpdates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -111,13 +112,11 @@ const UpdateScreen = ({
     return groups;
   };
 
-  // UPDATED: Now calculates the index before opening
   const handleUpdatePress = async update => {
     let loadChapterIndex = null;
 
     if (update.chapterNumber) {
       try {
-        // 1. Get the work from DB to find the specific index of this chapter number
         const work = await workDAO.get(update.workId);
 
         if (work && work.chapters) {
@@ -127,18 +126,15 @@ const UpdateScreen = ({
           if (idx !== -1) {
             loadChapterIndex = idx;
           } else {
-            // Fallback if numbers are sequential
             loadChapterIndex = targetNum - 1;
           }
         }
       } catch (e) {
         console.log('Error finding chapter index', e);
-        // Fallback
         loadChapterIndex = update.chapterNumber - 1;
       }
     }
 
-    // Use functional update (prev => ...) to ensure we don't use stale state after the async await
     setScreens(prev => [
       ...prev,
       <ChapterInfoScreen
@@ -153,7 +149,8 @@ const UpdateScreen = ({
         progressDAO={progressDAO}
         kudoHistoryDAO={kudoHistoryDAO}
         openTagSearch={openTagSearch}
-        loadChapter={loadChapterIndex} // Pass the calculated index
+        loadChapter={loadChapterIndex}
+        chapterDAO={chapterDAO}
       />,
     ]);
   };

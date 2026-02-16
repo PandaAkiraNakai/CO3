@@ -2,6 +2,7 @@ import notifee, { AndroidImportance } from '@notifee/react-native';
 import { popNextDownload, peekNextDownload, getDownloadQueue } from './DownloadQueue';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DeviceEventEmitter } from 'react-native';
+import { downloadChapter } from './Downloader';
 
 const FAILED_LIST_KEY = 'failedDownloads';
 const CHANNEL_ID = 'download_channel';

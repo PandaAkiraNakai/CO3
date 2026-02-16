@@ -35,7 +35,8 @@ const MoreScreen = ({
   historyDAO,
   progressDAO,
   kudoHistoryDAO,
-  databaseObj
+  databaseObj,
+  chapterDAO
 }) => {
   const insets = useSafeAreaInsets();
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -84,6 +85,7 @@ const MoreScreen = ({
             settingsDAO={settingsDAO}
             progressDAO={progressDAO}
             kudoHistoryDAO={kudoHistoryDAO}
+            chapterDAO={chapterDAO}
           />,
         ]);
         break;
@@ -100,6 +102,7 @@ const MoreScreen = ({
             settingsDAO={settingsDAO}
             progressDAO={progressDAO}
             kudoHistoryDAO={kudoHistoryDAO}
+            chapterDAO={chapterDAO}
           />,
         ]);
         break;
@@ -116,6 +119,7 @@ const MoreScreen = ({
             settingsDAO={settingsDAO}
             progressDAO={progressDAO}
             kudoHistoryDAO={kudoHistoryDAO}
+            chapterDAO={chapterDAO}
           />,
         ]);
         break;

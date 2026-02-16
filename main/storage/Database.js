@@ -1,11 +1,11 @@
 import SQLite from 'react-native-sqlite-storage';
 import RNFS from 'react-native-fs';
 import { Platform } from 'react-native';
-import { from1to2 } from './dbMigration';
+import { from1to2, from2to3 } from './dbMigration';
 
 SQLite.enablePromise(true);
 
-const TARGET_VERSION = 2;
+const TARGET_VERSION = 3;
 
 let instance = null;
 
@@ -80,13 +80,13 @@ class Database {
         isCompleted INTEGER
       );`,
       `CREATE TABLE IF NOT EXISTS chapters (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id INTEGER PRIMARY KEY,
         workId TEXT NOT NULL,
         number INTEGER NOT NULL,
         name TEXT,
         date INTEGER,
         FOREIGN KEY (workId) REFERENCES works (id) ON DELETE CASCADE
-      );`,
+        );`,
       `CREATE TABLE IF NOT EXISTS progress_entries (
         workId TEXT NOT NULL,
         chapterID INTEGER NOT NULL,
@@ -188,13 +188,15 @@ class Database {
   async runMigrations() {
     let currentVersion = await this.getDatabaseVersion();
 
-    if (currentVersion < TARGET_VERSION) {
+    if (currentVersion < 2) {
       await from1to2(this.db);
     }
 
-    if (currentVersion < TARGET_VERSION) {
-      await this.setDatabaseVersion(TARGET_VERSION);
+    if (currentVersion < 3) {
+      await from2to3(this.db);
     }
+
+    await this.setDatabaseVersion(TARGET_VERSION);
   }
 }
 

@@ -24,7 +24,8 @@ export default function BookmarksScreen({
   settingsDAO,
   progressDAO,
   kudoHistoryDAO,
-  username
+  username,
+  chapterDAO,
 }) {
   const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -140,6 +141,7 @@ export default function BookmarksScreen({
       kudoHistoryDAO={kudoHistoryDAO}
       openTagSearch={openTagSearch}
       showDate={false}
+      chapterDAO={chapterDAO}
     />
   );
 

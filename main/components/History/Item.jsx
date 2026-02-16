@@ -13,6 +13,7 @@ const HistoryItem = ({
   progressDAO,
   kudoHistoryDAO,
   hasChapter = true,
+  chapterDAO,
 }) => {
   console.log(item.date);
 
@@ -68,6 +69,7 @@ const HistoryItem = ({
           progressDAO={progressDAO}
           loadChapter={item.chapter || item.chapterEnd || 0}
           kudoHistoryDAO={kudoHistoryDAO}
+          chapterDAO={chapterDAO}
         />,
       ]);
     } else {
@@ -83,6 +85,7 @@ const HistoryItem = ({
           historyDAO={historyDAO}
           progressDAO={progressDAO}
           kudoHistoryDAO={kudoHistoryDAO}
+          chapterDAO={chapterDAO}
         />,
       ]);
     }
@@ -101,13 +104,11 @@ const HistoryItem = ({
             style={[styles.bookTitle, { color: currentTheme.textColor }]}
             numberOfLines={1}
           >
-            {/* Use item.book_title if available (from joined data), otherwise fallback */}
             {item.book_title || 'Unknown Book'}
           </Text>
           <Text
             style={[styles.readTime, { color: currentTheme.placeholderColor }]}
           >
-            {/* Use item.date from the History model */}
             {formatDate(item.date)}
           </Text>
         </View>
@@ -116,7 +117,6 @@ const HistoryItem = ({
           style={[styles.bookAuthor, { color: currentTheme.placeholderColor }]}
           numberOfLines={1}
         >
-          {/* Use item.book_author if available, otherwise fallback */}
           by {item.book_author || 'Unknown Author'}
         </Text>
 
@@ -125,7 +125,6 @@ const HistoryItem = ({
             <Text
               style={[styles.chapterText, { color: currentTheme.primaryColor }]}
             >
-              {/* Use item.chapter and item.chapterEnd from the History model */}
               {formatChapterRange(item.chapter, item.chapterEnd)}
             </Text>
           </View>

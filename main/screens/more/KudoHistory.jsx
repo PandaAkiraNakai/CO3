@@ -25,6 +25,7 @@ const KudoHistoryScreen = ({
   settingsDAO,
   progressDAO,
   kudoHistoryDAO,
+  chapterDAO
 }) => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -364,6 +365,7 @@ const KudoHistoryScreen = ({
               historyDAO={historyDAO}
               progressDAO={progressDAO}
               kudoHistoryDAO={kudoHistoryDAO}
+              chapterDAO={chapterDAO}
             />
           )}
         </View>

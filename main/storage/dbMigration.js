@@ -24,3 +24,41 @@ export async function from1to2(db) {
     throw error;
   }
 }
+
+export async function from2to3(db) {
+  console.log("Migrating database from version 2 to 3...");
+  try {
+    await db.executeSql("PRAGMA foreign_keys = OFF;");
+
+    await db.executeSql("DROP TABLE IF EXISTS chapters;");
+    await db.executeSql("DROP TABLE IF EXISTS chapters_old;");
+    await db.executeSql("DROP INDEX IF EXISTS idx_chapters_workId;");
+
+    await db.executeSql(`
+      CREATE TABLE chapters (
+                              id INTEGER PRIMARY KEY,
+                              workId TEXT NOT NULL,
+                              number INTEGER NOT NULL,
+                              name TEXT,
+                              date INTEGER,
+                              FOREIGN KEY (workId) REFERENCES works (id) ON DELETE CASCADE
+      );
+    `);
+
+    await db.executeSql(
+      "CREATE INDEX idx_chapters_workId ON chapters (workId);"
+    );
+
+    await db.executeSql("PRAGMA foreign_keys = ON;");
+
+    console.log("Migration to version 3 complete.");
+  } catch (error) {
+    console.error("Migration from2to3 failed:", error);
+    try {
+      await db.executeSql("PRAGMA foreign_keys = ON;");
+    } catch (fkError) {
+      console.error("Failed to re-enable foreign keys:", fkError);
+    }
+    throw error;
+  }
+}

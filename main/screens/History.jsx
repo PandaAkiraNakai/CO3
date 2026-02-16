@@ -25,6 +25,7 @@ const HistoryScreen = ({
   settingsDAO,
   progressDAO,
   kudoHistoryDAO,
+  chapterDAO
 }) => {
   const insets = useSafeAreaInsets();
 
@@ -342,6 +343,7 @@ const HistoryScreen = ({
               historyDAO={historyDAO}
               progressDAO={progressDAO}
               kudoHistoryDAO={kudoHistoryDAO}
+              chapterDAO={chapterDAO}
             />
           )}
         </View>

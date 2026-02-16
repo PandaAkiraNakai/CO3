@@ -61,7 +61,7 @@ const ClearIcon = ({ color, size }) => (
   </View>
 );
 
-const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, libraryDAO, workDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, openTagSearch, selectedTag, setSelectedTag }) => {
+const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, libraryDAO, workDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, openTagSearch, selectedTag, setSelectedTag, chapterDAO }) => {
   const insets = useSafeAreaInsets();
 
   const [works, setWorks] = useState([]);
@@ -282,6 +282,7 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
       kudoHistoryDAO={kudoHistoryDAO}
       openTagSearch={openTagSearch}
       jsonSettings={jsonSettings}
+      chapterDAO={chapterDAO}
     />
   );
 

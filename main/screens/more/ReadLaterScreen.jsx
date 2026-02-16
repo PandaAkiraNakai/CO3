@@ -25,6 +25,7 @@ export default function ReadLaterScreen({
   progressDAO,
   kudoHistoryDAO,
   screens,
+  chapterDAO,
 }) {
   const [entries, setentries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -141,6 +142,7 @@ export default function ReadLaterScreen({
       kudoHistoryDAO={kudoHistoryDAO}
       openTagSearch={openTagSearch}
       showDate={false}
+      chapterDAO={chapterDAO}
     />
   );
 

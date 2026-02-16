@@ -43,7 +43,18 @@ export const getDownloaded = async (workId, chapterId) => {
 }
 
 export const deleteDownloaded = async (workId, chapterId) => {
-  const path = buildPath(workId, chapterId);
-  await RNFS.unlink(path + '.html');
-  await RNFS.unlink(path + '.css');
+  try {
+    const path = buildPath(workId, chapterId);
+    await RNFS.unlink(path + '.html');
+    await RNFS.unlink(path + '.css');
+    DeviceEventEmitter.emit('chapter_deleted', {
+      chapterId: String(chapterId),
+      success: true,
+    });
+  } catch (err) {
+    DeviceEventEmitter.emit('chapter_deleted', {
+      chapterId: String(chapterId),
+      success: false,
+    });
+  }
 }

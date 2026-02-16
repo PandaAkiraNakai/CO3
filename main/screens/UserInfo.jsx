@@ -27,6 +27,7 @@ export default function UserInfoScreen({
                                          settingsDAO,
                                          progressDAO,
                                          kudoHistoryDAO,
+                                         chapterDAO,
                                        }) {
   const [userInfo, setUserInfo] = useState();
   const [error, setError] = useState(false);
@@ -144,6 +145,7 @@ export default function UserInfoScreen({
                                       kudoHistoryDAO={kudoHistoryDAO}
                                       currentTheme={currentTheme}
                                       username={username}
+                                      chapterDAO={chapterDAO}
                                   />])
                                 }}>
                 <Text style={[styles.bookMarkButtonText, { color: currentTheme.textColor, }]}>
@@ -163,6 +165,7 @@ export default function UserInfoScreen({
                                     kudoHistoryDAO={kudoHistoryDAO}
                                     currentTheme={currentTheme}
                                     username={username}
+                                    chapterDAO={chapterDAO}
                                   />])
                                 }}>
                 <Text style={[styles.bookMarkButtonText, { color: currentTheme.textColor, }]}>

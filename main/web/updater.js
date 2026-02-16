@@ -180,7 +180,7 @@ export const run = async () => {
           if (!useCompactNotification && newChapterNumbers.length > 0) {
             const iconName = getMergedIconName(updatedWork);
             const chaptersStr = newChapterNumbers.join(", ");
-            const firstChapterNumber = newChapterNumbers[0]; // Get the first number (e.g. 16)
+            const firstChapterNumber = newChapterNumbers[0];
 
             await notifee.displayNotification({
               id: `work_${updatedWork.id}`,
@@ -189,7 +189,7 @@ export const run = async () => {
               data: {
                 action: 'OPEN_WORK',
                 workId: updatedWork.id,
-                chapterNumber: firstChapterNumber // PASS NUMBER AS INTEGER
+                chapterNumber: firstChapterNumber
               },
               android: {
                 channelId,
@@ -263,7 +263,7 @@ export const run = async () => {
 };
 
 export async function updateWork(workId, workDAO) {
-  const work = await fetchWorkFromWorkID(workId);
+  const work = await fetchWorkFromWorkID(workId, workDAO, true);
   if (work) {
     await workDAO.update(work);
   }
