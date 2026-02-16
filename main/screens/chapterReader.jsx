@@ -5,6 +5,7 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  Modal,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -13,6 +14,7 @@ import { WebView } from 'react-native-webview';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Svg, { Circle } from 'react-native-svg';
 import Slider from '@react-native-community/slider';
+import { CommentsScreen } from '../components/Reader/commentsScreen';
 
 const PULL_THRESHOLD = 150;
 const PROGRESS_SAVE_DEBOUNCE = 1000;
@@ -79,6 +81,7 @@ const ChapterReader = ({
   const [pullDistance, setPullDistance] = useState(0);
   const [webViewReady, setWebViewReady] = useState(false);
   const [isIncognitoMode, setIsIncognitoMode] = useState(false);
+  const [commentsVisible, setCommentsVisible] = useState(false);
   const [initialProgressLoaded, setInitialProgressLoaded] = useState(false);
   const [initialScrollAttempted, setInitialScrollAttempted] = useState(false);
   const [size, setSize] = useState(1);
@@ -567,6 +570,20 @@ const ChapterReader = ({
     </Animated.View>
   );
 
+  const renderCommentsButton = () => (
+    <Animated.View style={{opacity: fadeAnim}} pointerEvents={barsVisible ? 'auto' : 'none'}>
+      <TouchableOpacity
+        style={[
+          styles.floatingButton,
+          { backgroundColor: currentTheme.cardBackground },
+        ]}
+        onPress={() => setCommentsVisible(true)}
+      >
+        <Icon name="comment" size={30} color={currentTheme.iconColor} />
+      </TouchableOpacity>
+    </Animated.View>
+  );
+
   const renderPullIndicator = () => {
     if (!hasNextChapter || pullDistance <= 0) return null;
 
@@ -612,6 +629,15 @@ const ChapterReader = ({
         {renderPullIndicator()}
         {renderTopBar()}
         {renderBottomBar()}
+        {renderCommentsButton()}
+
+        <Modal
+          transparent={false}
+          visible={commentsVisible}
+          onRequestClose={() => setCommentsVisible(false)}
+        >
+          <CommentsScreen setCommentsVisible={setCommentsVisible} currentTheme={currentTheme} singleChapter={totalChapters<2} workOrChapterId={chapterID || workId} />
+        </Modal>
       </View>
     </GestureHandlerRootView>
   );
@@ -671,6 +697,21 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
+  },
+  floatingButton: {
+    position: 'absolute',
+    width: 50,
+    height: 50,
+    bottom: 90,
+    right: 20,
+    borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
