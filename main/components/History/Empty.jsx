@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-const EmptyState = ({ currentTheme, isFilterActive }) => {
+const EmptyState = ({ currentTheme, isFilterActive, textLine1 = "No reading history yet", textLine2 = "Start reading to see your progress here"}) => {
   return (
     <View style={styles.emptyState}>
       <Text
@@ -12,7 +12,7 @@ const EmptyState = ({ currentTheme, isFilterActive }) => {
       >
         {isFilterActive
           ? 'No reading history for selected dates'
-          : 'No reading history yet'}
+          : textLine1}
       </Text>
       <Text
         style={[
@@ -22,7 +22,7 @@ const EmptyState = ({ currentTheme, isFilterActive }) => {
       >
         {isFilterActive
           ? 'Try selecting different dates'
-          : 'Start reading to see your progress here'}
+          : textLine2}
       </Text>
     </View>
   );

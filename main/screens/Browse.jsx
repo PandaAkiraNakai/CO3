@@ -15,50 +15,14 @@ import BookCard from '../components/Library/BookCard';
 import AdvancedSearchScreen from './advancedSearch';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getJsonSettings } from '../storage/jsonSettings';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const FilterIcon = ({ color, size }) => (
-  <View
-    style={{
-      width: size,
-      height: size,
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}
-  >
-    <View
-      style={{
-        width: size,
-        height: size * 0.15,
-        backgroundColor: color,
-        borderRadius: size * 0.05,
-        marginBottom: size * 0.1,
-      }}
-    />
-    <View
-      style={{
-        width: size * 0.66,
-        height: size * 0.15,
-        backgroundColor: color,
-        borderRadius: size * 0.05,
-        marginBottom: size * 0.1,
-      }}
-    />
-    <View
-      style={{
-        width: size * 0.33,
-        height: size * 0.15,
-        backgroundColor: color,
-        borderRadius: size * 0.05,
-      }}
-    />
-  </View>
+  <Icon name={"filter-list"} style={{color: color}} size={size} />
 );
 
 const ClearIcon = ({ color, size }) => (
-  <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
-    <View style={{ width: size * 0.8, height: size * 0.1, backgroundColor: color, borderRadius: size * 0.05, transform: [{ rotate: '45deg' }] }} />
-    <View style={{ width: size * 0.8, height: size * 0.1, backgroundColor: color, borderRadius: size * 0.05, transform: [{ rotate: '-45deg' }], position: 'absolute' }} />
-  </View>
+  <Icon name={"close"} style={{color: color}} size={size} />
 );
 
 const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, libraryDAO, workDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, openTagSearch, selectedTag, setSelectedTag, chapterDAO }) => {
@@ -266,8 +230,7 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
     return null;
   };
 
-  const renderItem = ({ item }) => (
-    <BookCard
+  const renderItem = useCallback(({ item }) => (    <BookCard
       book={formatWork(item)}
       viewMode={viewMode}
       theme={currentTheme}
@@ -284,9 +247,9 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
       jsonSettings={jsonSettings}
       chapterDAO={chapterDAO}
     />
-  );
+  ), [viewMode, currentTheme, jsonSettings]);
 
-  if (loading) {
+  const renderLoading = () => {
     return (
       <View style={[styles.centerContainer, { backgroundColor: currentTheme.backgroundColor }]}>
         <ActivityIndicator size="large" color={currentTheme.primaryColor} />
@@ -294,10 +257,12 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
           Loading works...
         </Text>
       </View>
-    );
+    )
   }
 
-  if (error) {
+
+
+  const rennderError = () => {
     return (
       <View style={[styles.centerContainer, { backgroundColor: currentTheme.backgroundColor }]}>
         <View style={[styles.errorContainer, { backgroundColor: currentTheme.cardBackground, borderColor: currentTheme.borderColor }]}>
@@ -320,28 +285,35 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
 
   return (
     <View style={{flex: 1, backgroundColor: currentTheme.backgroundColor}}>
-      <FlatList
-        data={works}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.contentContainer}
-        ListHeaderComponent={renderHeader}
-        ListFooterComponent={renderFooter}
-        onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.5}
-        initialNumToRender={10}
-        maxToRenderPerBatch={10}
-        windowSize={5}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
-            colors={[currentTheme.primaryColor]}
-            tintColor={currentTheme.primaryColor}
-          />
-        }
-      />
+      {loading ? renderLoading() : (
+          error ? rennderError() : (
+              <FlatList
+                data={works}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={styles.contentContainer}
+                ListHeaderComponent={renderHeader}
+                ListFooterComponent={renderFooter}
+                onEndReached={handleLoadMore}
+                onEndReachedThreshold={0.5}
+                initialNumToRender={3}
+                maxToRenderPerBatch={5}
+                removeClippedSubviews={true}
+                updateCellsBatchingPeriod={50}
+                windowSize={5}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={handleRefresh}
+                    colors={[currentTheme.primaryColor]}
+                    tintColor={currentTheme.primaryColor}
+                  />
+                }
+              />
+            )
+        )
+      }
 
       {/* Filter FAB */}
       <TouchableOpacity

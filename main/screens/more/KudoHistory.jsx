@@ -350,7 +350,8 @@ const KudoHistoryScreen = ({
           {history.length === 0 ? (
             <EmptyState
               currentTheme={currentTheme}
-              isFilterActive={isFilterActive}
+              textLine1={isFilterActive ? "No entries found." : "No kudos history yet."}
+              textLine2={isFilterActive ? "There are no entries matching the filter." : "Kudoed work will appear here."}
             />
           ) : (
             <KudoHistoryList

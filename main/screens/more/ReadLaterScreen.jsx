@@ -14,6 +14,7 @@ import BookCard from '../../components/Library/BookCard';
 import LoadingSpinner from '../../components/History/Spinner';
 import { getUsername } from '../../storage/Credentials';
 import { fetchMarkedLater } from '../../web/other/markedLater';
+import EmptyState from '../../components/History/Empty';
 
 export default function ReadLaterScreen({
   setScreens,
@@ -204,32 +205,37 @@ export default function ReadLaterScreen({
       ]}
     >
       {renderHeader()}
-      <FlatList
-        data={entries}
-        renderItem={renderEntry}
-        keyExtractor={(item, index) => `${item.id || index}`}
-        onEndReached={loadMoreEntries}
-        onEndReachedThreshold={0.1}
-        ListEmptyComponent={
-          <Text style={[{ color: currentTheme.textColor }]}>
-            No works in marked for later yet
-          </Text>
-        }
-        ListFooterComponent={renderFooter}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={[currentTheme.primaryColor]}
-            tintColor={currentTheme.primaryColor}
+
+      {
+        entries.length === 0 ?
+          <EmptyState currentTheme={currentTheme}
+            textLine1={"No chapters yet."}
+            textLine2={"Mark chapter for later to see them here."}
           />
-        }
-        contentContainerStyle={styles.contentContainer}
-        scrollEventThrottle={16}
-        removeClippedSubviews={true}
-        maxToRenderPerBatch={10}
-        updateCellsBatchingPeriod={50}
-      />
+          :
+          <FlatList
+            data={entries}
+            renderItem={renderEntry}
+            keyExtractor={(item, index) => `${item.id || index}`}
+            onEndReached={loadMoreEntries}
+            onEndReachedThreshold={0.1}
+            ListFooterComponent={renderFooter}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[currentTheme.primaryColor]}
+                tintColor={currentTheme.primaryColor}
+              />
+            }
+            contentContainerStyle={styles.contentContainer}
+            scrollEventThrottle={16}
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={10}
+            updateCellsBatchingPeriod={50}
+          />
+      }
+
     </View>
   );
 }
@@ -268,4 +274,17 @@ const styles = StyleSheet.create({
   loadingMoreText: {
     fontSize: 14,
   },
+  infoText: {
+    width: '100%',
+    textAlign: 'center',
+    fontSize: 20,
+  },
+  icon: {
+    paddingBottom: "10%",
+  },
+  infoContainer: {
+    height: "90%",
+    alignItems: "center",
+    justifyContent: "center"
+  }
 });

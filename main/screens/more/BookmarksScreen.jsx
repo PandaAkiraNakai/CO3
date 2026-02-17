@@ -14,6 +14,7 @@ import { fetchBookmarks } from '../../web/other/bookmarks';
 import BookCard from '../../components/Library/BookCard';
 import LoadingSpinner from '../../components/History/Spinner';
 import { getUsername } from '../../storage/Credentials';
+import EmptyState from '../../components/History/Empty';
 
 export default function BookmarksScreen({
   setScreens,
@@ -201,32 +202,39 @@ export default function BookmarksScreen({
       ]}
     >
       {renderHeader()}
-      <FlatList
-        data={bookmarks}
-        renderItem={renderBookmark}
-        keyExtractor={(item, index) => `${item.id || index}`}
-        onEndReached={loadMoreBookmarks}
-        onEndReachedThreshold={0.1}
-        ListEmptyComponent={
-          <Text style={[styles.loadingMoreText, { color: currentTheme.textColor }]}>
-            No works bookmarked yet
-          </Text>
-        }
-        ListFooterComponent={renderFooter}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={[currentTheme.primaryColor]}
-            tintColor={currentTheme.primaryColor}
+
+
+      {
+        bookmarks.length === 0 ? (
+          <EmptyState currentTheme={currentTheme}
+                      textLine1={"No bookmarks yet."}
+                      textLine2={"Bookmarked work will appear here."}
           />
-        }
-        contentContainerStyle={styles.contentContainer}
-        scrollEventThrottle={16}
-        removeClippedSubviews={true}
-        maxToRenderPerBatch={10}
-        updateCellsBatchingPeriod={50}
-      />
+        ) : (
+          <FlatList
+            data={bookmarks}
+            renderItem={renderBookmark}
+            keyExtractor={(item, index) => `${item.id || index}`}
+            onEndReached={loadMoreBookmarks}
+            onEndReachedThreshold={0.1}
+            ListFooterComponent={renderFooter}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[currentTheme.primaryColor]}
+                tintColor={currentTheme.primaryColor}
+              />
+            }
+            contentContainerStyle={styles.contentContainer}
+            scrollEventThrottle={16}
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={10}
+            updateCellsBatchingPeriod={50}
+          />
+        )
+      }
+
     </View>
   );
 }
@@ -266,4 +274,17 @@ const styles = StyleSheet.create({
   loadingMoreText: {
     fontSize: 14,
   },
+  infoText: {
+    width: '100%',
+    textAlign: 'center',
+    fontSize: 20,
+  },
+  icon: {
+    paddingBottom: "10%",
+  },
+  infoContainer: {
+    height: "90%",
+    alignItems: "center",
+    justifyContent: "center"
+  }
 });
