@@ -208,8 +208,8 @@ export default function UserWorkScreen({
         onEndReached={loadMoreWorks}
         onEndReachedThreshold={0.1}
         ListEmptyComponent={
-          <Text style={[{ textColor: currentTheme.textColor }]}>
-            No works bookmarked yet
+          <Text style={[{ color: currentTheme.textColor }]}>
+            User has no works yet
           </Text>
         }
         ListFooterComponent={renderFooter}

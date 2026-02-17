@@ -73,29 +73,24 @@ export async function fetchChapter(workId, chapterId) {
 }
 
 export async function fetchChapterWithTheme(workId, chapterId, currentTheme = null, settingsDAO) {
-  try {
 
-    const isDL = await isDownloaded(workId, chapterId);
+  const isDL = await isDownloaded(workId, chapterId);
 
-    if (isDL) {
-      console.log(`Using downloaded resource for chapter ${chapterId} on work ${workId}`);
-    }
-
-    const dataSource = isDL
-      ? getDownloaded
-      : fetchChapter;
-
-    const [chapterHtml, cssStyles] = await dataSource(workId, chapterId);
-
-    const completeHtml = await createCompleteHtml(chapterHtml, cssStyles, currentTheme, settingsDAO);
-
-    console.log(`Successfully fetched content for work ${workId}`);
-
-    return completeHtml;
-  } catch (error) {
-    console.error("Error fetching chapter:", error);
-    return null;
+  if (isDL) {
+    console.log(`Using downloaded resource for chapter ${chapterId} on work ${workId}`);
   }
+
+  const dataSource = isDL
+    ? getDownloaded
+    : fetchChapter;
+
+  const [chapterHtml, cssStyles] = await dataSource(workId, chapterId);
+
+  const completeHtml = await createCompleteHtml(chapterHtml, cssStyles, currentTheme, settingsDAO);
+
+  console.log(`Successfully fetched content for work ${workId}`);
+
+  return completeHtml;
 }
 
 function getElementText(element) {

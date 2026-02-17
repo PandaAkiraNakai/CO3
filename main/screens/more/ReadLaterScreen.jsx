@@ -211,8 +211,8 @@ export default function ReadLaterScreen({
         onEndReached={loadMoreEntries}
         onEndReachedThreshold={0.1}
         ListEmptyComponent={
-          <Text style={[{ textColor: currentTheme.textColor }]}>
-            No works bookmarked yet
+          <Text style={[{ color: currentTheme.textColor }]}>
+            No works in marked for later yet
           </Text>
         }
         ListFooterComponent={renderFooter}

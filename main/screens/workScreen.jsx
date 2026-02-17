@@ -239,12 +239,14 @@ const ReaderWrapper = ({
                        }) => {
   const [chapterData, setChapterData] = useState(initialChapterData);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(undefined);
 
   const handleBack = () => {
     setScreens(prev => prev.slice(0, -1));
   };
 
   const handleChapterChange = (newChapterData) => {
+    setError(false)
     if (newChapterData) {
       setChapterData(prevData => ({
         ...newChapterData,
@@ -254,33 +256,63 @@ const ReaderWrapper = ({
     setLoading(false);
   };
 
-  const handleNextChapter = useCallback(async (newChapterData) => {
-    if (loading || !chapterData.hasNextChapter) return;
-    setLoading(true);
-    await navigateToNextChapter({
-      workId: chapterData.workId,
-      chapterList: chapterList,
-      currentChapterIndex: chapterData.chapterIndex,
-      currentTheme: currentTheme,
-      onChapterChange: handleChapterChange,
-      historyDAO,
-      settingsDAO
-    });
+  const handleNextChapter = useCallback(async () => {
+    try {
+      if (loading || !chapterData.hasNextChapter) return;
+      setError();
+      setLoading(true);
+      await navigateToNextChapter({
+        workId: chapterData.workId,
+        chapterList: chapterList,
+        currentChapterIndex: chapterData.chapterIndex,
+        currentTheme: currentTheme,
+        onChapterChange: handleChapterChange,
+        historyDAO,
+        settingsDAO
+      });
+    } catch (error) {
+      console.log(error);
+      setError(error);
+    }
   }, [loading, chapterData, chapterList, currentTheme, historyDAO, settingsDAO]);
 
   const handlePreviousChapter = useCallback(async () => {
-    if (loading || !chapterData.hasPreviousChapter) return;
-    setLoading(true);
-    await navigateToPreviousChapter({
-      workId: chapterData.workId,
-      chapterList: chapterList,
-      currentChapterIndex: chapterData.chapterIndex,
-      currentTheme: currentTheme,
-      onChapterChange: handleChapterChange,
-      historyDAO,
-      settingsDAO,
-    });
+    try {
+      if (loading || !chapterData.hasPreviousChapter) return;
+      setLoading(true);
+      await navigateToPreviousChapter({
+        workId: chapterData.workId,
+        chapterList: chapterList,
+        currentChapterIndex: chapterData.chapterIndex,
+        currentTheme: currentTheme,
+        onChapterChange: handleChapterChange,
+        historyDAO,
+        settingsDAO,
+      });
+    } catch (error) {
+      console.log(error);
+      setError(error);
+    }
   }, [loading, chapterData, chapterList, currentTheme, historyDAO, settingsDAO]);
+
+  if (error) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
+        <View style={styles.errorContainer}>
+          <Icon name="error-outline" size={48} color={currentTheme.iconColor} />
+          <Text style={[styles.errorText, { color: currentTheme.textColor }]}>
+            {error.toString()}
+          </Text>
+          <TouchableOpacity
+            style={[styles.retryButton, { backgroundColor: currentTheme.primaryColor }]}
+            onPress={() => handleChapterChange(chapterData)}
+          >
+            <Text style={styles.retryButtonText}>Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
@@ -311,7 +343,6 @@ const ReaderWrapper = ({
     </SafeAreaView>
   );
 };
-
 
 const ChapterInfoScreen = ({
                              workId,
@@ -646,7 +677,7 @@ const ChapterInfoScreen = ({
       chapterContent = await fetchChapterWithTheme(workId, chapter.id, currentTheme, settingsDAO);
 
       if (!chapterContent) {
-        console.error("Could not fetch chapter content. Please try again.");
+        showToast('Failed to load chapter', 'error')
         return;
       }
 

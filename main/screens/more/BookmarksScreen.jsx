@@ -208,7 +208,7 @@ export default function BookmarksScreen({
         onEndReached={loadMoreBookmarks}
         onEndReachedThreshold={0.1}
         ListEmptyComponent={
-          <Text style={[{ textColor: currentTheme.textColor }]}>
+          <Text style={[styles.loadingMoreText, { color: currentTheme.textColor }]}>
             No works bookmarked yet
           </Text>
         }
