@@ -16,10 +16,10 @@ The goal is to give you a better reading experience on your phone with features 
 ## Planned features
 - ~~Update notifications when new chapters come out~~ (Done !)
 - ~~Bookmarks~~ (Done !)
-- View and read comments
+- ~~View and read comments~~ (Done !)
 - ~~User profile pages~~ (Done !)
 - Statistics screen
-- Download works to read offline
+- ~~Download works to read offline~~ (Done !)
 
 > [!CAUTION]
 > This app is in development. A LOT of buttons currently do nothing.
