@@ -15,6 +15,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import Svg, { Circle } from 'react-native-svg';
 import Slider from '@react-native-community/slider';
 import { CommentsScreen } from '../components/Reader/commentsScreen';
+import { getJsonSettings } from '../storage/jsonSettings';
 
 const PULL_THRESHOLD = 150;
 const PROGRESS_SAVE_DEBOUNCE = 1000;
@@ -85,7 +86,7 @@ const ChapterReader = ({
   const [initialProgressLoaded, setInitialProgressLoaded] = useState(false);
   const [initialScrollAttempted, setInitialScrollAttempted] = useState(false);
   const [size, setSize] = useState(1);
-
+  const [jsonSettings, setJsonSettings] = useState();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const webViewRef = useRef(null);
@@ -99,6 +100,7 @@ const ChapterReader = ({
         const settings = await settingsDAO.getSettings();
         setIsIncognitoMode(settings.isIncognitoMode);
         setSize(settings.fontSize);
+        setJsonSettings(await getJsonSettings());
       } catch (error) {
         console.error('Error loading settings:', error);
       }
@@ -382,8 +384,9 @@ const ChapterReader = ({
     document.body.style.color = '${currentTheme.textColor}';
     document.body.style.padding = '20px';
     document.body.style.paddingBottom = '120px';
-    document.body.style.webkitUserSelect = 'none';
-    document.body.style.userSelect = 'none';
+    ${ jsonSettings && !jsonSettings.allowSelectingText &&
+    "document.body.style.webkitUserSelect = 'none'; document.body.style.userSelect = 'none'"
+    }
     document.body.style.webkitTapHighlightColor = 'transparent';
     document.querySelectorAll('a').forEach(a => a.style.color = '${currentTheme.primaryColor}');
 

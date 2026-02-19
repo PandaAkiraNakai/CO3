@@ -112,7 +112,7 @@ export class WorkDAO {
       updated,
       bookmarks,
       description,
-      descriptionHTML, // Added
+      descriptionHTML,
       currentChapter,
       chapterCount,
       rating,

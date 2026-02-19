@@ -16,6 +16,10 @@ const DEFAULT_SETTINGS = {
 
   showFullDescription: false,
   preferHtml: false,
+
+  allowSelectingText: false,
+  downloadWhileReading: 0,
+  downloadOnUpdate: false,
 };
 
 export async function getJsonSettings() {
@@ -55,4 +59,13 @@ export const UPDATE_RESTRICTIONS = {
   WIFI: { label: 'WiFi Only', value: updateRestictionType.Wifi },
   UNMETERED: { label: 'Unmetered Only', value: updateRestictionType.Unmetered },
   NOT_ROAMING: { label: 'Not Roaming', value: updateRestictionType.NotRoaming },
+};
+
+export const DOWNLOAD_WHILE_READING = {
+  DISABLED: { label: 'Disabled', value: 0 },
+  NEXT_CHAPTER: { label: 'Next Chapter', value: 1 },
+  TWO_CHAPTERS: { label: 'Next 2 Chapters', value: 2 },
+  THREE_CHAPTERS: { label: 'Next 3 Chapters', value: 3 },
+  FIVE_CHAPTERS: { label: 'Next 5 Chapters', value: 5 },
+  TEN_CHAPTERS: { label: 'Next 10 Chapters', value: 10 },
 };

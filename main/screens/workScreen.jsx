@@ -236,6 +236,8 @@ const ReaderWrapper = ({
                          historyDAO,
                          progressDAO,
                          settingsDAO,
+                         jsonSettings,
+                         libraryDAO,
                        }) => {
   const [chapterData, setChapterData] = useState(initialChapterData);
   const [loading, setLoading] = useState(false);
@@ -270,6 +272,16 @@ const ReaderWrapper = ({
         historyDAO,
         settingsDAO
       });
+
+      if (jsonSettings.downloadWhileReading && await libraryDAO.isInLibrary(chapterData.workId)) {
+        for (let i = 0; i < jsonSettings.downloadWhileReading; i++) {
+          const index = chapterData.chapterIndex + 2 + i;
+          if (chapterList.length <= index) break;
+          await addToDownloadQueue({ workId: chapterData.workId, chapterId: chapterList[index].id });
+        }
+        processQueue();
+      }
+
     } catch (error) {
       console.log(error);
       setError(error);
@@ -565,6 +577,8 @@ const ChapterInfoScreen = ({
                   settingsDAO={settingsDAO}
                   historyDAO={historyDAO}
                   progressDAO={progressDAO}
+                  jsonSettings={jsonSettings}
+                  libraryDAO={libraryDAO}
                 />
               );
 
@@ -705,6 +719,8 @@ const ChapterInfoScreen = ({
           settingsDAO={settingsDAO}
           historyDAO={historyDAO}
           progressDAO={progressDAO}
+          jsonSettings={jsonSettings}
+          libraryDAO={libraryDAO}
         />
       ]);
 

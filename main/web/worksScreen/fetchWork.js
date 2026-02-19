@@ -2,6 +2,7 @@ import ky from 'ky';
 import { Work } from '../../storage/models/work';
 import { getJsonSettings } from '../../storage/jsonSettings';
 import { fetchChapters } from './fetchChapters';
+import { processQueue } from '../../downloads/DownloadManager';
 
 let DomParser = require('react-native-html-parser').DOMParser;
 
@@ -224,7 +225,7 @@ export function extractWorkContent(doc) {
   return result;
 }
 
-export async function fetchWorkFromWorkID(workId, workDAO, chapterDAO, force = false) {
+export async function fetchWorkFromWorkID(workId, workDAO, chapterDAO, force = false, downloadOnUpdate = false) {
   try {
     if (!force) {
       const cachedWork = await workDAO.get(workId);
@@ -324,7 +325,12 @@ export async function fetchWorkFromWorkID(workId, workDAO, chapterDAO, force = f
     await workDAO.add(work);
 
     console.log(`[DB] Syncing ${cleanChapters.length} chapters...`);
-    await chapterDAO.syncChaptersForWork(workId, cleanChapters);
+
+    await chapterDAO.syncChaptersForWork(workId, cleanChapters, downloadOnUpdate);
+    const jsonSetting = await getJsonSettings();
+    if (jsonSetting.downloadOnUpdate && downloadOnUpdate) {
+      processQueue()
+    }
 
     console.log(`Successfully fetched and cached: ${work.title}`);
     return work;

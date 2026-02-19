@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  DeviceEventEmitter,
   FlatList,
   Modal,
   RefreshControl,
@@ -14,6 +15,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import BookCard from '../components/Library/BookCard';
 import CategorySelectionModal from '../components/WorkScreen/CategorySelectionModal.jsx';
 import { getJsonSettings } from '../storage/jsonSettings';
+import ReadLaterScreen from './more/ReadLaterScreen';
 
 const SortIcon = ({ color, size }) => (
   <View
@@ -93,6 +95,29 @@ const LibraryScreen = ({
   const [jsonSettings, setJsonSettings] = useState();
 
   const pageSize = 20;
+
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener('doubleTap', (id) => {
+      setScreens(prev => [...prev,
+        <ReadLaterScreen
+          setScreens={setScreens}
+          currentTheme={currentTheme}
+          workDAO={workDAO}
+          libraryDAO={libraryDAO}
+          historyDAO={historyDAO}
+          settingsDAO={settingsDAO}
+          progressDAO={progressDAO}
+          kudoHistoryDAO={kudoHistoryDAO}
+          screens={screens}
+          chapterDAO={chapterDAO}
+        />
+      ])
+    })
+
+    return () => {
+      subscription.remove()
+    }
+  }, [])
 
   useEffect(() => {
     if (libraryDAO) {

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  DeviceEventEmitter,
   FlatList,
   Modal,
   RefreshControl,
@@ -42,6 +43,16 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
   const [hasFilters, setHasFilters] = useState(false);
 
   const [jsonSettings, setJsonSettings] = useState();
+
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener('doubleTap', (id) => {
+      setIsSearchVisible(true)
+    })
+
+    return () => {
+      subscription.remove()
+    }
+  }, [])
 
   const loadWorks = useCallback(async (reset = false) => {
     if (!reset && Object.keys(appliedFilters).length === 0) return;

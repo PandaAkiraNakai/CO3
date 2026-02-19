@@ -12,6 +12,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { WebView } from 'react-native-webview';
 import Slider from '@react-native-community/slider';
 import {
+  DOWNLOAD_WHILE_READING,
   getJsonSettings,
   saveJsonSettings,
   UPDATE_INTERVALS,
@@ -36,6 +37,9 @@ const PreferencesScreen = ({
 
   // JSON Settings State
   const [preferDesc, setPreferDesc] = useState(false);
+  const [allowSelect, setAllowSelect] = useState(false);
+  const [downloadOnUpdate, setDownloadOnUpdate] = useState(false);
+  const [downloadWhileReading, setDownloadWhileReading] = useState(0);
   const [preferHtml, setPreferHtml] = useState(false);
   const [showChapterDate, setShowChapterDate] = useState(false);
   const [compactNotifications, setCompactNotifications] = useState(false);
@@ -68,6 +72,10 @@ const PreferencesScreen = ({
 
         setPreferDesc(jsonSettings.showFullDescription || false);
         setPreferHtml(jsonSettings.preferHtml || false);
+
+        setAllowSelect(jsonSettings.allowSelectingText || false);
+        setDownloadWhileReading(jsonSettings.downloadWhileReading || 0);
+        setDownloadOnUpdate(jsonSettings.downloadOnUpdate || false);
 
         // Handle array wrapper for restriction
         const restriction = Array.isArray(jsonSettings.updateRestriction)
@@ -145,6 +153,12 @@ const PreferencesScreen = ({
     saveJsonSettingsData({ showFullDescription: newValue });
   };
 
+  const handleAllowSelect = () => {
+    const newValue = !allowSelect;
+    setAllowSelect(newValue);
+    saveJsonSettingsData({ allowSelectingText: newValue });
+  };
+
   const handlePreferHtml = () => {
     const newValue = !preferHtml;
     setPreferHtml(newValue);
@@ -158,8 +172,18 @@ const PreferencesScreen = ({
 
   const handleUpdateRestrictionChange = value => {
     setUpdateRestriction(value);
-    // Logic requires wrapping restriction in an array
     saveJsonSettingsData({ updateRestriction: [value] });
+  };
+
+  const handleDownloadWhileReadinChange = value => {
+    setDownloadWhileReading(value);
+    saveJsonSettingsData({ downloadWhileReading: value });
+  };
+
+  const handleDownloadOnUpdateChange = () => {
+    const newValue = !downloadOnUpdate;
+    setDownloadOnUpdate(newValue);
+    saveJsonSettingsData({ downloadOnUpdate: newValue });
   };
 
   // --- HTML Preview ---
@@ -381,7 +405,10 @@ const PreferencesScreen = ({
             </View>
           )}
 
-          <View style={[styles.settingItem, { borderBottomWidth: 0 }]}>
+          <View style={[
+            styles.settingItem,
+            { borderBottomColor: activeTheme.borderColor },
+          ]}>
             <View style={styles.switchContainer}>
               <Text
                 style={[styles.settingText, { color: activeTheme.textColor }]}
@@ -393,6 +420,32 @@ const PreferencesScreen = ({
                 onValueChange={handleShowChapterDate}
                 thumbColor={
                   showChapterDate ? activeTheme.primaryColor : '#f4f3f4'
+                }
+                trackColor={{
+                  false: '#767577',
+                  true: `${activeTheme.primaryColor}40`,
+                }}
+              />
+            </View>
+          </View>
+          <View
+            style={[
+              styles.settingItem,
+              { borderBottomColor: activeTheme.borderColor },
+              { borderBottomWidth: 0 }
+            ]}
+          >
+            <View style={[styles.switchContainer]}>
+              <Text
+                style={[styles.settingText, { color: activeTheme.textColor }]}
+              >
+                Allow selecting text
+              </Text>
+              <Switch
+                value={allowSelect}
+                onValueChange={handleAllowSelect}
+                thumbColor={
+                  allowSelect ? activeTheme.primaryColor : '#f4f3f4'
                 }
                 trackColor={{
                   false: '#767577',
@@ -542,7 +595,7 @@ const PreferencesScreen = ({
         </View>
 
         {/* UPDATE & NOTIFICATION SETTINGS */}
-        <View style={[styles.section, { borderBottomWidth: 0 }]}>
+        <View style={[styles.section, { borderColor: activeTheme.borderColor}]}>
           <View style={styles.sectionHeader}>
             <Icon name="update" size={20} color={activeTheme.iconColor} />
             <Text
@@ -618,6 +671,65 @@ const PreferencesScreen = ({
               style={{ marginTop: 8 }}
             >
               {Object.values(UPDATE_RESTRICTIONS).map(restriction => (
+                <CustomDropdown.Item
+                  key={restriction.value}
+                  label={restriction.label}
+                  value={restriction.value}
+                />
+              ))}
+            </CustomDropdown>
+          </View>
+        </View>
+
+        <View style={[styles.section, { borderBottomWidth: 0 }]}>
+          <View style={styles.sectionHeader}>
+            <Icon name="download" size={20} color={activeTheme.iconColor} />
+            <Text
+              style={[styles.sectionTitle, { color: activeTheme.textColor }]}
+            >
+              Download
+            </Text>
+          </View>
+
+
+          <View
+            style={[
+              styles.settingItem,
+              { borderBottomColor: activeTheme.borderColor },
+            ]}
+          >
+            <View style={styles.switchContainer}>
+              <Text
+                style={[styles.settingText, { color: activeTheme.textColor }]}
+              >
+                Download on Update
+              </Text>
+              <Switch
+                value={downloadOnUpdate}
+                onValueChange={handleDownloadOnUpdateChange}
+                thumbColor={
+                  downloadOnUpdate ? activeTheme.primaryColor : '#f4f3f4'
+                }
+                trackColor={{
+                  false: '#767577',
+                  true: `${activeTheme.primaryColor}40`,
+                }}
+              />
+            </View>
+          </View>
+          <View style={[styles.settingItem, { borderBottomWidth: 0 }]}>
+            <Text
+              style={[styles.settingText, { color: activeTheme.textColor }]}
+            >
+              Download while reading
+            </Text>
+            <CustomDropdown
+              selectedValue={downloadWhileReading}
+              onValueChange={handleDownloadWhileReadinChange}
+              theme={activeTheme}
+              style={{ marginTop: 8 }}
+            >
+              {Object.values(DOWNLOAD_WHILE_READING).map(restriction => (
                 <CustomDropdown.Item
                   key={restriction.value}
                   label={restriction.label}

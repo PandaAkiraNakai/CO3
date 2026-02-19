@@ -1,5 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  DeviceEventEmitter,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import {
+  addToDownloadQueue,
+  getDownloadQueue,
+} from '../../downloads/DownloadQueue';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { deleteDownloaded, isDownloaded } from '../../downloads/Downloader';
+import Toast from 'react-native-toast-message';
+import { processQueue } from '../../downloads/DownloadManager';
 
 const imageMappings = {
   rating: {
@@ -39,6 +56,12 @@ const UpdateBookCard = ({ update, workDAO, theme, onPress }) => {
   const [work, setWork] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [isInQueue, setIsInQueue] = useState(false);
+  const [hasFailed, setHasFailed] = useState(false);
+  const [isDownloadedFile, setIsDownloadedFile] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
+  const isMounted = useRef(true);
+
   useEffect(() => {
     loadWork();
   }, [update.workId]);
@@ -53,6 +76,106 @@ const UpdateBookCard = ({ update, workDAO, theme, onPress }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    isMounted.current = true;
+    const checkStatus = async () => {
+      if (!update.workId || !update.chapterID) return;
+      const queue = await getDownloadQueue();
+      const failedJson = await AsyncStorage.getItem('failedDownloads');
+      const failedList = failedJson ? JSON.parse(failedJson) : [];
+      const exists = await isDownloaded(update.workId, update.chapterID);
+
+      if (isMounted.current) {
+        setIsInQueue(queue.some(q => String(q.chapterId) === String(update.chapterID)));
+        setHasFailed(failedList.some(f => String(f.chapterId) === String(update.chapterID)));
+        setIsDownloadedFile(exists);
+      }
+    };
+    checkStatus();
+
+    const qSub = DeviceEventEmitter.addListener('queue_updated', (q) => {
+      if (isMounted.current) {
+        setIsInQueue(q.some(item => String(item.chapterId) === String(update.chapterID)));
+      }
+    });
+
+    const fSub = DeviceEventEmitter.addListener('failures_updated', (f) => {
+      if (isMounted.current) {
+        setHasFailed(f.some(item => String(item.chapterId) === String(update.chapterID)));
+      }
+    });
+
+    const cSub = DeviceEventEmitter.addListener('download_completed', (data) => {
+      if (isMounted.current && String(data.chapterId) === String(update.chapterID)) {
+        setIsInQueue(false);
+        setIsDownloadedFile(data.success);
+        if (!data.success) setHasFailed(true);
+      }
+    });
+
+    const rSub = DeviceEventEmitter.addListener('chapter_deleted', (data) => {
+      if (isMounted.current && String(data.chapterId) === String(update.chapterID)) {
+        setIsInQueue(false);
+        setIsDownloadedFile(!data.success);
+        if (!data.success) setHasFailed(true);
+      }
+    });
+
+    return () => {
+      isMounted.current = false;
+      qSub.remove();
+      fSub.remove();
+      cSub.remove();
+      rSub.remove();
+    };
+  }, [update.chapterID, update.workId])
+
+  const handleDownloadPress = async () => {
+    if (isInQueue) return;
+    if (isDownloadedFile) {
+      if (showDelete) {
+        try {
+          setIsInQueue(true);
+          await deleteDownloaded(update.workId, update.chapterID);
+          setIsDownloadedFile(false);
+          setShowDelete(false);
+        } catch (error) {
+          Toast.show({ type: "error", text1: "Error deleting", text2: error.message });
+        } finally {
+          if (isMounted.current) setIsInQueue(false);
+        }
+      } else {
+        setShowDelete(true);
+        setTimeout(() => {
+          if (isMounted.current) setShowDelete(false);
+        }, 3000);
+      }
+      return;
+    }
+
+    if (hasFailed) {
+      const failedJson = await AsyncStorage.getItem('failedDownloads');
+      const failedList = failedJson ? JSON.parse(failedJson) : [];
+      const newList = failedList.filter(f => String(f.chapterId) !== String(update.chapterID));
+      await AsyncStorage.setItem('failedDownloads', JSON.stringify(newList));
+      setHasFailed(false);
+      DeviceEventEmitter.emit('failures_updated', newList);
+    }
+
+    setIsInQueue(true);
+    await addToDownloadQueue({ workId: update.workId, chapterId: update.chapterID });
+    processQueue();
+  };
+
+  const renderDownloadIcon = () => {
+    if (isInQueue) return <ActivityIndicator size="small" color={theme.primaryColor} />;
+    if (isDownloadedFile && showDelete) return <Icon name="delete" size={24} color={theme.warningBackground} />;
+    if (isDownloadedFile) return <Icon name="check-circle" size={24} color={theme.primaryColor} />;
+    if (hasFailed) return <Icon name="error-outline" size={24} color="#ef4444" />;
+    return <Icon name="download" size={24} color={theme.secondaryTextColor} />;
+  };
+
 
   if (loading || !work) {
     return (
@@ -93,48 +216,80 @@ const UpdateBookCard = ({ update, workDAO, theme, onPress }) => {
       activeOpacity={0.7}
       style={[
         styles.card,
-        { backgroundColor: theme.cardBackground, borderColor: theme.borderColor }
+        {
+          backgroundColor: theme.cardBackground,
+          borderColor: theme.borderColor,
+        },
       ]}
     >
       <View style={styles.content}>
         {/* Status image grid */}
-        <View style={[styles.imageGrid, {
-          width: gridSize,
-          height: gridSize,
-          borderRadius: 4,
-          overflow: 'hidden',
-        }]}>
+        <View
+          style={[
+            styles.imageGrid,
+            {
+              width: gridSize,
+              height: gridSize,
+              borderRadius: 4,
+              overflow: 'hidden',
+            },
+          ]}
+        >
           <View style={styles.imageRow}>
             <Image
               source={images[0]}
-              style={[styles.statusImage, { width: imageSize, height: imageSize, marginRight: -1, marginBottom: -1 }]}
+              style={[
+                styles.statusImage,
+                {
+                  width: imageSize,
+                  height: imageSize,
+                  marginRight: -1,
+                  marginBottom: -1,
+                },
+              ]}
             />
             <Image
               source={images[1]}
-              style={[styles.statusImage, { width: imageSize, height: imageSize, marginBottom: -1 }]}
+              style={[
+                styles.statusImage,
+                { width: imageSize, height: imageSize, marginBottom: -1 },
+              ]}
             />
           </View>
           <View style={styles.imageRow}>
             <Image
               source={images[2]}
-              style={[styles.statusImage, { width: imageSize, height: imageSize, marginRight: -1 }]}
+              style={[
+                styles.statusImage,
+                { width: imageSize, height: imageSize, marginRight: -1 },
+              ]}
             />
             <Image
               source={images[3]}
-              style={[styles.statusImage, { width: imageSize, height: imageSize }]}
+              style={[
+                styles.statusImage,
+                { width: imageSize, height: imageSize },
+              ]}
             />
           </View>
         </View>
 
         {/* Title and metadata */}
         <View style={styles.textContent}>
-          <Text style={[styles.title, { color: theme.textColor }]} numberOfLines={2}>
+          <Text
+            style={[styles.title, { color: theme.textColor }]}
+            numberOfLines={2}
+          >
             {work.title}
           </Text>
           <Text style={[styles.chapter, { color: theme.primaryColor }]}>
             Chapter {update.chapterNumber}
           </Text>
         </View>
+
+        <TouchableOpacity onPress={handleDownloadPress} style={{ right: 8}}>
+          {renderDownloadIcon()}
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );

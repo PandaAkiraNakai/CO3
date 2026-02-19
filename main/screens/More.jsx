@@ -1,6 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Animated,
+  DeviceEventEmitter,
   ScrollView,
   StyleSheet,
   Text,
@@ -41,13 +42,23 @@ const MoreScreen = ({
   const insets = useSafeAreaInsets();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  React.useEffect(() => {
+  useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 500,
       useNativeDriver: true,
     }).start();
   }, [fadeAnim]);
+
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener('doubleTap', (id) => {
+      handlePress('Preferences');
+    })
+
+    return () => {
+      subscription.remove()
+    }
+  }, [])
 
   const handlePress = screenName => {
     switch (screenName) {

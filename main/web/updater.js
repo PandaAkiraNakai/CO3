@@ -11,6 +11,7 @@ import notifee, {
   EventType,
 } from '@notifee/react-native';
 import { getJsonSettings } from '../storage/jsonSettings';
+import { ChapterDAO } from '../storage/dao/ChapterDAO';
 
 const getMergedIconName = work => {
   let r = 'nr';
@@ -114,6 +115,7 @@ export const run = async () => {
     const db = await database.open();
     const workDAO = new WorkDAO(db);
     const updateDAO = new UpdateDAO(db);
+    const chapterDAO = new ChapterDAO(db);
 
     const toUpdate = (await workDAO.getAll()).filter((work) => {
       return work.chapterCount !== work.currentChapter;
@@ -153,7 +155,7 @@ export const run = async () => {
 
       try {
         await randomDelay(500, 1500);
-        const updatedWork = await updateWork(uwork.id, workDAO);
+        const updatedWork = await updateWork(uwork.id, workDAO, chapterDAO);
 
         if (updatedWork && updatedWork.currentChapter > uwork.currentChapter) {
           const newChapterNumbers = [];
@@ -262,8 +264,8 @@ export const run = async () => {
   }
 };
 
-export async function updateWork(workId, workDAO) {
-  const work = await fetchWorkFromWorkID(workId, workDAO, true);
+export async function updateWork(workId, workDAO, chapterDAO) {
+  const work = await fetchWorkFromWorkID(workId, workDAO, chapterDAO,true, true);
   if (work) {
     await workDAO.update(work);
   }

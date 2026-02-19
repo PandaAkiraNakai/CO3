@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   BackHandler,
+  DeviceEventEmitter,
   PermissionsAndroid,
   Platform,
   SafeAreaView,
@@ -97,7 +98,7 @@ const TopBar = ({ currentTheme, activeScreen, setIsSideMenuOpen, searchTerm, set
   );
 };
 
-const BottomNavigation = ({ activeScreen, setActiveScreen, currentTheme }) => {
+const BottomNavigation = ({ activeScreen, setActiveScreen, currentTheme, onDoubleTap }) => {
   const navItems = [
     { key: 'library', icon: 'library-books', label: 'Library' },
     { key: 'update', icon: 'update', label: 'Update' },
@@ -115,7 +116,11 @@ const BottomNavigation = ({ activeScreen, setActiveScreen, currentTheme }) => {
           key={item.key}
           style={styles.navItemContainer}
           onPress={() => {
-            setActiveScreen(item.key);
+            if (activeScreen === item.key) {
+              onDoubleTap(item.key);
+            } else {
+              setActiveScreen(item.key);
+            }
           }}
           activeOpacity={0.7}
         >
@@ -276,6 +281,10 @@ const App = () => {
       unsubscribeForeground();
     };
   }, []);
+
+  const handleDoubleTap = (screenId) => {
+    DeviceEventEmitter.emit('doubleTap', screenId);
+  }
 
   const handleNotificationOpen = async (workId, chapterNumber) => {
     const ctx = contextRef.current;
@@ -605,6 +614,7 @@ const App = () => {
           activeScreen={activeScreen}
           setActiveScreen={setActiveScreen}
           currentTheme={currentTheme}
+          onDoubleTap={handleDoubleTap}
         />
 
         <SideMenu

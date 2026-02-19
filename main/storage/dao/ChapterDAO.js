@@ -1,4 +1,7 @@
 import { Chapter } from '../models/chapter';
+import { downloadChapter } from '../../downloads/Downloader';
+import { addToDownloadQueue } from '../../downloads/DownloadQueue';
+import { getJsonSettings } from '../jsonSettings';
 
 export class ChapterDAO {
   constructor(db) {
@@ -39,7 +42,7 @@ export class ChapterDAO {
     await this.db.executeSql('DELETE FROM chapters WHERE id = ?', [id]);
   }
 
-  async syncChaptersForWork(workId, newChapters) {
+  async syncChaptersForWork(workId, newChapters, downloadOnUpdate) {
     const currentChapters = await this.getChaptersForWork(workId);
 
     const currentMap = new Map();
@@ -63,6 +66,11 @@ export class ChapterDAO {
           'INSERT INTO chapters (id, workId, number, name, date) VALUES (?, ?, ?, ?, ?)',
           [newChap.id, workId, newChap.number, newChap.name, validDate]
         ]);
+
+        const jsonSetting = await getJsonSettings()
+        if (jsonSetting.downloadOnUpdate && downloadOnUpdate) {
+          await addToDownloadQueue({ workId: newChap.workId, chapterId: newChap.id });
+        }
       }
     }
 

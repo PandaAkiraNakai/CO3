@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  DeviceEventEmitter,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -11,6 +12,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import UpdateBookCard from '../components/Update/UpdateBookCard';
 import ChapterInfoScreen from './workScreen';
 import { run } from '../web/updater';
+import Toast from 'react-native-toast-message';
 
 const UpdateScreen = ({
   currentTheme,
@@ -35,6 +37,21 @@ const UpdateScreen = ({
   useEffect(() => {
     loadUpdates();
   }, [updateDAO]);
+
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener('doubleTap', (id) => {
+      console.log("Should open the download manager screen but not implemented rn");
+      Toast.show({
+        type: 'error',
+        text1: "Not implemented yet !",
+        text2: "Future download manager screen will be here.",
+      });
+    })
+
+    return () => {
+      subscription.remove()
+    }
+  }, [])
 
   const loadUpdates = async () => {
     try {
@@ -271,6 +288,7 @@ const UpdateScreen = ({
                     workDAO={workDAO}
                     theme={currentTheme}
                     onPress={() => handleUpdatePress(update)}
+                    chapter={update}
                   />
                 ))}
               </View>

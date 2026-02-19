@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
+  DeviceEventEmitter,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -15,6 +16,7 @@ import CalendarModal from '../components/History/CalendarModal';
 import EmptyState from '../components/History/Empty';
 import LoadingSpinner from '../components/History/Spinner';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import KudoHistoryScreen from './more/KudoHistory';
 
 const HistoryScreen = ({
   currentTheme,
@@ -50,6 +52,28 @@ const HistoryScreen = ({
       loadReadingDates();
     }
   }, [historyDAO, loadInitialHistory, loadReadingDates, workDAO]);
+
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener('doubleTap', (id) => {
+      setScreens(prev => [...prev,
+        <KudoHistoryScreen
+          currentTheme={currentTheme}
+          workDAO={workDAO}
+          libraryDAO={libraryDAO}
+          setScreens={setScreens}
+          historyDAO={historyDAO}
+          settingsDAO={settingsDAO}
+          progressDAO={progressDAO}
+          kudoHistoryDAO={kudoHistoryDAO}
+          chapterDAO={chapterDAO}
+        />
+      ])
+    })
+
+    return () => {
+      subscription.remove()
+    }
+  }, [])
 
   const loadReadingDates = async () => {
     try {
