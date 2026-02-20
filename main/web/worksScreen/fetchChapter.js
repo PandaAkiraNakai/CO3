@@ -116,6 +116,7 @@ async function createCompleteHtml(chapterHtml, cssStyles, currentTheme, settings
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chapter</title>
+  <base href="https://archiveofourown.org" />
   <style>
     /* Theme variables */
     ${themeCSS}

@@ -8,6 +8,7 @@ import {
   Modal,
   TouchableOpacity,
   View,
+  Linking,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { WebView } from 'react-native-webview';
@@ -16,6 +17,7 @@ import Svg, { Circle } from 'react-native-svg';
 import Slider from '@react-native-community/slider';
 import { CommentsScreen } from '../components/Reader/commentsScreen';
 import { getJsonSettings } from '../storage/jsonSettings';
+import Toast from 'react-native-toast-message';
 
 const PULL_THRESHOLD = 150;
 const PROGRESS_SAVE_DEBOUNCE = 1000;
@@ -621,13 +623,28 @@ const ChapterReader = ({
         <WebView
           ref={webViewRef}
           originWhitelist={['*']}
-          source={{ html: htmlContent || '<p></p>' }}
+          source={{ html: htmlContent || '<p>Something went horribly wrong if you see this</p>' }}
           style={styles.webView}
           injectedJavaScript={injectedJavaScript}
           onMessage={handleMessage}
           showsVerticalScrollIndicator={false}
           bounces={false}
           overScrollMode="never"
+          onOpenWindow={ (syntheticEvent) => {
+            const { nativeEvent } = syntheticEvent;
+            const { targetUrl } = nativeEvent
+            Linking.openURL(targetUrl);
+          }}
+          onShouldStartLoadWithRequest={(req) => {
+            const url = req.url ?? '';
+            if (url === 'about:blank' || url.startsWith('about:blank#')) return true;
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+              Linking.openURL(url).catch((e) => {
+                Toast.show({ type: "error", text1: "Error opening link", text2: e.message });
+              });
+            }
+            return false;
+          }}
         />
         {renderPullIndicator()}
         {renderTopBar()}
