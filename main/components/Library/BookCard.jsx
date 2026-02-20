@@ -238,6 +238,8 @@ const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, wor
                               a: {
                                 fontSize: 14,
                                 paddingBottom: 12,
+                                color: theme.primaryColor,
+                                textDecorationLine: 'underline'
                               }
                             }
                           }

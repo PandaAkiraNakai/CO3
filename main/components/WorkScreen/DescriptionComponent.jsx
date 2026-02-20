@@ -12,24 +12,26 @@ import HtmlTextRenderer from '../common/HtmlTextRenderer';
 import { LinearGradient } from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const HTML_TAG_STYLES = {
-  p: {
-    fontSize: 14,
-    paddingBottom: 12,
-  },
-  span: {
-    fontSize: 14,
-    paddingBottom: 12,
-  },
-  a: {
-    fontSize: 14,
-    paddingBottom: 12,
-  },
-};
-
 const COLLAPSED_HEIGHT = 90;
 
 export const WorkDescription = React.memo(({ work, currentTheme, jsonSettings }) => {
+  const HTML_TAG_STYLES = {
+    p: {
+      fontSize: 14,
+      paddingBottom: 12,
+    },
+    span: {
+      fontSize: 14,
+      paddingBottom: 12,
+    },
+    a: {
+      fontSize: 14,
+      paddingBottom: 12,
+      color: currentTheme.primaryColor,
+      textDecorationLine: 'underline'
+    },
+  };
+
   const [isExpanded, setIsExpanded] = useState(false);
   const [fullHeight, setFullHeight] = useState(0);
 
