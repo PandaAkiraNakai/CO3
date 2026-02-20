@@ -145,7 +145,6 @@ async function createCompleteHtml(chapterHtml, cssStyles, currentTheme, settings
       color: var(--text-color, #333);
       transition: background-color 0.3s ease, color 0.3s ease;
       font-size: ${settings.useCustomSize ? settings.fontSize + 'em' : '1em'};
-
     }
     
     #workskin h1, #workskin h2, #workskin h3, #workskin h4, #workskin h5, #workskin h6 {
@@ -162,7 +161,6 @@ async function createCompleteHtml(chapterHtml, cssStyles, currentTheme, settings
     
     #workskin a {
       color: var(--primary-color, #3b82f6);
-      text-decoration: none;
     }
     
     #workskin a:hover {
