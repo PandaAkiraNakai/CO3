@@ -7,6 +7,9 @@ on:
   release:
     types: [created]
 
+permissions:
+  contents: write
+
 jobs:
   build-apk:
     name: Build Android APK
@@ -31,8 +34,6 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      # The ubuntu-latest runner has the Android SDK pre-installed.
-      # No need to manually download and wire up sdkmanager.
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
@@ -47,11 +48,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: CO3-${{ github.sha }}
-          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          path: android/app/build/outputs/apk/release/app-release.apk
           retention-days: 30
 
       - name: Attach APK to GitHub Release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          files: android/app/build/outputs/apk/release/app-release.apk
