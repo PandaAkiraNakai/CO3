@@ -8,13 +8,10 @@ on:
     types: [created]
 
 jobs:
-  build:
+  build-ios:
     runs-on: macos-latest
 
     steps:
-      - name: Check Xcode version
-        run: /usr/bin/xcodebuild -version
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -25,49 +22,49 @@ jobs:
           cache: 'npm'
 
       - name: Install NPM dependencies
-        run: npm ci  # ci is faster and stricter than install in CI environments
+        run: npm ci
+
+      - name: Setup Ruby (for CocoaPods)
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
 
       - name: Install CocoaPods dependencies
-        run: pod install
+        run: bundle exec pod install
         working-directory: ./ios
 
-      # Builds a real-device Release archive with code signing completely disabled.
-      # This produces an unsigned .xcarchive that we'll manually repack as an IPA.
-      - name: Archive app (unsigned, Release)
+      - name: Archive app (unsigned release)
         run: |
           xcodebuild archive \
-            -workspace your_app.xcworkspace \
-            -scheme your_app \
+            -workspace CO3.xcworkspace \
+            -scheme CO3 \
             -sdk iphoneos \
             -configuration Release \
-            -archivePath "$RUNNER_TEMP/your_app.xcarchive" \
+            -archivePath "$RUNNER_TEMP/CO3.xcarchive" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            AD_HOC_CODE_SIGNING_ALLOWED=YES \
-            | xcpretty  # prettier build logs — see note below
+            AD_HOC_CODE_SIGNING_ALLOWED=YES
         working-directory: ./ios
 
-      # xcodebuild export requires a provisioning profile when signing is on.
-      # Since we're unsigned, we manually zip the .app into an IPA instead.
       - name: Package .app into IPA
         run: |
-          APP_PATH=$(find "$RUNNER_TEMP/your_app.xcarchive/Products/Applications" -name "*.app" | head -n 1)
+          APP_PATH=$(find "$RUNNER_TEMP/CO3.xcarchive/Products/Applications" -name "*.app" | head -n 1)
           echo "Packaging: $APP_PATH"
           mkdir Payload
           cp -r "$APP_PATH" Payload/
-          zip -r "$GITHUB_WORKSPACE/your_app.ipa" Payload/
+          zip -r "$GITHUB_WORKSPACE/CO3.ipa" Payload/
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: your_app-${{ github.sha }}
-          path: your_app.ipa
+          name: CO3-${{ github.sha }}
+          path: CO3.ipa
           retention-days: 30
 
-      # If this run was triggered by a GitHub Release, attach the IPA to it automatically
       - name: Attach IPA to GitHub Release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: your_app.ipa
+          files: CO3.ipa
