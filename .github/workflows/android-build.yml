@@ -1,82 +1,57 @@
-name: Build Standalone Debug APK
+name: "Build Android APK"
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+  release:
+    types: [created]
 
 jobs:
   build-apk:
-    name: Build Standalone Debug APK
+    name: Build Android APK
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '18'
+          cache: 'npm'
 
-      # Step 3: Install dependencies
-      - name: Install dependencies
-        run: |
-          npm install
-          npm install -g react-native-cli
+      - name: Install NPM dependencies
+        run: npm ci
 
-      # Step 4: Set up Java 17
-      - name: Set up Java
-        uses: actions/setup-java@v3
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      # Step 5: Install Android SDK
-      - name: Install Android SDK
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y openjdk-17-jdk
-          
-          # Download Android SDK command-line tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
-          
-          # Create the Android SDK directory structure
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          unzip commandlinetools-linux-9477386_latest.zip -d $HOME/android-sdk/cmdline-tools
-          
-          # Move the extracted tools to the "latest" directory
-          mv $HOME/android-sdk/cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
-          
-          # Accept licenses and install required components
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
-          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
+      # The ubuntu-latest runner has the Android SDK pre-installed.
+      # No need to manually download and wire up sdkmanager.
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
-      # Step 6: Bundle JavaScript and Assets
-      - name: Bundle JavaScript and Assets
-        run: |
-          npx react-native bundle \
-            --platform android \
-            --dev false \
-            --entry-file index.js \
-            --bundle-output android/app/src/main/assets/index.android.bundle \
-            --assets-dest android/app/src/main/res/
-
-      # Step 7: Build the APK (Standalone Debug)
-      - name: Build Standalone Debug APK
+      - name: Build Release APK
         run: |
           cd android
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
 
-      # Step 8: Upload APK as an artifact
-      - name: Upload Standalone Debug APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: standalone-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
-          compression-level: 6
+          name: CO3-${{ github.sha }}
+          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          retention-days: 30
+
+      - name: Attach APK to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: android/app/build/outputs/apk/release/app-release-unsigned.apk
