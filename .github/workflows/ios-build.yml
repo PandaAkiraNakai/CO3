@@ -61,15 +61,18 @@ jobs:
           cp -r "$APP_PATH" Payload/
           zip -r "$GITHUB_WORKSPACE/CO3.ipa" Payload/
 
+      - name: Rename artefact
+        run: mv CO3.ipa CO3-IOS.ipa
+
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: CO3-${{ github.sha }}
-          path: CO3.ipa
+          path: CO3-IOS.ipa
           retention-days: 30
 
       - name: Attach IPA to GitHub Release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: CO3.ipa
+          files: CO3-IOS.ipa
