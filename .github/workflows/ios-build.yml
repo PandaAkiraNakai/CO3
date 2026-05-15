@@ -32,7 +32,7 @@ jobs:
       - name: Install CocoaPods dependencies
         run: bundle exec pod install
         env:
-          RCT_NEW_ARCH_ENABLED: 1
+          RCT_NEW_ARCH_ENABLED: 0
         working-directory: ./ios
 
       - name: Archive app (unsigned release)
