@@ -1,13 +1,16 @@
-name: "Build iOS app (Simulator)"
+name: "Build iOS IPA (Unsigned)"
 
 on:
   push:
     branches:
       - main
+  release:
+    types: [created]
 
 jobs:
   build:
     runs-on: macos-latest
+
     steps:
       - name: Check Xcode version
         run: /usr/bin/xcodebuild -version
@@ -19,38 +22,52 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm' # Changed to npm
+          cache: 'npm'
 
       - name: Install NPM dependencies
-        run: npm install # Changed from yarn
+        run: npm ci  # ci is faster and stricter than install in CI environments
 
-      - name: Install Cocoapod dependencies
-        run: |
-          cd ios
-          pod install
-
-      - name: Build for iOS Simulator
-        run: |
-          cd ios
-          # Builds a .app file for the simulator, no signing required
-          xcodebuild build \
-            -workspace your_app.xcworkspace \
-            -scheme your_app \
-            -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 15'
-
-      - name: Find and Upload .app file
-        run: |
-          # The .app file is deep in the build directory. This finds it.
-          APP_PATH=$(find build/Build/Products -name "*.app" | head -n 1)
-          echo "Found .app at ${APP_PATH}"
-          # We zip it for easier upload and download
-          zip -r "your_app.zip" "$APP_PATH"
+      - name: Install CocoaPods dependencies
+        run: pod install
         working-directory: ./ios
 
-      - name: Upload Simulator App
+      # Builds a real-device Release archive with code signing completely disabled.
+      # This produces an unsigned .xcarchive that we'll manually repack as an IPA.
+      - name: Archive app (unsigned, Release)
+        run: |
+          xcodebuild archive \
+            -workspace your_app.xcworkspace \
+            -scheme your_app \
+            -sdk iphoneos \
+            -configuration Release \
+            -archivePath "$RUNNER_TEMP/your_app.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES \
+            | xcpretty  # prettier build logs — see note below
+        working-directory: ./ios
+
+      # xcodebuild export requires a provisioning profile when signing is on.
+      # Since we're unsigned, we manually zip the .app into an IPA instead.
+      - name: Package .app into IPA
+        run: |
+          APP_PATH=$(find "$RUNNER_TEMP/your_app.xcarchive/Products/Applications" -name "*.app" | head -n 1)
+          echo "Packaging: $APP_PATH"
+          mkdir Payload
+          cp -r "$APP_PATH" Payload/
+          zip -r "$GITHUB_WORKSPACE/your_app.ipa" Payload/
+
+      - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-ios-simulator
-          path: ios/your_app.zip
-          retention-days: 3
+          name: your_app-${{ github.sha }}
+          path: your_app.ipa
+          retention-days: 30
+
+      # If this run was triggered by a GitHub Release, attach the IPA to it automatically
+      - name: Attach IPA to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: your_app.ipa
