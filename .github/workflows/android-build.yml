@@ -44,15 +44,18 @@ jobs:
         env:
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
 
+      - name: Rename artifact
+        run: mv android/app/build/outputs/apk/release/app-release.apk CO3-android.apk
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: CO3-${{ github.sha }}
-          path: android/app/build/outputs/apk/release/app-release.apk
+          path: CO3-android.apk
           retention-days: 30
 
       - name: Attach APK to GitHub Release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: android/app/build/outputs/apk/release/app-release.apk
+          files: CO3-android.apk
