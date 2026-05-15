@@ -4,6 +4,9 @@
 
 # Client of our own
 
+[![Build Android APK](https://github.com/tbvns/CO3/actions/workflows/android-build.yml/badge.svg)](https://github.com/tbvns/CO3/actions/workflows/android-build.yml)
+[![Build iOS IPA (Unsigned)](https://github.com/tbvns/CO3/actions/workflows/ios-build.yml/badge.svg)](https://github.com/tbvns/CO3/actions/workflows/ios-build.yml)
+
 CO3 is a free reader app for **Archive of Our Own** (AO3). We built it because other AO3 apps charge money for features that should be free. </br>
 The goal is to give you a better reading experience on your phone with features like native AMOLED support, local reading history, and custom categories to organize your stories.
 
@@ -30,6 +33,7 @@ The goal is to give you a better reading experience on your phone with features 
 > Need help or want to chat? Join our [Discord](https://discord.gg/3wMGWu2xMF).
 
 # Download
-You can get android dev builds [here](https://github.com/tbvns/CO3/actions/workflows/android-build.yml). </br>
-IOS builds are planned but curently not available.
+You can get releases [here](https://github.com/tbvns/CO3/releases).
 
+You can get android dev builds [here](https://github.com/tbvns/CO3/actions/workflows/android-build.yml). </br>
+You can get IOS dev builds [here](https://github.com/tbvns/CO3/actions/workflows/ios-build.yml).
