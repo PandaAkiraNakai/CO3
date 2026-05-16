@@ -237,7 +237,6 @@ const ToggleCheckbox = ({ label, checked, onToggle, theme }) => {
   );
 };
 
-// --- Data Constants ---
 const sortOptions = [ { label: 'Best Match', value: '_score' }, { label: 'Creator', value: 'authors_to_sort_on' }, { label: 'Title', value: 'title_to_sort_on' }, { label: 'Date Posted', value: 'created_at' }, { label: 'Date Updated', value: 'revised_at' }, { label: 'Word Count', value: 'word_count' }, { label: 'Hits', value: 'hits' }, { label: 'Kudos', value: 'kudos_count' }, { label: 'Comments', value: 'comments_count' }, { label: 'Bookmarks', value: 'bookmarks_count' }, ];
 const sortDirectionOptions = [ { label: 'Ascending', value: 'asc' }, { label: 'Descending', value: 'desc' }, ];
 const ratingOptions = [ { label: 'Not Rated', value: '9' }, { label: 'General Audiences', value: '10' }, { label: 'Teen And Up Audiences', value: '11' }, { label: 'Mature', value: '12' }, { label: 'Explicit', value: '13' }, ];
@@ -402,8 +401,6 @@ const languageOptions = [
   { label: "Finuʼ Chamorro", value: "cha" }
 ];
 
-// --- Main Advanced Search Screen ---
-
 const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = {} }) => {
   // Helper to convert comma-separated string from saved filters to array of objects
   const stringToItems = (str) => str ? str.split(',').map((name, index) => ({ id: `${name}-${index}`, name: name.trim() })) : [];
@@ -449,28 +446,28 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
 
   useEffect(() => {
     if ( //This is fucking bad but it works really well so i'm not changing it
-      anyField !== undefined ||
-      title !== undefined ||
-      creator !== undefined ||
-      date !== undefined ||
-      completionStatus !== undefined ||
-      crossoverStatus !== undefined ||
-      singleChapter !== undefined ||
-      wordCount !== undefined ||
-      language !== undefined ||
-      fandoms !== undefined ||
-      rating !== undefined ||
-      warnings !== undefined ||
-      categories !== undefined ||
-      characters !== undefined ||
-      relationships !== undefined ||
-      additionalTags !== undefined ||
-      hits !== undefined ||
-      kudos !== undefined ||
-      comments !== undefined ||
-      bookmarks !== undefined ||
-      sortBy !== undefined ||
-      sortDirection !== undefined
+      anyField !== '' ||
+      title !== '' ||
+      creator !== '' ||
+      date !== '' ||
+      completionStatus !== '' ||
+      crossoverStatus !== '' ||
+      singleChapter !== false ||
+      wordCount !== '' ||
+      language !== '' ||
+      fandoms.length !== 0 ||
+      rating !== '' ||
+      warnings.length !== 0 ||
+      categories.length !== 0 ||
+      characters.length !== 0 ||
+      relationships.length !== 0 ||
+      additionalTags.length !== 0 ||
+      hits !== '' ||
+      kudos !== '' ||
+      comments !== '' ||
+      bookmarks !== '' ||
+      sortBy !== 'revised_at' ||
+      sortDirection !== 'desc'
     ) {
       console.log("Filters applied, skipping loading temporary preset");
     } else {
@@ -851,8 +848,6 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
       </SafeAreaView>
   );
 };
-
-// --- Styles ---
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
