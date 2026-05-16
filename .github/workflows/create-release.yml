@@ -45,3 +45,29 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger iOS build
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/ios-build.yml/dispatches \
+            -d '{
+              "ref": "main",
+              "inputs": {
+                "release_tag": "${{ steps.version.outputs.tag }}"
+              }
+            }'
+
+      - name: Trigger Android build
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/android-build.yml/dispatches \
+            -d '{
+              "ref": "main",
+              "inputs": {
+                "release_tag": "${{ steps.version.outputs.tag }}"
+              }
+            }'
