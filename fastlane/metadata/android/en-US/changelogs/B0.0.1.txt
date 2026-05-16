@@ -1,0 +1,5 @@
+Features:
+- Most AO3 features required for reading
+- Library system
+- Update system with notification and periodic checks
+- Local history and local kudos history

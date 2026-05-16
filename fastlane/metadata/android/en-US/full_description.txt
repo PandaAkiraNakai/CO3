@@ -1,0 +1,14 @@
+A free reader app for Archive of Our Own (AO3).
+
+Built because other AO3 apps charge money for features that should be free.
+
+<b>Features:</b>
+<ul>
+<li>Custom library with favorites</li>
+<li>Category management and organization</li>
+<li>Reading history with filters</li>
+<li>Native AMOLED support</li>
+<li>Offline reading</li>
+</ul>
+
+<b>No subscriptions, no ads, ever.</b>

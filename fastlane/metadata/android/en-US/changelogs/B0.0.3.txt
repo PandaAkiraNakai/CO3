@@ -1,0 +1,6 @@
+What's Changed
+- Replace search bar with a global search UI by @tbvns
+- Add custom fonts support by @dinarudimdams
+- Clicks on usernames in comment section now open the user's profile by @dinarudimdams
+
+IOS Builds are now available but are untested so they might have weird behaviors. We don't have any Apple devices to test the app so we will rely on your feedback.

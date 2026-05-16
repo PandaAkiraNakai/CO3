@@ -1,0 +1,28 @@
+Additions
+- Added "Allow selecting text" options that allow text selection in the reader
+- Added "Prefer full descriptions" setting that allow full descriptions everywhere (even in the browse menu)
+- Added full download system
+- Added "Download on update" setting
+- Added "Download while reading" setting
+- Added double click actions for the navbar
+- Added comments support (read only) (by @dinarudimdams)
+- Filters are now saved
+- You can create filter presets
+- User profiles page
+- HTML support for some component
+- Added "Prefer HTML" setting allowing HTML into certain component
+
+Enhancement
+- Improved empty states for some component
+- Added underline for "a" html tags
+
+Internal changes
+- Added caching for workscreen, making it twice as fast as the website on certain occasion
+- Improved Browse screen's rendering time
+- Added full download infrastructure
+- Database update scripts (now db is at version 2)
+- The app now supports opening /works/* links
+
+I probably forgot something.
+Also, most of the button now do something !
+The app is in a fare better state than B0.0.1, and I'm quite proud!
