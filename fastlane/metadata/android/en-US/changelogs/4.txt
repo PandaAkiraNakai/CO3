@@ -1,0 +1,2 @@
+What's Changed
+- Polishing and bugfixes (+ Webview fallback) by @tbvns
