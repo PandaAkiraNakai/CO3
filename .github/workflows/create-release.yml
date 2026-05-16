@@ -1,14 +1,14 @@
-name: Auto Increment Version on Tag
-
+name: Manual Release with Custom Tag
 on:
-  push:
-    tags:
-      - 'B*'
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Tag name (e.g., B1.2.3 or V1.0.0)'
+        required: true
+        type: string
 
-# Prevent infinite loops when we force-push the recreated tag
 jobs:
-  increment-version:
-    if: "!contains(github.event.head_commit.message, '[skip-version]')"
+  tag-and-release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -18,41 +18,40 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Extract tag and calculate versionCode
+      - name: Validate tag format (optional)
+        run: |
+          if [[ ! "${{ github.event.inputs.version_tag }}" =~ ^[BV][0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "⚠️ Tag should start with B or V followed by semver (e.g., B1.2.3, V2.0.0)"
+            echo "Continuing anyway..."
+          fi
+
+      - name: Compute versionCode (total number of releases)
         id: version
         run: |
-          set -e
-          TAG=${GITHUB_REF#refs/tags/}
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-          RELEASE_COUNT=$(git tag --list 'B*' | wc -l)
-          echo "versionCode=$RELEASE_COUNT" >> $GITHUB_OUTPUT
-          echo "📱 Tag: $TAG | versionCode: $RELEASE_COUNT"
+          # Count all tags that start with B or V (your release tags)
+          RELEASE_COUNT=$(git tag --list 'B*' --list 'V*' | wc -l)
+          # New versionCode = previous max + 1
+          VERSION_CODE=$((RELEASE_COUNT + 1))
+          echo "versionCode=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "tag=${{ github.event.inputs.version_tag }}" >> $GITHUB_OUTPUT
+          echo "📦 Tag: ${{ github.event.inputs.version_tag }} | versionCode: $VERSION_CODE"
 
       - name: Update build.gradle
         run: |
-          set -e
           sed -i "s/versionCode [0-9]\+/versionCode ${{ steps.version.outputs.versionCode }}/" android/app/build.gradle
           sed -i "s/versionName \"[^\"]*\"/versionName \"${{ steps.version.outputs.tag }}\"/" android/app/build.gradle
-          echo "✅ Updated build.gradle:"
-          grep "versionCode\|versionName" android/app/build.gradle | head -2
+          echo "✅ Updated:"
+          grep "versionCode\|versionName" android/app/build.gradle
 
-      - name: Configure git
+      - name: Commit and tag
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Amend tag with updated build.gradle
-        run: |
-          set -e
           git add android/app/build.gradle
-          # Amend the commit that the tag points to, adding [skip-version] to message
-          git commit --amend -m "Update version ${{ steps.version.outputs.tag }} [skip-version]"
-          # Delete the old tag and recreate it on the amended commit
-          git tag -d ${{ steps.version.outputs.tag }}
+          git commit -m "Release ${{ steps.version.outputs.tag }}"
           git tag ${{ steps.version.outputs.tag }}
-          # Force push the amended commit and updated tag
-          git push origin HEAD:main --force
-          git push origin ${{ steps.version.outputs.tag }} --force
+          git push origin main
+          git push origin ${{ steps.version.outputs.tag }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
