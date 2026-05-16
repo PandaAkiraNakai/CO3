@@ -1,5 +1,6 @@
 import ky from 'ky';
 import { Work } from '../../storage/models/work';
+import getUrl from '../requestManager';
 
 let DomParser = require('react-native-html-parser').DOMParser;
 
@@ -239,8 +240,16 @@ export async function fetchFilteredWorks(filters = {}, page = 1) {
             }
         }
 
+        let error = false;
+
         console.log(`Fetching works from: ${url}`);
-        const response = await ky.get(url, {timeout: 20000}).text();
+        const response = await getUrl(url)
+        console.log(response);
+
+        if (error) {
+          throw "Failed to load works";
+        }
+
         const doc = new DomParser().parseFromString(response, "text/html");
 
         const workElements = Array.from(doc.getElementsByTagName("li"))
@@ -259,12 +268,7 @@ export async function fetchFilteredWorks(filters = {}, page = 1) {
         };
     } catch (error) {
         console.error("Error fetching worksScreen:", error);
-        return {
-            works: [],
-            currentPage: 1,
-            maxPages: 1,
-            hasMore: false
-        };
+        throw error;
     }
 }
 
