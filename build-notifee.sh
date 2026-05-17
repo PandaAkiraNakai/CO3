@@ -46,15 +46,16 @@ info "Installing JS dependencies..."
 cd "$WORK_DIR"
 yarn install --frozen-lockfile --ignore-scripts
 
-info "Changing gradle version to one that support java 21"
-gradle wrapper --gradle-version 8.7
-
 info "Building Android core AAR from source..."
 
 rm -f "packages/react-native/android/libs/app/notifee/core/${AAR_VERSION}/core-${AAR_VERSION}.aar"
 rm -f "packages/flutter/packages/notifee/android/libs/app/notifee/core/${AAR_VERSION}/core-${AAR_VERSION}.aar"
 
 cd android
+
+info "Changing gradle version to one that support java 21"
+gradle wrapper --gradle-version 8.7
+
 ./gradlew assembleRelease compileDebugJavaWithJavac compileDebugUnitTestJavaWithJavac publish \
   || die "Gradle build failed."
 cd "$WORK_DIR"
