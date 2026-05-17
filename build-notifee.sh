@@ -46,8 +46,8 @@ info "Installing JS dependencies..."
 cd "$WORK_DIR"
 yarn install --frozen-lockfile --ignore-scripts
 
-info "Patching gradle-wrapper.properties for java 21 support"
-sed -i 's#distributionUrl=.*#distributionUrl=https\\://services.gradle.org/distributions/gradle-8.7-bin.zip#' gradle/wrapper/gradle-wrapper.properties
+info "Changing gradle version to one that support java 21"
+gradle wrapper --gradle-version 8.7
 
 info "Building Android core AAR from source..."
 
