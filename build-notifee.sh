@@ -25,11 +25,11 @@ command -v java >/dev/null || die "java is not installed."
 command -v yarn >/dev/null || die "yarn is not installed."
 command -v node >/dev/null || die "node is not installed."
 
-JAVA_VER=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | cut -d. -f1)
-if [[ "$JAVA_VER" -gt 17 ]]; then
-  die "Java $JAVA_VER detected. notifee's Gradle 7 requires Java 11 or 17. Please set JAVA_HOME to a JDK <= 17."
-fi
-success "Java $JAVA_VER — OK"
+#JAVA_VER=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | cut -d. -f1)
+#if [[ "$JAVA_VER" -gt 17 ]]; then
+#  die "Java $JAVA_VER detected. notifee's Gradle 7 requires Java 11 or 17. Please set JAVA_HOME to a JDK <= 17."
+#fi
+#success "Java $JAVA_VER — OK"
 
 [[ -d "node_modules/@notifee/react-native" ]] \
   || die "node_modules/@notifee/react-native not found. Run yarn install first."
@@ -52,7 +52,7 @@ rm -f "packages/react-native/android/libs/app/notifee/core/${AAR_VERSION}/core-$
 rm -f "packages/flutter/packages/notifee/android/libs/app/notifee/core/${AAR_VERSION}/core-${AAR_VERSION}.aar"
 
 cd android
-./gradlew assembleRelease compileDebugJavaWithJavac compileDebugUnitTestJavaWithJavac publish \
+gradle assembleRelease compileDebugJavaWithJavac compileDebugUnitTestJavaWithJavac publish \
   || die "Gradle build failed."
 cd "$WORK_DIR"
 
