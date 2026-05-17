@@ -46,14 +46,13 @@ info "Installing JS dependencies..."
 cd "$WORK_DIR"
 yarn install --frozen-lockfile --ignore-scripts
 
+info "Patching gradle-wrapper.properties for java 21 support"
+sed -i 's#distributionUrl=.*#distributionUrl=https\\://services.gradle.org/distributions/gradle-8.7-bin.zip#' gradle/wrapper/gradle-wrapper.properties
+
 info "Building Android core AAR from source..."
 
 rm -f "packages/react-native/android/libs/app/notifee/core/${AAR_VERSION}/core-${AAR_VERSION}.aar"
 rm -f "packages/flutter/packages/notifee/android/libs/app/notifee/core/${AAR_VERSION}/core-${AAR_VERSION}.aar"
-
-info "Patching build scripts for modern gradle versions..."
-find -type f \( -name "*.gradle" -o -name "*.gradle.kts" \) \
-  -exec sed -i 's/\.forUseAtConfigurationTime()//g' {} +
 
 cd android
 gradle assembleRelease compileDebugJavaWithJavac compileDebugUnitTestJavaWithJavac publish \
