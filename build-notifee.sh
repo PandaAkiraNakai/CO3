@@ -55,7 +55,7 @@ rm -f "packages/react-native/android/libs/app/notifee/core/${AAR_VERSION}/core-$
 rm -f "packages/flutter/packages/notifee/android/libs/app/notifee/core/${AAR_VERSION}/core-${AAR_VERSION}.aar"
 
 cd android
-gradle assembleRelease compileDebugJavaWithJavac compileDebugUnitTestJavaWithJavac publish \
+./gradlew assembleRelease compileDebugJavaWithJavac compileDebugUnitTestJavaWithJavac publish \
   || die "Gradle build failed."
 cd "$WORK_DIR"
 
