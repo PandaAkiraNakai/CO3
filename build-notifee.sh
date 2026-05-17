@@ -54,7 +54,7 @@ rm -f "packages/flutter/packages/notifee/android/libs/app/notifee/core/${AAR_VER
 cd android
 
 info "Changing gradle version to one that support java 21"
-gradle wrapper --gradle-version 8.7
+sed -i 's#distributionUrl=.*#distributionUrl=https\\://services.gradle.org/distributions/gradle-8.7-bin.zip#' gradle/wrapper/gradle-wrapper.properties
 
 ./gradlew assembleRelease compileDebugJavaWithJavac compileDebugUnitTestJavaWithJavac publish \
   || die "Gradle build failed."
