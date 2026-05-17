@@ -52,7 +52,7 @@ rm -f "packages/react-native/android/libs/app/notifee/core/${AAR_VERSION}/core-$
 rm -f "packages/flutter/packages/notifee/android/libs/app/notifee/core/${AAR_VERSION}/core-${AAR_VERSION}.aar"
 
 info "Patching build scripts for modern gradle versions..."
-find .notifee-build -type f \( -name "*.gradle" -o -name "*.gradle.kts" \) \
+find -type f \( -name "*.gradle" -o -name "*.gradle.kts" \) \
   -exec sed -i 's/\.forUseAtConfigurationTime()//g' {} +
 
 cd android
