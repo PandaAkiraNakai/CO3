@@ -1,10 +1,9 @@
-import BackgroundFetch from 'react-native-background-fetch';
+import { NativeModules, AppRegistry, Platform } from 'react-native';
 import { fetchWorkFromWorkID } from './worksScreen/fetchWork';
 import { database } from '../storage/Database';
 import { WorkDAO } from '../storage/dao/WorkDAO';
 import { UpdateDAO } from '../storage/dao/UpdateDAO';
 import { Update } from '../storage/models/update';
-
 import notifee, {
   AndroidImportance,
   AndroidStyle,
@@ -12,6 +11,14 @@ import notifee, {
 } from '@notifee/react-native';
 import { getJsonSettings } from '../storage/jsonSettings';
 import { ChapterDAO } from '../storage/dao/ChapterDAO';
+
+const { LibraryScheduler } = NativeModules;
+
+if (Platform.OS === 'android') {
+  AppRegistry.registerHeadlessTask('LibraryUpdate', () => async () => {
+    await run();
+  });
+}
 
 const getMergedIconName = work => {
   let r = 'nr';
@@ -58,41 +65,57 @@ const getMergedIconName = work => {
   return `ic_${r}_${c}_${w}_${s}`.toLowerCase();
 };
 
-const getEmojiStatus = (work) => {
-  let text = "";
-  if (work.rating === 'Explicit') text += "🔞 ";
-  else if (work.rating === 'Mature') text += "🛑 ";
-
-  if (work.warningStatus === 'Yes') text += "⚠️ ";
-
+const getEmojiStatus = work => {
+  let text = '';
+  if (work.rating === 'Explicit') text += '🔞 ';
+  else if (work.rating === 'Mature') text += '🛑 ';
+  if (work.warningStatus === 'Yes') text += '⚠️ ';
   if (work.category && work.category !== 'No category') {
     text += `[${work.category}] `;
   }
   return text;
 };
 
-export const setup = (intervalMinutes) => {
-  BackgroundFetch.configure(
-    {
-      minimumFetchInterval: intervalMinutes,
-      startOnBoot: true,
-      stopOnTerminate: false,
-      enableHeadless: true,
-      requiredNetworkType: BackgroundFetch.NETWORK_TYPE_NONE,
-      requiresDeviceIdle: false,
-      requiresBatteryNotLow: false,
-    },
-    async () => {
-      await run();
-      BackgroundFetch.finish(BackgroundFetch.FETCH_RESULT_NEW_DATA);
-    },
-    (error) => {
-      console.log("[BackgroundFetch] failed to start: ", error);
-    }
-  );
+export const setup = async intervalMinutes => {
+  if (!LibraryScheduler) {
+    console.warn(
+      '[LibraryScheduler] Native module not found — background updates disabled.',
+    );
+    return;
+  }
 
-  BackgroundFetch.start();
-  console.log("Background fetch set up with interval: " + intervalMinutes);
+  const settings = getJsonSettings(); // returns an object, no await needed if async, but getJsonSettings is async - see note below
+  const restrictionArray = settings.updateRestriction;
+  let networkType = 'NONE';
+
+  if (restrictionArray && restrictionArray.length > 0) {
+    const first = restrictionArray[0];
+    switch (first) {
+      case 0:
+        networkType = 'NONE';
+        break;
+      case 1:
+        networkType = 'WIFI';
+        break;
+      case 2:
+        networkType = 'UNMETERED';
+        break;
+      case 3:
+        networkType = 'NOT_ROAMING';
+        break;
+    }
+  }
+
+  LibraryScheduler.schedule(intervalMinutes, networkType);
+  console.log(
+    `[LibraryScheduler] Scheduled every ${intervalMinutes} min, network: ${networkType}`,
+  );
+};
+
+export const cancel = () => {
+  if (!LibraryScheduler) return;
+  LibraryScheduler.cancel();
+  console.log('[LibraryScheduler] Cancelled.');
 };
 
 export const run = async () => {
@@ -101,14 +124,14 @@ export const run = async () => {
 
   try {
     const channelId = await notifee.createChannel({
-      id: "updateWorks",
-      name: "Library Updates",
+      id: 'updateWorks',
+      name: 'Library Updates',
       importance: AndroidImportance.DEFAULT,
     });
 
     const progressChannelId = await notifee.createChannel({
-      id: "updateProgress",
-      name: "Update Progress",
+      id: 'updateProgress',
+      name: 'Update Progress',
       importance: AndroidImportance.LOW,
     });
 
@@ -117,13 +140,13 @@ export const run = async () => {
     const updateDAO = new UpdateDAO(db);
     const chapterDAO = new ChapterDAO(db);
 
-    const toUpdate = (await workDAO.getAll()).filter((work) => {
+    const toUpdate = (await workDAO.getAll()).filter(work => {
       return work.chapterCount !== work.currentChapter;
     });
 
     await notifee.displayNotification({
-      id: "scanning_progress",
-      title: "Checking for updates...",
+      id: 'scanning_progress',
+      title: 'Checking for updates...',
       body: `Scanning ${toUpdate.length} works...`,
       android: {
         channelId: progressChannelId,
@@ -134,7 +157,9 @@ export const run = async () => {
     });
 
     const randomDelay = (min, max) =>
-      new Promise((resolve) => setTimeout(resolve, Math.random() * (max - min) + min));
+      new Promise(resolve =>
+        setTimeout(resolve, Math.random() * (max - min) + min),
+      );
 
     const updatedWorks = [];
     const errorWork = [];
@@ -142,8 +167,8 @@ export const run = async () => {
     for (let i = 0; i < toUpdate.length; i++) {
       const uwork = toUpdate[i];
       await notifee.displayNotification({
-        id: "scanning_progress",
-        title: "Updating your library...",
+        id: 'scanning_progress',
+        title: 'Updating your library...',
         body: `${Math.floor((i / toUpdate.length) * 100)}% : ${uwork.title}`,
         android: {
           channelId: progressChannelId,
@@ -165,13 +190,17 @@ export const run = async () => {
             chNum <= updatedWork.currentChapter;
             chNum++
           ) {
-            const newChapter = updatedWork.chapters.find((ch) => ch.number === chNum);
+            const newChapter = updatedWork.chapters.find(
+              ch => ch.number === chNum,
+            );
             newChapterNumbers.push(chNum);
 
             const update = new Update({
               workId: updatedWork.id,
               chapterNumber: chNum,
-              chapterID: newChapter ? String(newChapter.id) : `${updatedWork.id}_${chNum}`,
+              chapterID: newChapter
+                ? String(newChapter.id)
+                : `${updatedWork.id}_${chNum}`,
               date: Date.now(),
             });
             await updateDAO.add(update);
@@ -181,7 +210,7 @@ export const run = async () => {
 
           if (!useCompactNotification && newChapterNumbers.length > 0) {
             const iconName = getMergedIconName(updatedWork);
-            const chaptersStr = newChapterNumbers.join(", ");
+            const chaptersStr = newChapterNumbers.join(', ');
             const firstChapterNumber = newChapterNumbers[0];
 
             await notifee.displayNotification({
@@ -191,7 +220,7 @@ export const run = async () => {
               data: {
                 action: 'OPEN_WORK',
                 workId: updatedWork.id,
-                chapterNumber: firstChapterNumber
+                chapterNumber: firstChapterNumber,
               },
               android: {
                 channelId,
@@ -211,34 +240,34 @@ export const run = async () => {
       }
     }
 
-    await notifee.cancelNotification("scanning_progress");
+    await notifee.cancelNotification('scanning_progress');
 
     if (updatedWorks.length > 0) {
       if (useCompactNotification) {
         await notifee.displayNotification({
-          id: "updateComplete",
-          title: "Update complete",
+          id: 'updateComplete',
+          title: 'Update complete',
           body: `Found updates for ${updatedWorks.length} works.`,
           android: {
             channelId,
-            pressAction: { id: "default" },
+            pressAction: { id: 'default' },
             style: {
               type: AndroidStyle.INBOX,
-              lines: updatedWorks.map((w) => w.title),
+              lines: updatedWorks.map(w => w.title),
             },
           },
         });
       } else {
         await notifee.displayNotification({
-          id: "group_summary",
-          title: "Library Updates",
+          id: 'group_summary',
+          title: 'Library Updates',
           subtitle: `${updatedWorks.length} works updated`,
           android: {
             channelId,
             groupSummary: true,
             groupId: 'library_updates',
             autoCancel: true,
-            pressAction: { id: "default" },
+            pressAction: { id: 'default' },
           },
         });
       }
@@ -246,48 +275,58 @@ export const run = async () => {
 
     if (errorWork.length > 0) {
       await notifee.displayNotification({
-        id: "updateError",
-        title: "Update Issues",
+        id: 'updateError',
+        title: 'Update Issues',
         body: `Failed to update ${errorWork.length} works.`,
         android: {
           channelId,
           style: {
             type: AndroidStyle.INBOX,
-            lines: errorWork.map((w) => w.title),
+            lines: errorWork.map(w => w.title),
           },
         },
       });
     }
-
   } catch (error) {
-    console.log("[BackgroundFetch] Task error:", error);
+    console.log('[LibraryScheduler] Task error:', error);
   }
 };
 
 export async function updateWork(workId, workDAO, chapterDAO) {
-  const work = await fetchWorkFromWorkID(workId, workDAO, chapterDAO,true, true);
+  const work = await fetchWorkFromWorkID(
+    workId,
+    workDAO,
+    chapterDAO,
+    true,
+    true,
+  );
   if (work) {
     await workDAO.update(work);
   }
   return work;
 }
 
-export const setupNotificationListeners = (setActiveScreen, setScreens, openWorkDetails) => {
-
-  const handlePress = async (detail) => {
+export const setupNotificationListeners = (
+  setActiveScreen,
+  setScreens,
+  openWorkDetails,
+) => {
+  const handlePress = async detail => {
     const { notification } = detail;
     const data = notification?.data;
 
     if (data?.action === 'OPEN_WORK' && data?.workId) {
-      console.log(`Opening Work: ${data.workId}, Chapter Number: ${data.chapterNumber}`);
-
+      console.log(
+        `Opening Work: ${data.workId}, Chapter Number: ${data.chapterNumber}`,
+      );
       setActiveScreen('update');
-
       if (openWorkDetails) {
         openWorkDetails(data.workId, data.chapterNumber);
       }
-
-    } else if (notification?.id === 'updateComplete' || notification?.id === 'group_summary') {
+    } else if (
+      notification?.id === 'updateComplete' ||
+      notification?.id === 'group_summary'
+    ) {
       setActiveScreen('update');
     }
   };
