@@ -100,7 +100,7 @@ android {
         abi {
             reset()
             enable true
-            universalApk false  // F-Droid builds per-ABI, so no fat APK needed
+            universalApk true
             include "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
         }
     }
@@ -111,6 +111,8 @@ android {
             def abi = output.getFilter(com.android.build.OutputFile.ABI)
             if (abi != null) {
                 output.versionCodeOverride = variant.versionCode * 10 + abiCodes.get(abi, 0)
+            } else {
+                output.outputFileName = "app-release.apk"
             }
         }
     }
