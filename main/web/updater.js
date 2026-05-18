@@ -8,7 +8,7 @@ import notifee, {
   AndroidImportance,
   AndroidStyle,
   EventType,
-} from '@notifee/react-native';
+} from 'react-native-notify-kit';
 import { getJsonSettings } from '../storage/jsonSettings';
 import { ChapterDAO } from '../storage/dao/ChapterDAO';
 
