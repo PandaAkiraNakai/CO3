@@ -53,7 +53,7 @@ jobs:
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
 
       - name: Rename artifact
-        run: mv android/app/build/outputs/apk/release/app-release.apk CO3-Android.apk
+        run: mv android/app/build/outputs/apk/release/app-release-unsigned.apk CO3-Android.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
