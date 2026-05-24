@@ -9,6 +9,11 @@
     <img src="https://github.com/tbvns/CO3/actions/workflows/ios-build.yml/badge.svg" alt="Build iOS IPA (Unsigned)" border="0">
   </a>
 </p>
+<p align="center">
+  <a href="https://tbvns.xyz/discord">
+    <img src="https://img.shields.io/badge/-CO3%20Discord%20Server-%237289DA?style=flat&logo=discord&logoColor=white" alt="Build Android APK">
+  </a>
+</p>
 
 # Client of our own
 CO3 is a free reader app for **Archive of Our Own** (AO3). We built it because other AO3 apps charge money for features that should be free. </br>
