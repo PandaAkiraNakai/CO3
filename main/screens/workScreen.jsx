@@ -66,7 +66,13 @@ const ChapterItem = React.memo(({ chapter, index, currentTheme, onPress, showDat
   const progressText = hasProgress ? `${(chapter.progress * 100).toFixed(0)}%` : "";
 
   const subtitleParts = [];
-  if (dateText) subtitleParts.push(dateText);
+  if (dateText) {
+    const date = new Date(parseInt(dateText, 10));
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    subtitleParts.push(`${month}/${day}/${year}`); //TODO: Modify this if not in the US cuz ima go crazy, I can't read that fr
+  }
   if (showDate && hasProgress) subtitleParts.push(progressText);
   const subtitleToRender = subtitleParts.join(" | ");
 

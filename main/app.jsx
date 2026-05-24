@@ -42,7 +42,7 @@ import {
 } from 'react-native-safe-area-context';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { setup, setupNotificationListeners } from './web/updater';
-import { getJsonSettings } from './storage/jsonSettings';
+import { getJsonSettings, saveJsonSettings } from './storage/jsonSettings';
 import { UpdateDAO } from './storage/dao/UpdateDAO';
 import notifee from 'react-native-notify-kit';
 import { Linking } from 'react-native';
@@ -52,6 +52,7 @@ import { loadFont } from '@vitrion/react-native-load-fonts';
 import GlobalSearchScreen from './screens/GlobalSearchScreen';
 import { Host } from 'react-native-portalize';
 import WebviewFetcher from './web/WebviewFetcher';
+import MainOnboardScreen from './onboard/MainOnboardScreen';
 
 const AppWrapper = () => {
   return (
@@ -184,11 +185,13 @@ const App = () => {
   const [kudoHistoryDAO, setKudoHistoryDAO] = useState(null);
   const [updateDAO, setupdateDAO] = useState(null);
   const [chapterDAO, setChapterDAO] = useState(null);
+  const [jsonSettings, setJsonSettings] = useState();
 
   const [screens, setScreens] = useState([]);
 
   const [selectedTag, setSelectedTag] = useState();
   const [selectedPreset, setSelectedPreset] = useState();
+  const [selectedCollection, setSelectedCollection] = useState();
 
   const currentTheme = useMemo(() => {
     return (themes && themes[theme]) ? themes[theme] : (themes?.light || {
@@ -379,6 +382,7 @@ const App = () => {
 
   const initializeApp = async () => {
     const jsonSettings = await getJsonSettings();
+    setJsonSettings(jsonSettings)
     setup(jsonSettings.time)
 
     if (Platform.OS === 'android') {
@@ -556,7 +560,10 @@ const App = () => {
       databaseObj,
       chapterDAO,
       selectedPreset,
-      setSelectedPreset
+      setSelectedPreset,
+      setSelectedCollection,
+      selectedCollection,
+      setJsonSettings
     };
 
     switch (activeScreen) {
@@ -590,9 +597,30 @@ const App = () => {
     );
   }
 
-  //render the screen if set instead of rendering the main menu
+  if (!jsonSettings.finishedOnboarding) {
+    return (
+      <>
+        <StatusBar
+          barStyle={theme === 'light' ? 'dark-content' : 'light-content'}
+          backgroundColor={currentTheme.backgroundColor}
+        />
+        <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
+          <MainOnboardScreen
+            setTheme={saveTheme}
+            currentTheme={currentTheme}
+            onFinish={() => {
+              jsonSettings.finishedOnboarding = true;
+              saveJsonSettings(jsonSettings).then(
+                getJsonSettings().then(setJsonSettings)
+              )
+            }}
+          />
+        </View>
+      </>
+    )
+  }
+
   if (screens.length !== 0) {
-    // console.log(screens);
     return (
       <>
         <StatusBar

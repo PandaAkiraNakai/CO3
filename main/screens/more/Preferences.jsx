@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
+  Alert,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -25,20 +26,21 @@ import { loadFont, loadFontFromFile } from "@vitrion/react-native-load-fonts";
 import { readFile } from "react-native-fs"
 
 const PreferencesScreen = ({
-  currentTheme,
-  settingsDAO,
-  setScreens,
-  setTheme,
-  viewMode,
-  setViewMode,
-}) => {
+                             currentTheme,
+                             settingsDAO,
+                             setScreens,
+                             setTheme,
+                             viewMode,
+                             setViewMode,
+                             onRestartOnboarding,
+                           }) => {
   // DB Settings State
   const [fontSize, setFontSize] = useState(1.0);
   const [useCustomSize, setUseCustomSize] = useState(false);
   const [font, setFont] = useState("");
   const [fontFamily, setFontFamily] = useState("");
   const [useCustomFont, setUseCustomFont] = useState(false);
-  const [theme, setLocalTheme] = useState('black');
+  const [theme, setLocalTheme] = useState(currentTheme.name);
   const [localViewMode, setLocalViewMode] = useState('full');
 
   // JSON Settings State
@@ -52,7 +54,7 @@ const PreferencesScreen = ({
   const [updateTime, setUpdateTime] = useState(1440);
   const [updateRestriction, setUpdateRestriction] = useState(3);
 
-  const activeTheme = themes[theme] || themes.black;
+  const activeTheme = themes[theme] || currentTheme;
 
   const dynamicStyle = [{ color: activeTheme.textColor }, useCustomFont ? { fontFamily } : {}]
 
@@ -217,9 +219,32 @@ const PreferencesScreen = ({
     saveJsonSettingsData({ downloadOnUpdate: newValue });
   };
 
+  const handleRestartOnboarding = () => {
+    Alert.alert(
+      'Restart Onboarding',
+      'This will take you back through the setup screens. Continue?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Restart',
+          style: 'destructive',
+          onPress: async () => {
+            await saveJsonSettingsData({ finishedOnboarding: false });
+            if (onRestartOnboarding) {
+              onRestartOnboarding();
+            } else {
+              onBack();
+            }
+          },
+        },
+      ]
+    );
+  };
+
   // --- HTML Preview ---
 
-  const sampleHtml = `
+  const sampleHtml = useMemo(() => {
+    return `
     <!DOCTYPE html>
     <html>
     <head>
@@ -231,25 +256,25 @@ const PreferencesScreen = ({
           font-family: ${useCustomFont ? fontFamily : "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"};
           line-height: 1.6;
           padding: 20px;
-          background-color: ${currentTheme.backgroundColor};
-          color: ${currentTheme.textColor};
+          background-color: ${activeTheme.backgroundColor};
+          color: ${activeTheme.textColor};
           font-size: ${useCustomSize ? fontSize + 'em' : '1em'};
         }
         h1 { 
-          color: ${currentTheme.textColor};
-          border-bottom: 2px solid ${currentTheme.primaryColor};
+          color: ${activeTheme.textColor};
+          border-bottom: 2px solid ${activeTheme.primaryColor};
           padding-bottom: 8px;
         }
         p { 
-          color: ${currentTheme.textColor};
+          color: ${activeTheme.textColor};
           margin-bottom: 12px;
         }
         a { 
-          color: ${currentTheme.primaryColor};
+          color: ${activeTheme.primaryColor};
         }
         blockquote {
-          border-left: 4px solid ${currentTheme.primaryColor};
-          background-color: ${currentTheme.inputBackground};
+          border-left: 4px solid ${activeTheme.primaryColor};
+          background-color: ${activeTheme.inputBackground};
           padding: 16px;
           margin: 16px 0;
           border-radius: 4px;
@@ -266,6 +291,7 @@ const PreferencesScreen = ({
     </body>
     </html>
   `;
+  }, [activeTheme, useCustomSize, fontSize, useCustomFont, fontFamily, font]);
 
   // --- Render Helpers ---
 
@@ -821,6 +847,33 @@ const PreferencesScreen = ({
             </CustomDropdown>
           </View>
         </View>
+
+        {/* RESTART ONBOARDING */}
+        <View style={[styles.section, { borderBottomWidth: 0, marginBottom: 8 }]}>
+          <TouchableOpacity
+            style={[
+              styles.restartButton,
+              {
+                backgroundColor: activeTheme.inputBackground,
+                borderColor: activeTheme.borderColor,
+              },
+            ]}
+            onPress={handleRestartOnboarding}
+            activeOpacity={0.7}
+          >
+            <Icon name="replay" size={20} color={activeTheme.iconColor} />
+            <View style={styles.restartButtonContent}>
+              <Text style={[{ fontSize: 16, marginBottom: 2 }, ...dynamicStyle]}>
+                Restart Onboarding
+              </Text>
+              <Text style={{ fontSize: 13, color: activeTheme.secondaryTextColor }}>
+                Go through the setup screens again
+              </Text>
+            </View>
+            <Icon name="chevron-right" size={20} color={activeTheme.placeholderColor} />
+          </TouchableOpacity>
+        </View>
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -934,6 +987,18 @@ const styles = StyleSheet.create({
   viewModeButtonText: {
     fontSize: 14,
     fontWeight: '500',
+  },
+  restartButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  restartButtonContent: {
+    flex: 1,
   },
 });
 
