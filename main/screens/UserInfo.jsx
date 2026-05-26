@@ -1,6 +1,8 @@
 import {
   ActivityIndicator,
-  Image, SafeAreaView,
+  Image,
+  SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -101,7 +103,7 @@ export default function UserInfoScreen({
             User profile
           </Text>
         </View>
-        <View>
+        <ScrollView>
           {userInfo ? (
             <>
               <View style={styles.headerContainer}>
@@ -153,7 +155,7 @@ export default function UserInfoScreen({
                 </Text>
                 <Icon name={"chevron-right"} size={24} color={currentTheme.iconColor} style={[{}]} />
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.bookMarkButton, {borderColor: currentTheme.borderColor }]}
+              <TouchableOpacity style={[styles.workButton, {borderColor: currentTheme.borderColor }]}
                                 onPress={() => {
                                   setScreens(p => [...p, <UserWorkScreen
                                     setScreens={setScreens}
@@ -177,7 +179,7 @@ export default function UserInfoScreen({
           ) : (
             <ActivityIndicator />
           )}
-        </View>
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -246,6 +248,14 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  workButton: {
+    borderBottomWidth: 1,
+    padding: 15,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 64,
   },
   bookMarkButtonText: {
     fontWeight: 'bold',
