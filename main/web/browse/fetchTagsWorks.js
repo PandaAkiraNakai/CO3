@@ -104,7 +104,7 @@ export async function fetchTagWorks(tagName, filters = {}, page = 1) {
   }
 
   try {
-    const encodedTag = encodeURIComponent(tagName.replace(/\//g, '*s*'));
+    const encodedTag = encodeURIComponent(tagName.replace(/\//g, '*s*').replace(/\./g, '*d*'));
     const params = buildTagSearchParams(filters, page);
     const url = `https://archiveofourown.org/tags/${encodedTag}/works?${params.toString()}`;
 

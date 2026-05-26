@@ -7,7 +7,7 @@ export async function checkTagCanonical(tagName) {
     throw new Error('checkTagCanonical: tagName is required');
   }
 
-  const encodedTag = encodeURIComponent(tagName.replace(/\//g, '*s*'));
+  const encodedTag = encodeURIComponent(tagName.replace(/\//g, '*s*').replace(/\./g, '*d*'));
   const url = `https://archiveofourown.org/tags/${encodedTag}`;
 
   console.log(`Checking tag: ${url}`);
