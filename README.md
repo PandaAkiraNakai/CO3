@@ -62,11 +62,12 @@ You can get IOS dev builds [here](https://github.com/tbvns/CO3/actions/workflows
 # Logo and name usage
 The name "CO3" or "Client Of Our Own" and the project logo are copyright © Tbvns and are not covered by the GPL license. You may not publish this application or any derivative under the same name or logo on the Google Play Store, Apple App Store, or any other proprietary app store. Redistribution via F-Droid or direct APK sideloading is permitted.
 
-You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>. 
-
 # License
 Copyright (C) 2026 Tbvns
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>. 
+
