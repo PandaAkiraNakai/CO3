@@ -55,13 +55,19 @@ import WebviewFetcher from './web/WebviewFetcher';
 import MainOnboardScreen from './onboard/MainOnboardScreen';
 
 const AppWrapper = () => {
+  const wrapperStyle = Platform.OS === 'web'
+    ? { flex: 1, width: '100%', height: '100%' }
+    : { flex: 1 };
+
   return (
-    <Host>
-      <SafeAreaProvider>
-        <App />
-      </SafeAreaProvider>
-      <WebviewFetcher />
-    </Host>
+    <View style={wrapperStyle}>
+      <Host>
+        <SafeAreaProvider style={{ flex: 1 }}>
+          <App />
+        </SafeAreaProvider>
+        <WebviewFetcher />
+      </Host>
+    </View>
   );
 };
 
