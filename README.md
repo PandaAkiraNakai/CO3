@@ -33,7 +33,7 @@ The goal is to give you a better reading experience on your phone with features 
 - ~~Bookmarks~~ (Done !)
 - ~~View and read comments~~ (Done !)
 - ~~User profile pages~~ (Done !)
-- Statistics screen
+- ~~Statistics screen~~ (Done !)
 - ~~Download works to read offline~~ (Done !)
 
 > [!NOTE]
