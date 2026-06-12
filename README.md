@@ -47,8 +47,8 @@ You can get android dev builds [here](https://github.com/tbvns/CO3/actions/workf
 You can get IOS dev builds [here](https://github.com/tbvns/CO3/actions/workflows/ios-build.yml).
 
 > [!CAUTION]
-> iOS builds are currently untested since none of the contributors have iOS devices. If you’re on iOS, we’d really appreciate any bug reports you can share.
-> It is possible that they don't even launch, we really have no idea.
+> ~~iOS builds are currently untested since none of the contributors have iOS devices. If you’re on iOS, we’d really appreciate any bug reports you can share.
+> It is possible that they don't even launch, we really have no idea.~~ Some user reported the app working, athough we don't know how true that is and what remains to be fixed.
 
 <p align="center">
   <a href="https://f-droid.org/packages/com.co3/">
