@@ -28,7 +28,7 @@ android {
         applicationId "com.co3"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 11
+        versionCode 10
         versionName "B0.0.11"
     }
 
