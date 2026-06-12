@@ -405,11 +405,11 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
   const stringToItems = (str) => str ? str.split(',').map((name, index) => ({ id: `${name}-${index}`, name: name.trim() })) : [];
 
 
-  const [canonicalTagDismissed, setCanonicalTagDismissed] = useState(false);
+  const [restoredCanonicalTag, setRestoredCanonicalTag] = useState(
+    tagMode.active ? tagMode.tagName : null
+  );
 
-  const activeCanonicalTag = canonicalTagDismissed
-    ? null
-    : (tagMode.active ? tagMode.tagName : null);
+  const activeCanonicalTag = restoredCanonicalTag ?? (tagMode.active ? tagMode.tagName : null);
 
   const [presets, setPresets] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -764,16 +764,16 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
         keyboardShouldPersistTaps="handled"
       >
         {activeCanonicalTag ? (
-          <View style={[styles.canonicalTagBanner, { backgroundColor: currentTheme.primaryColor + '22', borderColor: currentTheme.primaryColor }]}>
-            <Icon name="local-offer" size={14} style={{ color: currentTheme.primaryColor, marginRight: 6 }} />
-            <Text style={[styles.canonicalTagBannerText, { color: currentTheme.primaryColor, flex: 1 }]}>
-              Browsing canonical tag: <Text style={{ fontWeight: 'bold' }}>{activeCanonicalTag}</Text>
-            </Text>
-            <TouchableOpacity onPress={() => setCanonicalTagDismissed(true)} style={styles.canonicalTagDismiss}>
-              <Icon name="close" size={14} style={{ color: currentTheme.primaryColor }} />
-            </TouchableOpacity>
-          </View>
-        ) :
+            <View style={[styles.canonicalTagBanner, { backgroundColor: currentTheme.primaryColor + '22', borderColor: currentTheme.primaryColor }]}>
+              <Icon name="local-offer" size={14} style={{ color: currentTheme.primaryColor, marginRight: 6 }} />
+              <Text style={[styles.canonicalTagBannerText, { color: currentTheme.primaryColor, flex: 1 }]}>
+                Browsing canonical tag: <Text style={{ fontWeight: 'bold' }}>{activeCanonicalTag}</Text>
+              </Text>
+              <TouchableOpacity onPress={() => setRestoredCanonicalTag(null)} style={styles.canonicalTagDismiss}>
+                <Icon name="close" size={14} style={{ color: currentTheme.primaryColor }} />
+              </TouchableOpacity>
+            </View>
+          ) :
           <View style={[styles.canonicalTagBanner, { backgroundColor: currentTheme.warningMessageBackground, borderColor: currentTheme.warningMessageTextColor }]}>
             <Icon name="local-offer" size={14} style={{ color: currentTheme.warningMessageTextColor, marginRight: 6 }} />
             <Text style={[styles.canonicalTagBannerText, { color: currentTheme.warningMessageTextColor, flex: 1 }]}>
