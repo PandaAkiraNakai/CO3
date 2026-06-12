@@ -31,6 +31,15 @@ function isCFChallenge(html) {
   return html.includes('_cf_chl_opt');
 }
 
+const cloudflareErrorCodes = [
+  403, //Unauthorized
+  525, //Supposed to be an SSL error but CF uses it to block automated request sometimes
+  418, //Don't ask me why, I did have an encounter with CF and this error code using tor exit nodes
+  520, //CF specific, "Unknown error"
+  522, //CF specific, "Connection Timed Out"
+  503, //Used for CF challenges
+]
+
 export default async function getUrl(url) {
   const { hostname } = new URL(url);
 
@@ -51,7 +60,7 @@ export default async function getUrl(url) {
     console.log(`fetched ${url} via ky.`);
     return html;
   } catch (err) {
-    if (err?.response?.status === 403) {
+    if (cloudflareErrorCodes.includes(err?.response?.status)) {
       await enableCFMode(hostname);
       return fetchViaWebView(url, { cfWarning: true });
     }
