@@ -1,8 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   BackHandler,
   DeviceEventEmitter,
+  Dimensions,
+  Image,
   PermissionsAndroid,
   Platform,
   SafeAreaView,
@@ -18,7 +21,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import SideMenu from './components/app/SideMenu';
 import AddWorkModal from './components/Library/AddWorkModal';
-import { database } from './storage/Database';
+import { database } from './storage/DatabaseManager';
 import { HistoryDAO } from './storage/dao/HistoryDAO';
 import { WorkDAO } from './storage/dao/WorkDAO';
 import { SettingsDAO } from './storage/dao/SettingsDAO';
@@ -55,6 +58,7 @@ import WebviewFetcher from './web/WebviewFetcher';
 import MainOnboardScreen from './onboard/MainOnboardScreen';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { runOnJS, useSharedValue } from 'react-native-reanimated';
+import Spinner from './components/History/Spinner';
 
 const AppWrapper = () => {
   const wrapperStyle = Platform.OS === 'web'
@@ -232,6 +236,10 @@ const App = () => {
       return;
     }
 
+    if (Platform.OS !== 'ios' && Platform.OS !== 'android') {
+      return;
+    }
+
     const handleUrl = async (url) => {
       hasAddedInitialScreen.current = true;
       const workId = url.split('/')[4];
@@ -404,7 +412,7 @@ const App = () => {
 
   const popScreen = () => setScreens(prev => prev.slice(0, -1));
 
-  const swipeBack = Gesture.Pan()
+  const swipeBack = Platform.OS === 'ios' || Platform.OS === 'android' ? ( Gesture.Pan()
     .enabled(Platform.OS === 'ios')
     .activeOffsetX([-20, 20])
     .failOffsetY([-10, 10])
@@ -419,7 +427,7 @@ const App = () => {
           runOnJS(exitApp)();
         }
       }
-    });
+    }) ) : () => console.log("gesture is ignored in windows");
 
   const initializeApp = async () => {
     const jsonSettings = await getJsonSettings();
@@ -464,11 +472,6 @@ const App = () => {
 
       const booksData = await newWorkDAO.getAll();
       setBooks(booksData);
-
-      if (loadedSettings.useCustomFont && (await exists(loadedSettings.font))) {
-        const fontContent = await readFile(loadedSettings.font, 'base64');
-        await loadFont(loadedSettings.fontFamily, fontContent, loadedSettings.font.split('.')[-1]).catch(e => console.error(e));
-      }
     } catch (error) {
       console.error('Error initializing app:', error);
       Alert.alert('Error', 'Failed to initialize app');
@@ -630,7 +633,9 @@ const App = () => {
       <>
         <SafeAreaView style={[styles.container, { backgroundColor: currentTheme?.backgroundColor || 'white' }]}>
           <View style={styles.loadingContainer}>
-            <Text style={[styles.loadingText, { color: currentTheme?.textColor || 'black' }]}>Loading...</Text>
+            <Image style={{ width: 200, height: 200, marginBottom: 50, }} source={require('./res/CO3.png')} />
+            <ActivityIndicator size="50" color={currentTheme.primaryColor} />
+            <Text style={{ color: currentTheme.textColor }} >Loading...</Text>
           </View>
         </SafeAreaView>
         <CustomToast currentTheme={currentTheme} />
@@ -688,7 +693,7 @@ const App = () => {
   }
 
   return (
-    <GestureDetector gesture={swipeBack}>
+    <GestureDetector gesture={swipeBack} >
       <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
         <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
           <StatusBar
