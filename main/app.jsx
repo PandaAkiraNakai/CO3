@@ -121,7 +121,7 @@ const TopBar = ({ currentTheme, activeScreen, setIsSideMenuOpen, searchTerm, set
       ) : (
         <View style={styles.titleHeader}>
           <Text style={[styles.headerTitle, { color: currentTheme.textColor }]}>
-            {activeScreen.charAt(0).toUpperCase() + activeScreen.slice(1)}
+            {t("navigation_" + activeScreen)}
           </Text>
         </View>
       )}
