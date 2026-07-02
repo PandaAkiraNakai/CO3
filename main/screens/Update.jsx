@@ -188,7 +188,7 @@ const UpdateScreen = ({
         ]}
       >
         <Text style={[styles.loadingText, { color: currentTheme.textColor }]}>
-          Loading updates...
+          {t('screen_update_loading')}
         </Text>
       </View>
     );
