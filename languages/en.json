@@ -1,0 +1,30 @@
+{
+  "general_global_search_placeholder": "Search works, authors...",
+  "general_loading": "Loading...",
+  "general_retry": "Retry",
+
+  "navigation_library": "Library",
+  "navigation_update": "Update",
+  "navigation_browse": "Browse",
+  "navigation_history": "History",
+  "navigation_more": "More",
+
+  "screen_library_title": "Your Library",
+  "screen_library_loading": "Loading library...",
+  "screen_library_loading_failed": "Failed to Load Library",
+  "screen_library_loading_more": "Loading more works...",
+  "screen_library_subtitle": "{{count}} work",
+  "screen_library_subtitle_plural": "{{count}} works",
+  "screen_library_subtitle_collection": " in {{collection}}",
+  "screen_library_subtitle_match_filter": " matching {{query}}",
+  "screen_library_end": "No more works to load",
+  "screen_library_empty": "Your library is empty",
+  "screen_library_empty_sub": "Your library is empty",
+  "screen_library_no_result": "No matches found",
+  "screen_library_no_result_sub": "No works found matching {{search_term}}",
+  "screen_library_browse_works_button": "Browse Works",
+  "screen_library_sort_menu_title": "Sort by",
+  "screen_library_sort_selector_read": "Last Read",
+  "screen_library_sort_selector_alphabetical": "Alphabetical",
+  "screen_library_sort_selector_date": "Date Added"
+}

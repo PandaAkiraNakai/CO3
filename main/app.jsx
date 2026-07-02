@@ -59,6 +59,8 @@ import MainOnboardScreen from './onboard/MainOnboardScreen';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { runOnJS, useSharedValue } from 'react-native-reanimated';
 import Spinner from './components/History/Spinner';
+import "./storage/LanguageManager";
+import { useTranslation } from 'react-i18next';
 
 const AppWrapper = () => {
   const wrapperStyle = Platform.OS === 'web'
@@ -83,8 +85,18 @@ const TopBar = ({ currentTheme, activeScreen, setIsSideMenuOpen, searchTerm, set
   const insets = useSafeAreaInsets();
   const showSearch = activeScreen === 'library' || activeScreen === 'search' || activeScreen === 'browse';
 
+  const { t } = useTranslation();
+
   return (
-    <View style={[styles.header, { backgroundColor: currentTheme.headerBackground, paddingTop: insets.top, }]}>
+    <View
+      style={[
+        styles.header,
+        {
+          backgroundColor: currentTheme.headerBackground,
+          paddingTop: insets.top,
+        },
+      ]}
+    >
       {showSearch ? (
         <View style={styles.searchContainer}>
           <Icon name="search" size={20} color={currentTheme.iconColor} />
@@ -95,13 +107,13 @@ const TopBar = ({ currentTheme, activeScreen, setIsSideMenuOpen, searchTerm, set
                 backgroundColor: currentTheme.inputBackground,
                 color: currentTheme.textColor,
                 borderColor: currentTheme.borderColor,
-              }
+              },
             ]}
-            placeholder="Search works, authors..."
+            placeholder={t('general_global_search_placeholder')}
             placeholderTextColor={currentTheme.placeholderColor}
             value={searchTerm}
             onPress={() => {
-              setActiveScreen('search')
+              setActiveScreen('search');
             }}
             onChangeText={setSearchTerm}
           />
@@ -115,7 +127,10 @@ const TopBar = ({ currentTheme, activeScreen, setIsSideMenuOpen, searchTerm, set
       )}
 
       <TouchableOpacity
-        style={[styles.menuButton, { backgroundColor: currentTheme.buttonBackground }]}
+        style={[
+          styles.menuButton,
+          { backgroundColor: currentTheme.buttonBackground },
+        ]}
         onPress={() => setIsSideMenuOpen(true)}
       >
         <Icon name="menu" size={24} color={currentTheme.iconColor} />
@@ -125,12 +140,14 @@ const TopBar = ({ currentTheme, activeScreen, setIsSideMenuOpen, searchTerm, set
 };
 
 const BottomNavigation = ({ activeScreen, setActiveScreen, currentTheme, onDoubleTap }) => {
+  const { t } = useTranslation();
+
   const navItems = [
-    { key: 'library', icon: 'library-books', label: 'Library' },
-    { key: 'update', icon: 'update', label: 'Update' },
-    { key: 'browse', icon: 'book', label: 'Browse' },
-    { key: 'history', icon: 'bookmark', label: 'History' },
-    { key: 'more', icon: 'more-horiz', label: 'More' },
+    { key: 'library', icon: 'library-books', label: t('navigation_library') },
+    { key: 'update', icon: 'update', label: t('navigation_update') },
+    { key: 'browse', icon: 'book', label: t('navigation_browse') },
+    { key: 'history', icon: 'bookmark', label: t('navigation_history') },
+    { key: 'more', icon: 'more-horiz', label: t('navigation_more') },
   ];
 
   const insets = useSafeAreaInsets();
@@ -208,6 +225,8 @@ const App = () => {
   const [selectedTag, setSelectedTag] = useState();
   const [selectedPreset, setSelectedPreset] = useState();
   const [selectedCollection, setSelectedCollection] = useState();
+
+  const { t } = useTranslation();
 
   const currentTheme = useMemo(() => {
     return (themes && themes[theme]) ? themes[theme] : (themes?.light || {
@@ -631,11 +650,21 @@ const App = () => {
   if (loading || !currentTheme) {
     return (
       <>
-        <SafeAreaView style={[styles.container, { backgroundColor: currentTheme?.backgroundColor || 'white' }]}>
+        <SafeAreaView
+          style={[
+            styles.container,
+            { backgroundColor: currentTheme?.backgroundColor || 'white' },
+          ]}
+        >
           <View style={styles.loadingContainer}>
-            <Image style={{ width: 200, height: 200, marginBottom: 50, }} source={require('./res/CO3.png')} />
+            <Image
+              style={{ width: 200, height: 200, marginBottom: 50 }}
+              source={require('./res/CO3.png')}
+            />
             <ActivityIndicator size="50" color={currentTheme.primaryColor} />
-            <Text style={{ color: currentTheme.textColor }} >Loading...</Text>
+            <Text style={{ color: currentTheme.textColor }}>
+              {t('general_loading')}
+            </Text>
           </View>
         </SafeAreaView>
         <CustomToast currentTheme={currentTheme} />
