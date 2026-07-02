@@ -13,6 +13,7 @@ import UpdateBookCard from '../components/Update/UpdateBookCard';
 import ChapterInfoScreen from './workScreen';
 import { run } from '../web/updater';
 import Toast from 'react-native-toast-message';
+import { useTranslation } from 'react-i18next';
 
 const UpdateScreen = ({
   currentTheme,
@@ -33,6 +34,8 @@ const UpdateScreen = ({
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(null);
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadUpdates();
@@ -92,12 +95,16 @@ const UpdateScreen = ({
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return 'just now';
+    if (diffMins < 1) return t('screen_update_time_now');
     if (diffMins < 60)
-      return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+      return diffMins > 1 ? t("screen_update_time_minute_plural", { count: diffMins }) : t("screen_update_time_minute", { count: diffMins });
     if (diffHours < 24)
-      return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+      return diffMins > 1
+        ? t('screen_update_time_hour_plural', { count: diffHours })
+        : t('screen_update_time_hour', { count: diffHours });
+    return diffDays > 1
+      ? t('screen_update_time_day_plural', { count: diffDays })
+      : t('screen_update_time_day', { count: diffDays });
   };
 
   const groupUpdatesByDate = updatesList => {
@@ -214,7 +221,7 @@ const UpdateScreen = ({
                 { color: currentTheme.secondaryTextColor },
               ]}
             >
-              Library last updated: {lastUpdate}
+              {t('screen_update_last_updated', { last_update: lastUpdate })}
             </Text>
           )}
         </View>
@@ -258,7 +265,7 @@ const UpdateScreen = ({
               color={currentTheme.placeholderColor}
             />
             <Text style={[styles.emptyText, { color: currentTheme.textColor }]}>
-              No updates yet
+              {t('screen_update_no_update')}
             </Text>
             <Text
               style={[
@@ -266,7 +273,7 @@ const UpdateScreen = ({
                 { color: currentTheme.secondaryTextColor },
               ]}
             >
-              Pull down or tap the refresh button to check for updates
+              {t('screen_update_no_update_sub')}
             </Text>
           </View>
         ) : (
@@ -279,7 +286,7 @@ const UpdateScreen = ({
                     { color: currentTheme.textColor },
                   ]}
                 >
-                  Today
+                  {t('screen_update_today')}
                 </Text>
                 {groupedUpdates.today.map(update => (
                   <UpdateBookCard
@@ -302,7 +309,7 @@ const UpdateScreen = ({
                     { color: currentTheme.textColor },
                   ]}
                 >
-                  Yesterday
+                  {t('screen_update_yesterday')}
                 </Text>
                 {groupedUpdates.yesterday.map(update => (
                   <UpdateBookCard
@@ -324,7 +331,7 @@ const UpdateScreen = ({
                     { color: currentTheme.textColor },
                   ]}
                 >
-                  Earlier
+                  {t('screen_update_earlier')}
                 </Text>
                 {groupedUpdates.older.map(update => (
                   <UpdateBookCard

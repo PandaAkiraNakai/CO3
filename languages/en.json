@@ -26,5 +26,20 @@
   "screen_library_sort_menu_title": "Sort by",
   "screen_library_sort_selector_read": "Last Read",
   "screen_library_sort_selector_alphabetical": "Alphabetical",
-  "screen_library_sort_selector_date": "Date Added"
+  "screen_library_sort_selector_date": "Date Added",
+
+  "screen_update_title": "Update",
+  "screen_update_last_updated": "Library last updated: {{last_update}}",
+  "screen_update_time_now": "just now",
+  "screen_update_time_minute": "{{count}} minute ago",
+  "screen_update_time_minute_plural": "{{count}} minutes ago",
+  "screen_update_time_hour": "{{count}} hour ago",
+  "screen_update_time_hour_plural": "{{count}} hours ago",
+  "screen_update_time_day": "{{count}} day ago",
+  "screen_update_time_day_plural": "{{count}} days ago",
+  "screen_update_no_update": "No updates yet",
+  "screen_update_no_update_sub": "Pull down or tap the refresh button to check for updates",
+  "screen_update_today": "Today",
+  "screen_update_yesterday": "Yesterday",
+  "screen_update_earlier": "Earlier"
 }
