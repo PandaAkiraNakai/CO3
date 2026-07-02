@@ -23,6 +23,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getJsonSettings } from '../storage/jsonSettings';
 import { getAllPresets } from '../storage/jsonSearches';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTranslation } from 'react-i18next';
 
 const FilterIcon = ({ color, size }) => (
   <Icon name={"filter-list"} style={{color: color}} size={size} />
@@ -34,6 +35,8 @@ const ClearIcon = ({ color, size }) => (
 
 const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, libraryDAO, workDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, openTagSearch, selectedTag, setSelectedTag, chapterDAO, selectedPreset, setSelectedPreset }) => {
   const insets = useSafeAreaInsets();
+
+  const { t } = useTranslation();
 
   const [works, setWorks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -326,21 +329,30 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
   const getFilterSummary = () => {
     if (!hasFilters) return '';
     const filterCount = Object.keys(appliedFilters).length;
-    return `${filterCount} filter${filterCount === 1 ? '' : 's'} applied`;
+    return filterCount >= 1
+      ? t('screen_browse_filter_summary_plural', { count: filterCount })
+      : t('screen_browse_filter_summary', { count: filterCount });
   };
 
   const renderHeader = () => (
     <View style={styles.headerContainer}>
       <View>
         <Text style={[styles.title, { color: currentTheme.textColor }]}>
-          Browse Works
+          {t('Browse Works')}
         </Text>
         <View style={styles.subtitleContainer}>
-          <Text style={[styles.subtitle, { color: currentTheme.placeholderColor }]}>
-            {works.length} works loaded
+          <Text
+            style={[styles.subtitle, { color: currentTheme.placeholderColor }]}
+          >
+            {t('screen_browse_subtitle', { count: works.length })}
           </Text>
           {hasFilters && (
-            <Text style={[styles.filterStatus, { color: currentTheme.primaryColor }]}>
+            <Text
+              style={[
+                styles.filterStatus,
+                { color: currentTheme.primaryColor },
+              ]}
+            >
               • {getFilterSummary()}
             </Text>
           )}
@@ -354,8 +366,13 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
       return (
         <View style={styles.footerLoader}>
           <ActivityIndicator size="small" color={currentTheme.primaryColor} />
-          <Text style={[styles.footerText, { color: currentTheme.secondaryTextColor }]}>
-            Loading next page...
+          <Text
+            style={[
+              styles.footerText,
+              { color: currentTheme.secondaryTextColor },
+            ]}
+          >
+            {t('screen_browse_loading_more')}
           </Text>
         </View>
       );
@@ -364,8 +381,13 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
     if (!hasMore && works.length > 0 && hasFilters) {
       return (
         <View style={styles.footerLoader}>
-          <Text style={[styles.footerText, { color: currentTheme.placeholderColor }]}>
-            No more works to load
+          <Text
+            style={[
+              styles.footerText,
+              { color: currentTheme.placeholderColor },
+            ]}
+          >
+            {t('screen_browse_end')}
           </Text>
         </View>
       );
@@ -395,30 +417,56 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
 
   const renderLoading = () => {
     return (
-      <View style={[styles.centerContainer, { backgroundColor: currentTheme.backgroundColor }]}>
+      <View
+        style={[
+          styles.centerContainer,
+          { backgroundColor: currentTheme.backgroundColor },
+        ]}
+      >
         <ActivityIndicator size="large" color={currentTheme.primaryColor} />
         <Text style={[styles.loadingText, { color: currentTheme.textColor }]}>
-          Loading works...
+          {t('screen_browse_loading')}
         </Text>
       </View>
-    )
+    );
   }
 
   const rennderError = () => {
     return (
-      <View style={[styles.centerContainer, { backgroundColor: currentTheme.backgroundColor }]}>
-        <View style={[styles.errorContainer, { backgroundColor: currentTheme.cardBackground, borderColor: currentTheme.borderColor }]}>
+      <View
+        style={[
+          styles.centerContainer,
+          { backgroundColor: currentTheme.backgroundColor },
+        ]}
+      >
+        <View
+          style={[
+            styles.errorContainer,
+            {
+              backgroundColor: currentTheme.cardBackground,
+              borderColor: currentTheme.borderColor,
+            },
+          ]}
+        >
           <Text style={[styles.errorTitle, { color: currentTheme.textColor }]}>
-            Failed to Load Works
+            {t('screen_browse_error')}
           </Text>
-          <Text style={[styles.errorMessage, { color: currentTheme.secondaryTextColor }]}>
+          <Text
+            style={[
+              styles.errorMessage,
+              { color: currentTheme.secondaryTextColor },
+            ]}
+          >
             {error.message}
           </Text>
           <TouchableOpacity
-            style={[styles.retryButton, { backgroundColor: currentTheme.primaryColor }]}
+            style={[
+              styles.retryButton,
+              { backgroundColor: currentTheme.primaryColor },
+            ]}
             onPress={() => loadWorks(true)}
           >
-            <Text style={styles.retryButtonText}>Retry</Text>
+            " <Text style={styles.retryButtonText}>{t('general_retry')}</Text>"{' '}
           </TouchableOpacity>
         </View>
       </View>

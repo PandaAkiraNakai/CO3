@@ -42,4 +42,13 @@
   "screen_update_yesterday": "Yesterday",
   "screen_update_earlier": "Earlier",
   "screen_update_loading": "Loading updates...",
+
+  "screen_browse_title": "Browse Works",
+  "screen_browse_subtitle": "{{count}} works loaded",
+  "screen_browse_filter_summary": "{{count}} filter applied",
+  "screen_browse_filter_summary_plural": "{{count}} filters applied",
+  "screen_browse_loading_more": "Loading next page...",
+  "screen_browse_end": "No more works to load",
+  "screen_browse_loading": "Loading works...",
+  "screen_browse_error": "Failed to Load Works"
 }
