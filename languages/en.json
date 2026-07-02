@@ -144,5 +144,14 @@
   "screen_account_logout_failed": "Failed to logout properly",
   "screen_account_logged_in_title": "You are logged in",
   "screen_account_logged_in_subtitle": "Your session is active",
-  "screen_account_check_session_button": "Check current session"
+  "screen_account_check_session_button": "Check current session",
+
+  "screen_kudos_history_title": "Kudos History",
+  "screen_kudos_history_clear_title": "Clear Kudos History",
+  "screen_kudos_history_clear_message": "Are you sure you want to clear all kudos history?",
+  "screen_kudos_history_loading": "Loading kudos history...",
+  "screen_kudos_history_no_entries_filter": "No entries found.",
+  "screen_kudos_history_no_entries_filter_sub": "There are no entries matching the filter.",
+  "screen_kudos_history_no_entries": "No kudos history yet.",
+  "screen_kudos_history_no_entries_sub": "Kudoed work will appear here.",
 }
