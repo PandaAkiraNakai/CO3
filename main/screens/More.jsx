@@ -21,6 +21,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import StorageScreen from './more/StorageScreen';
 import Toast from 'react-native-toast-message';
 import StatsScreen from './more/StatsScreen';
+import { useTranslation } from 'react-i18next';
 
 const MoreScreen = ({
   currentTheme,
@@ -45,6 +46,8 @@ const MoreScreen = ({
 }) => {
   const insets = useSafeAreaInsets();
   const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -228,52 +231,52 @@ const MoreScreen = ({
 
   const menuItems = [
     {
-      name: 'Preferences',
+      name: t("screen_more_nav_preference"),
       icon: 'settings',
       handler: () => handlePress('Preferences'),
     },
     {
-      name: 'Account',
+      name: t("screen_more_nav_account"),
       icon: 'account-circle',
       handler: () => handlePress('Account'),
     },
     {
-      name: 'Kudos history',
+      name: t("screen_more_nav_kudos"),
       icon: 'favorite',
       handler: () => handlePress('KudosHistory'),
     },
     {
-      name: 'Bookmarks',
+      name: t("screen_more_nav_bookmarks"),
       icon: 'bookmarks',
       handler: () => handlePress('Bookmarks'),
     },
     {
-      name: 'Marked for later',
+      name: t("screen_more_nav_later"),
       icon: 'watch-later',
       handler: () => handlePress('ReadLater'),
     },
     {
-      name: 'Categories',
+      name: t("screen_more_nav_categories"),
       icon: 'category',
       handler: () => handlePress('Categories'),
     },
     {
-      name: 'Statistics',
+      name: t("screen_more_nav_stats"),
       icon: 'bar-chart',
       handler: () => handlePress('Statistics'),
     },
     {
-      name: 'Data and Storage',
+      name: t("screen_more_nav_data"),
       icon: 'storage',
       handler: () => handlePress('Data and Storage'),
     },
     {
-      name: 'About',
+      name: t("screen_more_nav_about"),
       icon: 'info',
       handler: () => handlePress('About'),
     },
     {
-      name: 'Help',
+      name: t("screen_more_nav_help"),
       icon: 'help',
       handler: () => handlePress('Help'),
     },
@@ -291,12 +294,12 @@ const MoreScreen = ({
     >
       <View style={styles.contentContainer}>
         <Text style={[styles.title, { color: currentTheme.textColor }]}>
-          More Options
+          {t("screen_more_title")}
         </Text>
         <Text
           style={[styles.subtitle, { color: currentTheme.placeholderColor }]}
         >
-          Additional settings and features
+          {t("Additional settings and features")}
         </Text>
 
         <View style={styles.menuContainer}>

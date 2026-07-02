@@ -2,6 +2,9 @@
   "general_global_search_placeholder": "Search works, authors...",
   "general_loading": "Loading...",
   "general_retry": "Retry",
+  "general_cancel": "Cancel",
+  "general_unknown_author": "Unknown Author",
+  "general_unknown_work": "Unknown Work",
 
   "navigation_library": "Library",
   "navigation_update": "Update",
@@ -50,5 +53,23 @@
   "screen_browse_loading_more": "Loading next page...",
   "screen_browse_end": "No more works to load",
   "screen_browse_loading": "Loading works...",
-  "screen_browse_error": "Failed to Load Works"
+  "screen_browse_error": "Failed to Load Works",
+
+  "screen_history_clear_title": "Clear History",
+  "screen_history_clear_text": "Are you sure you want to clear all reading history?",
+  "screen_history_clear_button": "Clear",
+  "screen_history_loading": "Loading history...",
+
+  "screen_more_title": "More Options",
+  "screen_more_subtitle": "Additional settings and features",
+  "screen_more_nav_preference": "Preferences",
+  "screen_more_nav_account": "Account",
+  "screen_more_nav_kudos": "Kudos history",
+  "screen_more_nav_bookmarks": "Bookmarks",
+  "screen_more_nav_later": "Marked for later",
+  "screen_more_nav_categories": "Categories",
+  "screen_more_nav_stats": "Statistics",
+  "screen_more_nav_data": "Data and Storage",
+  "screen_more_nav_about": "About",
+  "screen_more_nav_help": "Help",
 }

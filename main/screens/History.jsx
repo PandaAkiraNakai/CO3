@@ -18,6 +18,7 @@ import LoadingSpinner from '../components/History/Spinner';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import KudoHistoryScreen from './more/KudoHistory';
 import WorkScreen from './workScreen';
+import { useTranslation } from 'react-i18next';
 
 const HistoryScreen = ({
   currentTheme,
@@ -44,6 +45,8 @@ const HistoryScreen = ({
   const [dateRange, setDateRange] = useState({ start: null, end: null });
   const [isFilterActive, setIsFilterActive] = useState(false);
   const [readingDates, setReadingDates] = useState([]);
+
+  const { t } = useTranslation();
 
   const PAGE_SIZE = 20;
 
@@ -87,8 +90,8 @@ const HistoryScreen = ({
           const work = await workDAO.get(item.workId);
           return {
             ...item,
-            book_title: work ? work.title : 'Unknown Book',
-            book_author: work ? work.author : 'Unknown Author',
+            book_title: work ? work.title : t("general_unknown_work"),
+            book_author: work ? work.author : t("general_unknown_author"),
           };
         } catch (error) {
           console.error(
@@ -97,8 +100,8 @@ const HistoryScreen = ({
           );
           return {
             ...item,
-            book_title: 'Unknown Book',
-            book_author: 'Unknown Author',
+            book_title: t("general_unknown_work"),
+            book_author: t("general_unknown_author"),
           };
         }
       }),
@@ -195,12 +198,12 @@ const HistoryScreen = ({
 
   const clearHistory = () => {
     Alert.alert(
-      'Clear History',
-      'Are you sure you want to clear all reading history?',
+      t("screen_history_clear_title"),
+      t("screen_history_clear_text"),
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Clear',
+          text: t("screen_history_clear_button"),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -324,7 +327,7 @@ const HistoryScreen = ({
     return (
       <LoadingSpinner
         currentTheme={currentTheme}
-        message="Loading history..."
+        message={t("screen_history_loading")}
       />
     );
   }
