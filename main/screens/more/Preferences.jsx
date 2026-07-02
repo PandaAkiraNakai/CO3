@@ -23,6 +23,7 @@ import { themes } from '../../utils/themes';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import { pick, keepLocalCopy } from '@react-native-documents/picker';
 import { readFile } from "react-native-fs"
+import { useTranslation } from 'react-i18next';
 
 const PreferencesScreen = ({
                              currentTheme,
@@ -54,6 +55,8 @@ const PreferencesScreen = ({
   const [updateRestriction, setUpdateRestriction] = useState(3);
 
   const activeTheme = themes[theme] || currentTheme;
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadSettings();
@@ -220,12 +223,12 @@ const PreferencesScreen = ({
 
   const handleRestartOnboarding = () => {
     Alert.alert(
-      'Restart Onboarding',
-      'This will take you back through the setup screens. Continue?',
+      t("screen_preferences_onboarding_title"),
+      t("screen_preferences_onboarding_text"),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t("general_cancel"), style: 'cancel' },
         {
-          text: 'Restart',
+          text: t("general_restart"),
           style: 'destructive',
           onPress: async () => {
             await saveJsonSettingsData({ finishedOnboarding: false });
@@ -281,12 +284,12 @@ const PreferencesScreen = ({
       </style>
     </head>
     <body>
-      <h1>Sample Chapter</h1>
-      <p>This is a sample text to preview your reader settings. You can adjust the font size using the controls below.</p>
+      <h1>${t("screen_preferences_sample_title")}</h1>
+      <p>${t("screen_preferences_sample_text")}</p>
       <blockquote>
-        <p>Blockquotes and other elements will also reflect your custom settings.</p>
+        <p>${t("screen_preferences_sample_blockquotes")}</p>
       </blockquote>
-      <p>Try different font sizes to find what works best for you!</p>
+      <p>${t("screen_preferences_sample_end")}</p>
     </body>
     </html>
   `;
@@ -363,8 +366,14 @@ const PreferencesScreen = ({
         <TouchableOpacity onPress={onBack}>
           <Icon name="arrow-back" size={24} color={activeTheme.iconColor} />
         </TouchableOpacity>
-        <Text style={[styles.title, { color: activeTheme.textColor }, { fontWeight: 'bold' }]}>
-          Settings
+        <Text
+          style={[
+            styles.title,
+            { color: activeTheme.textColor },
+            { fontWeight: 'bold' },
+          ]}
+        >
+          {t('screen_preferences_title')}
         </Text>
       </View>
 
@@ -381,7 +390,7 @@ const PreferencesScreen = ({
             <Text
               style={[{ color: activeTheme.textColor }, styles.sectionTitle]}
             >
-              Reader
+              {t('screen_preferences_title_reader')}
             </Text>
           </View>
 
@@ -415,7 +424,7 @@ const PreferencesScreen = ({
               <Text
                 style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
-                Use Custom Size
+                {t('screen_preferences_setting_custom_size')}
               </Text>
               <Switch
                 value={useCustomSize}
@@ -441,7 +450,9 @@ const PreferencesScreen = ({
               <Text
                 style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
-                Font Size: {fontSize.toFixed(1)}
+                {t('screen_preferences_font_size_text', {
+                  size: fontSize.toFixed(1),
+                })}
               </Text>
               <View style={styles.sliderContainer}>
                 <Slider
@@ -474,7 +485,7 @@ const PreferencesScreen = ({
               <Text
                 style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
-                Use Custom Font
+                {t('screen_preferences_setting_custom_font')}
               </Text>
               <Switch
                 value={useCustomFont}
@@ -497,28 +508,48 @@ const PreferencesScreen = ({
                 { borderBottomColor: activeTheme.borderColor },
               ]}
             >
-              <TouchableOpacity style={[styles.viewModeSelectButton, { backgroundColor: activeTheme.buttonBackground, paddingBottom: 0, marginHorizontal: 0, borderColor: activeTheme.borderColor, alignContent: "center" }]} activeOpacity={0.3} onPress={handleFontChange}>
-                <Text style={[{ color: activeTheme.textColor }, styles.settingText]}>
+              <TouchableOpacity
+                style={[
+                  styles.viewModeSelectButton,
+                  {
+                    backgroundColor: activeTheme.buttonBackground,
+                    paddingBottom: 0,
+                    marginHorizontal: 0,
+                    borderColor: activeTheme.borderColor,
+                    alignContent: 'center',
+                  },
+                ]}
+                activeOpacity={0.3}
+                onPress={handleFontChange}
+              >
+                <Text
+                  style={[{ color: activeTheme.textColor }, styles.settingText]}
+                >
                   {fontFamily}
                 </Text>
                 <Icon
-                  name={"chevron-right"}
+                  name={'chevron-right'}
                   size={24}
-                  style={{color: currentTheme.placeholderColor, marginLeft: "auto"}}
+                  style={{
+                    color: currentTheme.placeholderColor,
+                    marginLeft: 'auto',
+                  }}
                 />
               </TouchableOpacity>
             </View>
           )}
 
-          <View style={[
-            styles.settingItem,
-            { borderBottomColor: activeTheme.borderColor },
-          ]}>
+          <View
+            style={[
+              styles.settingItem,
+              { borderBottomColor: activeTheme.borderColor },
+            ]}
+          >
             <View style={styles.switchContainer}>
               <Text
                 style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
-                Show Chapter Date
+                {t('screen_preferences_setting_show_date')}
               </Text>
               <Switch
                 value={showChapterDate}
@@ -537,21 +568,19 @@ const PreferencesScreen = ({
             style={[
               styles.settingItem,
               { borderBottomColor: activeTheme.borderColor },
-              { borderBottomWidth: 0 }
+              { borderBottomWidth: 0 },
             ]}
           >
             <View style={[styles.switchContainer]}>
               <Text
                 style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
-                Allow selecting text
+                {t('screen_preferences_setting_allow_text_select')}
               </Text>
               <Switch
                 value={allowSelect}
                 onValueChange={handleAllowSelect}
-                thumbColor={
-                  allowSelect ? activeTheme.primaryColor : '#f4f3f4'
-                }
+                thumbColor={allowSelect ? activeTheme.primaryColor : '#f4f3f4'}
                 trackColor={{
                   false: '#767577',
                   true: `${activeTheme.primaryColor}40`,
@@ -573,7 +602,7 @@ const PreferencesScreen = ({
             <Text
               style={[{ color: activeTheme.textColor }, styles.sectionTitle]}
             >
-              Appearance
+              {t('screen_preferences_title_appearance')}
             </Text>
           </View>
 
@@ -581,7 +610,7 @@ const PreferencesScreen = ({
             <Text
               style={[{ color: activeTheme.textColor }, styles.settingText]}
             >
-              Theme
+              {t('screen_preferences_label_theme')}
             </Text>
             <View
               style={[
@@ -591,19 +620,19 @@ const PreferencesScreen = ({
             >
               <ThemeButton
                 themeKey="light"
-                label="Light"
+                label={t('screen_preferences_label_theme_light')}
                 isActive={theme === 'light'}
                 onPress={() => handleThemeChange('light')}
               />
               <ThemeButton
                 themeKey="dark"
-                label="Dark"
+                label={t('screen_preferences_label_theme_dark')}
                 isActive={theme === 'dark'}
                 onPress={() => handleThemeChange('dark')}
               />
               <ThemeButton
                 themeKey="black"
-                label="Black"
+                label={t('screen_preferences_label_theme_black')}
                 isActive={theme === 'black'}
                 onPress={() => handleThemeChange('black')}
               />
@@ -614,7 +643,7 @@ const PreferencesScreen = ({
             <Text
               style={[{ color: activeTheme.textColor }, styles.settingText]}
             >
-              View Mode
+              {t('screen_preferences_label_view_mode')}
             </Text>
             <View
               style={[
@@ -624,19 +653,19 @@ const PreferencesScreen = ({
             >
               <ViewModeButton
                 mode="full"
-                label="Full"
+                label={t("screen_preferences_label_view_mode_full")}
                 isActive={localViewMode === 'full'}
                 onPress={() => handleViewModeChange('full')}
               />
               <ViewModeButton
                 mode="med"
-                label="Med"
+                label={t("screen_preferences_label_view_mode_med")}
                 isActive={localViewMode === 'med'}
                 onPress={() => handleViewModeChange('med')}
               />
               <ViewModeButton
                 mode="small"
-                label="Small"
+                label={t("screen_preferences_label_view_mode_small")}
                 isActive={localViewMode === 'small'}
                 onPress={() => handleViewModeChange('small')}
               />
@@ -653,14 +682,12 @@ const PreferencesScreen = ({
               <Text
                 style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
-                Prefer Full Descriptions
+                {t('screen_preferences_setting_show_full_desc')}
               </Text>
               <Switch
                 value={preferDesc}
                 onValueChange={handlePreferDesc}
-                thumbColor={
-                  preferDesc ? activeTheme.primaryColor : '#f4f3f4'
-                }
+                thumbColor={preferDesc ? activeTheme.primaryColor : '#f4f3f4'}
                 trackColor={{
                   false: '#767577',
                   true: `${activeTheme.primaryColor}40`,
@@ -673,21 +700,19 @@ const PreferencesScreen = ({
             style={[
               styles.settingItem,
               { borderBottomColor: activeTheme.borderColor },
-              { borderBottomWidth: 0 }
+              { borderBottomWidth: 0 },
             ]}
           >
             <View style={styles.switchContainer}>
               <Text
                 style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
-                Prefer HTML Styling
+                {t('screen_preferences_setting_prefer_html')}
               </Text>
               <Switch
                 value={preferHtml}
                 onValueChange={handlePreferHtml}
-                thumbColor={
-                  preferHtml ? activeTheme.primaryColor : '#f4f3f4'
-                }
+                thumbColor={preferHtml ? activeTheme.primaryColor : '#f4f3f4'}
                 trackColor={{
                   false: '#767577',
                   true: `${activeTheme.primaryColor}40`,
@@ -695,18 +720,18 @@ const PreferencesScreen = ({
               />
             </View>
           </View>
-
-
         </View>
 
         {/* UPDATE & NOTIFICATION SETTINGS */}
-        <View style={[styles.section, { borderColor: activeTheme.borderColor}]}>
+        <View
+          style={[styles.section, { borderColor: activeTheme.borderColor }]}
+        >
           <View style={styles.sectionHeader}>
             <Icon name="update" size={20} color={activeTheme.iconColor} />
             <Text
               style={[{ color: activeTheme.textColor }, styles.sectionTitle]}
             >
-              Updates
+              {t('screen_preferences_title_update')}
             </Text>
           </View>
 
@@ -720,7 +745,7 @@ const PreferencesScreen = ({
               <Text
                 style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
-                Compact Notifications
+                {t('screen_preferences_setting_compact_notifications')}
               </Text>
               <Switch
                 value={compactNotifications}
@@ -745,7 +770,7 @@ const PreferencesScreen = ({
             <Text
               style={[{ color: activeTheme.textColor }, styles.settingText]}
             >
-              Check Frequency
+              {t("screen_preferences_label_check_frequency")}
             </Text>
             <CustomDropdown
               selectedValue={updateTime}
@@ -756,7 +781,7 @@ const PreferencesScreen = ({
               {Object.values(UPDATE_INTERVALS).map(interval => (
                 <CustomDropdown.Item
                   key={interval.value}
-                  label={interval.label}
+                  label={t(interval.label)}
                   value={interval.value}
                 />
               ))}
@@ -767,7 +792,7 @@ const PreferencesScreen = ({
             <Text
               style={[{ color: activeTheme.textColor }, styles.settingText]}
             >
-              Network Restriction
+              {t("screen_preferences_label_network_restriction")}
             </Text>
             <CustomDropdown
               selectedValue={updateRestriction}
@@ -778,7 +803,7 @@ const PreferencesScreen = ({
               {Object.values(UPDATE_RESTRICTIONS).map(restriction => (
                 <CustomDropdown.Item
                   key={restriction.value}
-                  label={restriction.label}
+                  label={t(restriction.label)}
                   value={restriction.value}
                 />
               ))}
@@ -792,10 +817,9 @@ const PreferencesScreen = ({
             <Text
               style={[{ color: activeTheme.textColor }, styles.sectionTitle]}
             >
-              Download
+              {t('screen_preferences_title_download')}
             </Text>
           </View>
-
 
           <View
             style={[
@@ -807,7 +831,7 @@ const PreferencesScreen = ({
               <Text
                 style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
-                Download on Update
+                {t('screen_preferences_setting_download_update')}
               </Text>
               <Switch
                 value={downloadOnUpdate}
@@ -826,7 +850,7 @@ const PreferencesScreen = ({
             <Text
               style={[{ color: activeTheme.textColor }, styles.settingText]}
             >
-              Download while reading
+              {t("screen_preferences_label_download_while_reading")}
             </Text>
             <CustomDropdown
               selectedValue={downloadWhileReading}
@@ -837,7 +861,7 @@ const PreferencesScreen = ({
               {Object.values(DOWNLOAD_WHILE_READING).map(restriction => (
                 <CustomDropdown.Item
                   key={restriction.value}
-                  label={restriction.label}
+                  label={t(restriction.label)}
                   value={restriction.value}
                 />
               ))}
@@ -846,7 +870,9 @@ const PreferencesScreen = ({
         </View>
 
         {/* RESTART ONBOARDING */}
-        <View style={[styles.section, { borderBottomWidth: 0, marginBottom: 8 }]}>
+        <View
+          style={[styles.section, { borderBottomWidth: 0, marginBottom: 8 }]}
+        >
           <TouchableOpacity
             style={[
               styles.restartButton,
@@ -860,17 +886,27 @@ const PreferencesScreen = ({
           >
             <Icon name="replay" size={20} color={activeTheme.iconColor} />
             <View style={styles.restartButtonContent}>
-              <Text style={[{ color: activeTheme.textColor }, { fontSize: 16, marginBottom: 2 }]}>
-                Restart Onboarding
+              <Text
+                style={[
+                  { color: activeTheme.textColor },
+                  { fontSize: 16, marginBottom: 2 },
+                ]}
+              >
+                {t("screen_preferences_onboarding_button_title")}
               </Text>
-              <Text style={{ fontSize: 13, color: activeTheme.secondaryTextColor }}>
-                Go through the setup screens again
+              <Text
+                style={{ fontSize: 13, color: activeTheme.secondaryTextColor }}
+              >
+                {t("screen_preferences_onboarding_button_text")}
               </Text>
             </View>
-            <Icon name="chevron-right" size={20} color={activeTheme.placeholderColor} />
+            <Icon
+              name="chevron-right"
+              size={20}
+              color={activeTheme.placeholderColor}
+            />
           </TouchableOpacity>
         </View>
-
       </ScrollView>
     </SafeAreaView>
   );
