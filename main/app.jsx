@@ -20,7 +20,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import SideMenu from './components/app/SideMenu';
-import AddWorkModal from './components/Library/AddWorkModal';
 import { database } from './storage/DatabaseManager';
 import { HistoryDAO } from './storage/dao/HistoryDAO';
 import { WorkDAO } from './storage/dao/WorkDAO';
@@ -196,7 +195,6 @@ const App = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
-  const [isAddWorkModalOpen, setIsAddWorkModalOpen] = useState(false);
   const [theme, setTheme] = useState('light');
   const [isIncognitoMode, setIsIncognitoMode] = useState(false);
   const [viewMode, setViewMode] = useState('full');
@@ -574,20 +572,6 @@ const App = () => {
     }
   };
 
-  const handleAddWork = async (workData) => {
-    try {
-      if (workDAO) {
-        await workDAO.add(workData);
-        await loadBooks();
-        setIsAddWorkModalOpen(false);
-        Alert.alert('Success', 'Work added successfully');
-      }
-    } catch (error) {
-      console.error('Error adding work:', error);
-      Alert.alert('Error', 'Failed to add work');
-    }
-  };
-
   const openTagSearch = (tag) => {
     setSelectedTag(tag);
     setActiveScreen("browse")
@@ -602,7 +586,6 @@ const App = () => {
       books,
       viewMode,
       loadBooks,
-      setIsAddWorkModalOpen,
       workDAO,
       historyDAO,
       progressDAO,
@@ -761,13 +744,6 @@ const App = () => {
             historyDAO={historyDAO}
             workDAO={workDAO}
             settingsDAO={settingsDAO}
-          />
-
-          <AddWorkModal
-            isOpen={isAddWorkModalOpen}
-            onClose={() => setIsAddWorkModalOpen(false)}
-            onAdd={handleAddWork}
-            theme={currentTheme}
           />
         </SafeAreaView>
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import HistoryItem from './Item';
+import { useTranslation } from 'react-i18next';
 
 const HistoryList = ({
   history,
@@ -16,6 +17,8 @@ const HistoryList = ({
   kudoHistoryDAO,
   chapterDAO
 }) => {
+  const { t } = useTranslation();
+
   const groupHistoryByDate = historyItems => {
     if (!historyItems || historyItems.length === 0) {
       return [];
@@ -75,7 +78,7 @@ const HistoryList = ({
               { color: currentTheme.placeholderColor },
             ]}
           >
-            Loading more...
+            {t("component_list_loading_more")}
           </Text>
         </View>
       )}
@@ -89,7 +92,7 @@ const HistoryList = ({
               { color: currentTheme.placeholderColor },
             ]}
           >
-            You've reached the end of your reading history
+            {t("component_list_end")}
           </Text>
         </View>
       )}

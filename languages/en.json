@@ -13,6 +13,7 @@
   "general_unknown_author": "Unknown Author",
   "general_unknown_work": "Unknown Work",
   "general_back": "Back",
+  "general_not_applicable": "N/A",
 
 
   "navigation_library": "Library",
@@ -120,7 +121,7 @@
   "screen_preferences_selector_check_frequency_every_2_days": "Every 2 Days",
   "screen_preferences_selector_check_frequency_every_3_days": "Every 3 Days",
   "screen_preferences_selector_check_frequency_weekly": "Weekly",
-  "screen_preferences_selector_check_frequency_never": "Never",
+  "screen_preferences_selector_check_f`Chapters ${start + 1} - ${end + 1}`requency_never": "Never",
   "screen_preferences_label_network_restriction": "Network Restriction",
   "screen_preferences_selector_network_restriction_none": "No Restriction",
   "screen_preferences_selector_network_restriction_wifi": "WiFi Only",
@@ -420,5 +421,62 @@
   "screen_work_toast_error_reloading_work": "Error reloading work.",
   "screen_work_toast_error_loading_work": "Something went wrong while loading the work.",
   "screen_work_toast_no_new_chapters_to_download": "No new chapters to download",
-  "screen_work_toast_added_chapters_to_queue": "Added {{count}} chapters to download list."
+  "screen_work_toast_added_chapters_to_queue": "Added {{count}} chapters to download list.",
+
+
+  "component_side_menu_title": "Settings",
+  "component_side_menu_incognito_switch": "Incognito Mode",
+  "component_side_menu_support": "Support us",
+
+  "component_update_work_card_author": "By {{author}}",
+
+  "component_calendar_title": "Select Date Range",
+  "component_calendar_sub_start_end": "Selected: {{start}} to {{end}}",
+  "component_calendar_sub_start": "Selected: {{start}} (tap another date to set end)",
+  "component_calendar_sub": "Tap a date to start selection. Dots indicate reading activity.",
+  "component_calendar_clear": "Clear Selection",
+  "component_calendar_apply": "Apply Filter",
+  "component_calendar_show_all": "Show All",
+
+  "component_empty_title": "No reading history for selected dates",
+  "component_empty_sub": "Try selecting different dates",
+
+  "component_history_header_count_filtered": "{{totalCount}} entries in selected date range",
+  "component_history_header_count": "{{totalCount}} total entries",
+  "component_history_header_clear_filter": "Clear Filter",
+  "component_history_header_clear_history": "Clear",
+
+  "component_history_item_date_today": "Today at {{time}}",
+  "component_history_item_date_yesterday": "Yesterday at {{time}}",
+  "component_history_item_date_day": "{{days}} days ago",
+  "component_history_item_chapter_start": "Chapter {{start}}",
+  "component_history_item_chapter_start_end": "Chapters {{start}} to {{end}}",
+
+  "component_kudo_list_loading_more": "Loading more...",
+  "component_kudo_list_end": "You've reached the end of your kudos history",
+
+  "component_list_loading_more": "Loading more...",
+  "component_list_end": "You've reached the end of your reading history",
+
+  "component_book_card_show_more_button": "Show Tags & Warnings",
+  "component_book_card_show_more_button_med": "Show Tags, Warnings & Description",
+
+  "component_generic_updated": "Updated: {{date}}",
+  "component_generic_kudos": "{{count}} Likes",
+  "component_generic_chapter": "{{chapters}} Chapters",
+  "component_generic_bookmarks": "{{bookmarks}} Bookmarks",
+  "component_generic_views": "{{views}} Views",
+  "component_generic_words": "{{words}} Words",
+  "component_generic_language": "{{language}}",
+
+  "component_book_details_modal_title": "Details for \"{{title}}\"",
+  "component_book_details_modal_title_tags_and_warning": "Tags & Warnings for \"{{title}}\"",
+  "component_book_details_modal_title_tags": "All Tags for \"{{title}}\"",
+  "component_book_details_modal_tags": "Tags:",
+  "component_book_details_modal_see_all_tags": "See all tags ({{count}})",
+  "component_book_details_modal_no_tags": "No tags available.",
+  "component_book_details_modal_warnings": "Warnings:",
+  "component_book_details_modal_no_warnings": "No specific warnings for this book.",
+  "component_book_details_modal_desc": "Description:",
+
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import HistoryItem from './Item';
+import { useTranslation } from 'react-i18next';
 
 const KudoHistoryList = ({
   history,
@@ -34,6 +35,8 @@ const KudoHistoryList = ({
 
     return Object.entries(groups).sort(([a], [b]) => new Date(b) - new Date(a));
   };
+
+  const { t } = useTranslation();
 
   return (
     <View style={styles.historyContainer}>
@@ -75,7 +78,7 @@ const KudoHistoryList = ({
               { color: currentTheme.placeholderColor },
             ]}
           >
-            Loading more...
+            {t("component_kudo_list_loading_more")}
           </Text>
         </View>
       )}
@@ -88,7 +91,7 @@ const KudoHistoryList = ({
               { color: currentTheme.placeholderColor },
             ]}
           >
-            You've reached the end of your kudos history
+            {t("component_kudo_list_end")}
           </Text>
         </View>
       )}
