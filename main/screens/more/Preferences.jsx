@@ -54,7 +54,7 @@ const PreferencesScreen = ({
   const [updateRestriction, setUpdateRestriction] = useState(3);
 
   const activeTheme = themes[theme] || currentTheme;
-  
+
   useEffect(() => {
     loadSettings();
   }, []);
@@ -363,7 +363,7 @@ const PreferencesScreen = ({
         <TouchableOpacity onPress={onBack}>
           <Icon name="arrow-back" size={24} color={activeTheme.iconColor} />
         </TouchableOpacity>
-        <Text style={[styles.title, { color: activeTheme.textColor }, useCustomFont ? { fontFamily } : { fontWeight: 'bold' }]}>
+        <Text style={[styles.title, { color: activeTheme.textColor }, { fontWeight: 'bold' }]}>
           Settings
         </Text>
       </View>
@@ -379,7 +379,7 @@ const PreferencesScreen = ({
           <View style={styles.sectionHeader}>
             <Icon name="menu-book" size={20} color={activeTheme.iconColor} />
             <Text
-              style={[styles.sectionTitle]}
+              style={[{ color: activeTheme.textColor }, styles.sectionTitle]}
             >
               Reader
             </Text>
@@ -413,7 +413,7 @@ const PreferencesScreen = ({
           >
             <View style={styles.switchContainer}>
               <Text
-                style={[styles.settingText]}
+                style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
                 Use Custom Size
               </Text>
@@ -439,7 +439,7 @@ const PreferencesScreen = ({
               ]}
             >
               <Text
-                style={[styles.settingText]}
+                style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
                 Font Size: {fontSize.toFixed(1)}
               </Text>
@@ -456,7 +456,7 @@ const PreferencesScreen = ({
                   thumbStyle={{ backgroundColor: activeTheme.primaryColor }}
                 />
                 <Text
-                  style={[styles.sizeInput]}
+                  style={[{ color: activeTheme.textColor }, styles.sizeInput]}
                 >
                   {fontSize.toFixed(1)}
                 </Text>
@@ -472,7 +472,7 @@ const PreferencesScreen = ({
           >
             <View style={styles.switchContainer}>
               <Text
-                style={[styles.settingText]}
+                style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
                 Use Custom Font
               </Text>
@@ -498,7 +498,7 @@ const PreferencesScreen = ({
               ]}
             >
               <TouchableOpacity style={[styles.viewModeSelectButton, { backgroundColor: activeTheme.buttonBackground, paddingBottom: 0, marginHorizontal: 0, borderColor: activeTheme.borderColor, alignContent: "center" }]} activeOpacity={0.3} onPress={handleFontChange}>
-                <Text style={[styles.settingText]}>
+                <Text style={[{ color: activeTheme.textColor }, styles.settingText]}>
                   {fontFamily}
                 </Text>
                 <Icon
@@ -516,7 +516,7 @@ const PreferencesScreen = ({
           ]}>
             <View style={styles.switchContainer}>
               <Text
-                style={[styles.settingText]}
+                style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
                 Show Chapter Date
               </Text>
@@ -542,7 +542,7 @@ const PreferencesScreen = ({
           >
             <View style={[styles.switchContainer]}>
               <Text
-                style={[styles.settingText]}
+                style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
                 Allow selecting text
               </Text>
@@ -571,7 +571,7 @@ const PreferencesScreen = ({
           <View style={styles.sectionHeader}>
             <Icon name="palette" size={20} color={activeTheme.iconColor} />
             <Text
-              style={[styles.sectionTitle]}
+              style={[{ color: activeTheme.textColor }, styles.sectionTitle]}
             >
               Appearance
             </Text>
@@ -579,7 +579,7 @@ const PreferencesScreen = ({
 
           <View style={styles.settingItem}>
             <Text
-              style={[styles.settingText]}
+              style={[{ color: activeTheme.textColor }, styles.settingText]}
             >
               Theme
             </Text>
@@ -612,7 +612,7 @@ const PreferencesScreen = ({
 
           <View style={[styles.settingItem, { borderBottomWidth: 0 }]}>
             <Text
-              style={[styles.settingText]}
+              style={[{ color: activeTheme.textColor }, styles.settingText]}
             >
               View Mode
             </Text>
@@ -651,7 +651,7 @@ const PreferencesScreen = ({
           >
             <View style={styles.switchContainer}>
               <Text
-                style={[styles.settingText]}
+                style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
                 Prefer Full Descriptions
               </Text>
@@ -678,7 +678,7 @@ const PreferencesScreen = ({
           >
             <View style={styles.switchContainer}>
               <Text
-                style={[styles.settingText]}
+                style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
                 Prefer HTML Styling
               </Text>
@@ -704,7 +704,7 @@ const PreferencesScreen = ({
           <View style={styles.sectionHeader}>
             <Icon name="update" size={20} color={activeTheme.iconColor} />
             <Text
-              style={[styles.sectionTitle]}
+              style={[{ color: activeTheme.textColor }, styles.sectionTitle]}
             >
               Updates
             </Text>
@@ -718,7 +718,7 @@ const PreferencesScreen = ({
           >
             <View style={styles.switchContainer}>
               <Text
-                style={[styles.settingText]}
+                style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
                 Compact Notifications
               </Text>
@@ -743,7 +743,7 @@ const PreferencesScreen = ({
             ]}
           >
             <Text
-              style={[styles.settingText]}
+              style={[{ color: activeTheme.textColor }, styles.settingText]}
             >
               Check Frequency
             </Text>
@@ -765,7 +765,7 @@ const PreferencesScreen = ({
 
           <View style={[styles.settingItem, { borderBottomWidth: 0 }]}>
             <Text
-              style={[styles.settingText]}
+              style={[{ color: activeTheme.textColor }, styles.settingText]}
             >
               Network Restriction
             </Text>
@@ -790,7 +790,7 @@ const PreferencesScreen = ({
           <View style={styles.sectionHeader}>
             <Icon name="download" size={20} color={activeTheme.iconColor} />
             <Text
-              style={[styles.sectionTitle]}
+              style={[{ color: activeTheme.textColor }, styles.sectionTitle]}
             >
               Download
             </Text>
@@ -805,7 +805,7 @@ const PreferencesScreen = ({
           >
             <View style={styles.switchContainer}>
               <Text
-                style={[styles.settingText]}
+                style={[{ color: activeTheme.textColor }, styles.settingText]}
               >
                 Download on Update
               </Text>
@@ -824,7 +824,7 @@ const PreferencesScreen = ({
           </View>
           <View style={[styles.settingItem, { borderBottomWidth: 0 }]}>
             <Text
-              style={[styles.settingText]}
+              style={[{ color: activeTheme.textColor }, styles.settingText]}
             >
               Download while reading
             </Text>
@@ -860,7 +860,7 @@ const PreferencesScreen = ({
           >
             <Icon name="replay" size={20} color={activeTheme.iconColor} />
             <View style={styles.restartButtonContent}>
-              <Text style={[{ fontSize: 16, marginBottom: 2 }]}>
+              <Text style={[{ color: activeTheme.textColor }, { fontSize: 16, marginBottom: 2 }]}>
                 Restart Onboarding
               </Text>
               <Text style={{ fontSize: 13, color: activeTheme.secondaryTextColor }}>
