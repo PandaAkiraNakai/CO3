@@ -8,16 +8,18 @@ import Toast from 'react-native-toast-message';
 import WorkScreen from './workScreen';
 import { searchJsonPreset } from '../storage/jsonSearches';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from 'react-i18next';
 
 const SECTION_META = {
-  'Categories': { icon: 'bookmark-box-multiple-outline' },
-  'Library': { icon: 'bookmark-outline' },
-  'Works': { icon: 'book-outline' },
-  'All Tags': { icon: 'tag-outline' },
-  'Fandoms': { icon: 'television-play' },
-  'Relationships':{ icon: 'heart-outline' },
-  'Characters': { icon: 'account-outline' },
-  'Freeform': { icon: 'text-box-outline' },
+  'categories': { icon: 'bookmark-box-multiple-outline' },
+  'presets': { icon: 'layers-search' },
+  'library': { icon: 'bookmark-outline' },
+  'works': { icon: 'book-outline' },
+  'all_tags': { icon: 'tag-outline' },
+  'fandoms': { icon: 'television-play' },
+  'relationships': { icon: 'heart-outline' },
+  'characters': { icon: 'account-outline' },
+  'freeform': { icon: 'text-box-outline' },
 };
 
 function SearchItem({ value, onPress, currentTheme }) {
@@ -122,16 +124,15 @@ function CategoryItem({ value, onPress, currentTheme }) {
   );
 }
 
-
-function SectionHeader({ name, count, currentTheme }) {
-  const meta = SECTION_META[name] ?? { icon: 'magnify' };
+function SectionHeader({ sectionKey, title, count, currentTheme }) {
+  const meta = SECTION_META[sectionKey] ?? { icon: 'magnify' };
   return (
     <View style={styles.sectionHeader}>
       <View style={[styles.sectionIconWrap, { backgroundColor: currentTheme.tagBackground }]}>
         <Icon name={meta.icon} size={15} color={currentTheme.primaryColor} />
       </View>
       <Text style={[styles.sectionTitle, { color: currentTheme.textColor }]}>
-        {name}
+        {title}
       </Text>
       {count > 0 && (
         <View style={[styles.countBadge, { backgroundColor: currentTheme.tagBackground }]}>
@@ -144,14 +145,14 @@ function SectionHeader({ name, count, currentTheme }) {
   );
 }
 
-function WorksList({ name, values, currentTheme, libraryDAO, workDAO, setScreens, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, chapterDAO}) {
+function WorksList({ sectionKey, title, values, currentTheme, libraryDAO, workDAO, setScreens, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, chapterDAO}) {
   if (!values || values?.length === 0) return null;
 
   console.log(values);
 
   return (
     <View style={styles.section}>
-      <SectionHeader name={name} count={values.length} currentTheme={currentTheme} />
+      <SectionHeader sectionKey={sectionKey} title={title} count={values.length} currentTheme={currentTheme} />
       <View style={[styles.itemsCard, { borderColor: currentTheme.borderColor }]}>
         {values.slice(0, 5).map((v, i) => (
           <View key={i}>
@@ -185,12 +186,12 @@ function WorksList({ name, values, currentTheme, libraryDAO, workDAO, setScreens
   );
 }
 
-function ItemsList({ name, values, currentTheme, setScreens, openTagSearch }) {
+function ItemsList({ sectionKey, title, values, currentTheme, setScreens, openTagSearch }) {
   if (values.length === 0) return null;
 
   return (
     <View style={styles.section}>
-      <SectionHeader name={name} count={values.length} currentTheme={currentTheme} />
+      <SectionHeader sectionKey={sectionKey} title={title} count={values.length} currentTheme={currentTheme} />
       <View style={[styles.itemsCard, { borderColor: currentTheme.borderColor }]}>
         {values.slice(0, 5).map((v, i) => (
           <View key={i}>
@@ -211,12 +212,12 @@ function ItemsList({ name, values, currentTheme, setScreens, openTagSearch }) {
   );
 }
 
-function CategoryList({ name, values, currentTheme, setActiveScreen, openCategory }) {
+function CategoryList({ sectionKey, title, values, currentTheme, setActiveScreen, openCategory }) {
   if (values.length === 0) return null;
 
   return (
     <View style={styles.section}>
-      <SectionHeader name={name} count={values.length} currentTheme={currentTheme} icon={"bookmark-box-multiple-outline"} />
+      <SectionHeader sectionKey={sectionKey} title={title} count={values.length} currentTheme={currentTheme} />
       <View style={[styles.itemsCard, { borderColor: currentTheme.borderColor }]}>
         {values.slice(0, 5).map((v, i) => (
           <View key={i}>
@@ -238,13 +239,12 @@ function CategoryList({ name, values, currentTheme, setActiveScreen, openCategor
   );
 }
 
-
-function PresetList({ name, values, currentTheme, setActiveScreen, openPreset }) {
+function PresetList({ sectionKey, title, values, currentTheme, setActiveScreen, openPreset }) {
   if (values.length === 0) return null;
 
   return (
     <View style={styles.section}>
-      <SectionHeader name={name} count={values.length} currentTheme={currentTheme} />
+      <SectionHeader sectionKey={sectionKey} title={title} count={values.length} currentTheme={currentTheme} />
       <View style={[styles.itemsCard, { borderColor: currentTheme.borderColor }]}>
         {values.slice(0, 5).map((v, i) => (
           <View key={i}>
@@ -266,21 +266,22 @@ function PresetList({ name, values, currentTheme, setActiveScreen, openPreset })
   );
 }
 
-function EmptyState({ currentTheme }) {
+function EmptyState({ currentTheme, t }) {
   return (
     <View style={styles.emptyState}>
       <Icon name="magnify" size={48} color={currentTheme.iconColor} style={{ opacity: 0.4 }} />
       <Text style={[styles.emptyTitle, { color: currentTheme.textColor }]}>
-        Start searching
+        {t('global_search_start_searching')}
       </Text>
       <Text style={[styles.emptySubtitle, { color: currentTheme.secondaryTextColor }]}>
-        Search across tags, fandoms, ships, characters, and more
+        {t('global_search_search_across')}
       </Text>
     </View>
   );
 }
 
 export default function GlobalSearchScreen({ currentTheme, searchTerm, setActiveScreen, libraryDAO, setScreens, settingsDAO, workDAO, historyDAO, progressDAO, kudoHistoryDAO, chapterDAO, openTagSearch, setSelectedPreset, setSelectedCollection }) {
+  const { t } = useTranslation();
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
 
   const [categoriesResults, setCategoriesResults] = useState();
@@ -378,7 +379,7 @@ export default function GlobalSearchScreen({ currentTheme, searchTerm, setActive
           <Icon name="book-search-outline" size={15} color={currentTheme.primaryColor} />
         </View>
         <Text style={[styles.libraryText, { color: currentTheme.textColor }]}>
-          Search in library
+          {t('global_search_search_in_library')}
         </Text>
         {searchTerm ? (
           <Text style={[styles.libraryQuery, { color: currentTheme.secondaryTextColor }]} numberOfLines={1}>
@@ -389,53 +390,101 @@ export default function GlobalSearchScreen({ currentTheme, searchTerm, setActive
       </TouchableOpacity>
 
       {!debouncedSearchTerm ? (
-        <EmptyState currentTheme={currentTheme} />
+        <EmptyState currentTheme={currentTheme} t={t} />
       ) : !hasResults ? (
         <View style={styles.emptyState}>
           <Icon name="magnify-close" size={48} color={currentTheme.iconColor} style={{ opacity: 0.4 }} />
           <Text style={[styles.emptyTitle, { color: currentTheme.textColor }]}>
-            No results
+            {t('global_search_no_results')}
           </Text>
           <Text style={[styles.emptySubtitle, { color: currentTheme.secondaryTextColor }]}>
-            Nothing found for "{debouncedSearchTerm}"
+            {t('global_search_nothing_found', { term: debouncedSearchTerm })}
           </Text>
         </View>
       ) : (
         <>
-          <CategoryList name="Categories" values={categoriesResults} currentTheme={currentTheme} setActiveScreen={setActiveScreen} openCategory={setSelectedCollection} />
-          <PresetList name="Presets" values={presetResults} currentTheme={currentTheme} setActiveScreen={setActiveScreen} openPreset={setSelectedPreset} />
-          <WorksList name="Library"
-                     values={libraryResults.map(r => r.work)}
-                     currentTheme={currentTheme}
-                     settingsDAO={settingsDAO}
-                     workDAO={workDAO}
-                     libraryDAO={libraryDAO}
-                     setScreens={setScreens}
-                     historyDAO={historyDAO}
-                     progressDAO={progressDAO}
-                     kudoHistoryDAO={kudoHistoryDAO}
-                     chapterDAO={chapterDAO}
+          <CategoryList
+            sectionKey="categories"
+            title={t('global_search_section_categories')}
+            values={categoriesResults}
+            currentTheme={currentTheme}
+            setActiveScreen={setActiveScreen}
+            openCategory={setSelectedCollection}
           />
-          <WorksList name="Works"
-                     values={worksResult?.works}
-                     currentTheme={currentTheme}
-                     settingsDAO={settingsDAO}
-                     workDAO={workDAO}
-                     libraryDAO={libraryDAO}
-                     setScreens={setScreens}
-                     historyDAO={historyDAO}
-                     progressDAO={progressDAO}
-                     kudoHistoryDAO={kudoHistoryDAO}
-                     chapterDAO={chapterDAO}
+          <PresetList
+            sectionKey="presets"
+            title={t('global_search_section_presets')}
+            values={presetResults}
+            currentTheme={currentTheme}
+            setActiveScreen={setActiveScreen}
+            openPreset={setSelectedPreset}
           />
-          <ItemsList name="All Tags" values={tags} currentTheme={currentTheme} openTagSearch={openTagSearch} />
-          <ItemsList name="Fandoms" values={fandoms} currentTheme={currentTheme} openTagSearch={openTagSearch} />
-          <ItemsList name="Relationships" values={ships} currentTheme={currentTheme} openTagSearch={openTagSearch} />
-          <ItemsList name="Characters" values={chars} currentTheme={currentTheme} openTagSearch={openTagSearch} />
-          <ItemsList name="Freeform" values={freeform} currentTheme={currentTheme} openTagSearch={openTagSearch} />
+          <WorksList
+            sectionKey="library"
+            title={t('global_search_section_library')}
+            values={libraryResults.map(r => r.work)}
+            currentTheme={currentTheme}
+            settingsDAO={settingsDAO}
+            workDAO={workDAO}
+            libraryDAO={libraryDAO}
+            setScreens={setScreens}
+            historyDAO={historyDAO}
+            progressDAO={progressDAO}
+            kudoHistoryDAO={kudoHistoryDAO}
+            chapterDAO={chapterDAO}
+          />
+          <WorksList
+            sectionKey="works"
+            title={t('global_search_section_works')}
+            values={worksResult?.works}
+            currentTheme={currentTheme}
+            settingsDAO={settingsDAO}
+            workDAO={workDAO}
+            libraryDAO={libraryDAO}
+            setScreens={setScreens}
+            historyDAO={historyDAO}
+            progressDAO={progressDAO}
+            kudoHistoryDAO={kudoHistoryDAO}
+            chapterDAO={chapterDAO}
+          />
+          <ItemsList
+            sectionKey="all_tags"
+            title={t('global_search_section_all_tags')}
+            values={tags}
+            currentTheme={currentTheme}
+            openTagSearch={openTagSearch}
+          />
+          <ItemsList
+            sectionKey="fandoms"
+            title={t('global_search_section_fandoms')}
+            values={fandoms}
+            currentTheme={currentTheme}
+            openTagSearch={openTagSearch}
+          />
+          <ItemsList
+            sectionKey="relationships"
+            title={t('global_search_section_relationships')}
+            values={ships}
+            currentTheme={currentTheme}
+            openTagSearch={openTagSearch}
+          />
+          <ItemsList
+            sectionKey="characters"
+            title={t('global_search_section_characters')}
+            values={chars}
+            currentTheme={currentTheme}
+            openTagSearch={openTagSearch}
+          />
+          <ItemsList
+            sectionKey="freeform"
+            title={t('global_search_section_freeform')}
+            values={freeform}
+            currentTheme={currentTheme}
+            openTagSearch={openTagSearch}
+          />
 
           <Text style={{color: currentTheme.placeholderColor}}>
-            You reached the end !
+            {t('global_search_end')}
           </Text>
         </>
       )}

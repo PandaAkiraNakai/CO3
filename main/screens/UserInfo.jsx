@@ -17,6 +17,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import BookmarksScreen from './more/BookmarksScreen';
 import UserWorkScreen from './more/UserWorkScreen';
 import LoadingSpinner from '../components/History/Spinner';
+import { useTranslation } from 'react-i18next';
 
 export default function UserInfoScreen({
                                          currentTheme,
@@ -31,6 +32,7 @@ export default function UserInfoScreen({
                                          kudoHistoryDAO,
                                          chapterDAO,
                                        }) {
+  const { t } = useTranslation();
   const [userInfo, setUserInfo] = useState();
   const [error, setError] = useState(false);
   const [properUsername, setProperUsername] = useState();
@@ -87,7 +89,7 @@ export default function UserInfoScreen({
               color={currentTheme.iconColor}
             />
             <Text style={[styles.errorText, { color: currentTheme.textColor }]}>
-              Failed to load user data
+              {t('screen_user_profile_error_load')}
             </Text>
             <TouchableOpacity
               style={[
@@ -96,7 +98,7 @@ export default function UserInfoScreen({
               ]}
               onPress={loadUserInfo}
             >
-              <Text style={styles.retryButtonText}>Retry</Text>
+              <Text style={styles.retryButtonText}>{t('general_retry')}</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -106,7 +108,7 @@ export default function UserInfoScreen({
     if (!userInfo) return (
       <LoadingSpinner
         currentTheme={currentTheme}
-        message="Loading profile..."
+        message={t('screen_user_profile_loading')}
       />
     );
 
@@ -117,7 +119,7 @@ export default function UserInfoScreen({
             <Icon name="arrow-back" size={24} color={currentTheme.textColor} />
           </TouchableOpacity>
           <Text style={[styles.title, { color: currentTheme.textColor }]}>
-            User profile
+            {t('screen_user_profile_title')}
           </Text>
         </View>
         <ScrollView>
@@ -135,7 +137,7 @@ export default function UserInfoScreen({
                     </Text>
                     {userInfo.joinDate &&
                       <Text style={[styles.joinDate, { color: currentTheme.secondaryTextColor }]}>
-                        Joined: {userInfo.joinDate}
+                        {t('screen_user_profile_joined', { date: userInfo.joinDate })}
                       </Text>
                     }
                     {properPseud &&
@@ -154,7 +156,7 @@ export default function UserInfoScreen({
                         />])
                       }}>
                         <Text style={[styles.joinDate, { color: currentTheme.secondaryTextColor }]}>
-                          Pseud of {properUsername}
+                          {t('screen_user_profile_pseud_of', { username: properUsername })}
                         </Text>
                       </TouchableOpacity>
                     }
@@ -164,7 +166,7 @@ export default function UserInfoScreen({
                 {userInfo.bio &&
                   <>
                     <Text style={[styles.subTitle, { color: currentTheme.textColor }]}>
-                      Bio
+                      {t('screen_user_profile_bio')}
                     </Text>
                     <HtmlTextRenderer
                       html={userInfo.bio}
@@ -191,7 +193,7 @@ export default function UserInfoScreen({
                                   />])
                                 }}>
                 <Text style={[styles.bookMarkButtonText, { color: currentTheme.textColor, }]}>
-                  {"Bookmark"}
+                  {t('screen_user_profile_bookmark_button')}
                 </Text>
                 <Icon name={"chevron-right"} size={24} color={currentTheme.iconColor} style={[{}]} />
               </TouchableOpacity>
@@ -212,7 +214,7 @@ export default function UserInfoScreen({
                                   />])
                                 }}>
                 <Text style={[styles.bookMarkButtonText, { color: currentTheme.textColor, }]}>
-                  {"Works"}
+                  {t('screen_user_profile_works_button')}
                 </Text>
                 <Icon name={"chevron-right"} size={24} color={currentTheme.iconColor} style={[{}]} />
               </TouchableOpacity>

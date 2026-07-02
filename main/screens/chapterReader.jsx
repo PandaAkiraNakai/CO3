@@ -18,6 +18,7 @@ import Slider from '@react-native-community/slider';
 import { CommentsScreen } from '../components/Reader/commentsScreen';
 import { getJsonSettings } from '../storage/jsonSettings';
 import Toast from 'react-native-toast-message';
+import { useTranslation } from 'react-i18next';
 
 const PULL_THRESHOLD = 150;
 const PROGRESS_SAVE_DEBOUNCE = 1000;
@@ -84,6 +85,8 @@ const ChapterReader = ({
                          chapterDAO,
                          workDAO,
                        }) => {
+  const { t } = useTranslation();
+
   const [barsVisible, setBarsVisible] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [pullDistance, setPullDistance] = useState(0);
@@ -507,7 +510,7 @@ const ChapterReader = ({
               { color: currentTheme.primaryColor },
             ]}
           >
-            Incognito Mode
+            {t('reader_incognito_mode')}
           </Text>
         )}
       </View>
@@ -606,8 +609,8 @@ const ChapterReader = ({
         <PullIndicator progress={progress} theme={currentTheme} />
         <Text style={[styles.pullText, { color: currentTheme.textColor }]}>
           {progress < 1
-            ? 'Pull up for next chapter'
-            : 'Release for next chapter'}
+            ? t('reader_pull_up_next')
+            : t('reader_release_next')}
         </Text>
       </View>
     );
@@ -630,7 +633,7 @@ const ChapterReader = ({
           ref={webViewRef}
           originWhitelist={['*']}
           allowFileAccess={true}
-          source={{ html: htmlContent || '<p>Something went horribly wrong if you see this</p>' }}
+          source={{ html: htmlContent || `<p>${t('reader_error_fallback')}</p>` }}
           style={styles.webView}
           injectedJavaScript={injectedJavaScript}
           onMessage={handleMessage}
@@ -647,7 +650,11 @@ const ChapterReader = ({
             if (url === 'about:blank' || url.startsWith('about:blank#')) return true;
             if (url.startsWith('http://') || url.startsWith('https://')) {
               Linking.openURL(url).catch((e) => {
-                Toast.show({ type: "error", text1: "Error opening link", text2: e.message });
+                Toast.show({
+                  type: "error",
+                  text1: t('reader_error_opening_link'),
+                  text2: e.message
+                });
               });
             }
             return false;

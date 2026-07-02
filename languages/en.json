@@ -12,12 +12,15 @@
   "general_unknown": "Unknown",
   "general_unknown_author": "Unknown Author",
   "general_unknown_work": "Unknown Work",
+  "general_back": "Back",
+
 
   "navigation_library": "Library",
   "navigation_update": "Update",
   "navigation_browse": "Browse",
   "navigation_history": "History",
   "navigation_more": "More",
+
 
   "screen_library_title": "Your Library",
   "screen_library_loading": "Loading library...",
@@ -38,6 +41,7 @@
   "screen_library_sort_selector_alphabetical": "Alphabetical",
   "screen_library_sort_selector_date": "Date Added",
 
+
   "screen_update_last_updated": "Library last updated: {{last_update}}",
   "screen_update_time_now": "just now",
   "screen_update_time_minute": "{{count}} minute ago",
@@ -53,6 +57,7 @@
   "screen_update_earlier": "Earlier",
   "screen_update_loading": "Loading updates...",
 
+
   "screen_browse_title": "Browse Works",
   "screen_browse_subtitle": "{{count}} works loaded",
   "screen_browse_filter_summary": "{{count}} filter applied",
@@ -62,10 +67,12 @@
   "screen_browse_loading": "Loading works...",
   "screen_browse_error": "Failed to Load Works",
 
+
   "screen_history_clear_title": "Clear History",
   "screen_history_clear_text": "Are you sure you want to clear all reading history?",
   "screen_history_clear_button": "Clear",
   "screen_history_loading": "Loading history...",
+
 
   "screen_more_title": "More Options",
   "screen_more_subtitle": "Additional settings and features",
@@ -79,6 +86,7 @@
   "screen_more_nav_data": "Data and Storage",
   "screen_more_nav_about": "About",
   "screen_more_nav_help": "Help",
+
 
   "screen_preferences_title": "Settings",
   "screen_preferences_title_reader": "Reader",
@@ -129,6 +137,7 @@
   "screen_preferences_onboarding_title": "Restart Onboarding",
   "screen_preferences_onboarding_text": "This will take you back through the setup screens. Continue?",
 
+
   "screen_account_title": "Account",
   "screen_account_text": "Login with your AO3 account",
   "screen_account_username": "Username",
@@ -150,6 +159,7 @@
   "screen_account_logged_in_subtitle": "Your session is active",
   "screen_account_check_session_button": "Check current session",
 
+
   "screen_kudos_history_title": "Kudos History",
   "screen_kudos_history_clear_title": "Clear Kudos History",
   "screen_kudos_history_clear_message": "Are you sure you want to clear all kudos history?",
@@ -158,6 +168,7 @@
   "screen_kudos_history_no_entries_filter_sub": "There are no entries matching the filter.",
   "screen_kudos_history_no_entries": "No kudos history yet.",
   "screen_kudos_history_no_entries_sub": "Kudoed work will appear here.",
+
 
   "screen_bookmarks_title": "Bookmarks",
   "screen_bookmarks_title_username": "{{username}}'s Bookmarks",
@@ -168,6 +179,7 @@
   "screen_bookmarks_empty_title": "No bookmarks yet.",
   "screen_bookmarks_empty_subtitle": "Bookmarked work will appear here.",
 
+
   "screen_read_later_title": "Marked for Later",
   "screen_read_later_loading": "Loading entries...",
   "screen_read_later_loading_more": "Loading more...",
@@ -176,6 +188,7 @@
   "screen_read_later_empty": "No works yet.",
   "screen_read_later_empty_sub": "Mark works for later to see them here.",
 
+
   "screen_category_title": "Manage Categories",
   "screen_category_new_category": "New Category",
   "screen_category_new_category_count": "New Category {{count}}",
@@ -183,6 +196,7 @@
   "screen_category_duplicate_message": "A category named {{trimmedName}} already exists.",
   "screen_category_delete_title": "Delete Category",
   "screen_category_delete_message": "Are you sure you want to delete {{category}}?",
+
 
   "screen_stats_title": "Statistics",
   "screen_stats_reading_activity": "READING ACTIVITY",
@@ -195,12 +209,14 @@
   "screen_stats_no_data": "No data yet",
   "screen_stats_preferred_tags": "Preferred Tags",
 
+
   "screen_storage_title": "Data and storage",
   "screen_storage_section_database": "Database",
   "screen_storage_button_export_database": "Export database",
   "screen_storage_export_database_success": "Exported database",
   "screen_storage_export_database_success_sub": "Database exported to download folder.",
   "screen_storage_export_database_error_generic": "Failed to export database",
+
 
   "screen_about_title": "About CO3",
   "screen_about_sub": "The Open Source AO3 Mobile Reader",
@@ -212,10 +228,197 @@
   "screen_about_support": "Support me",
   "screen_about_version": "Version {{co3Version}}",
 
+
   "screen_help_title": "Help",
   "screen_help_sub": "Do you need help or do you have an issue ?",
   "screen_help_discord": "Ask on the Discord",
-  "screen_help_github": "Open an issue on GitHub"
+  "screen_help_github": "Open an issue on GitHub",
 
 
+  "screen_advancedSearch_title": "Work Search",
+  "screen_advancedSearch_presets_button": "Presets",
+  "screen_advancedSearch_save_button": "Save",
+  "screen_advancedSearch_close_button": "Close",
+  "screen_advancedSearch_search_button": "Search",
+
+
+  "screen_advancedSearch_save_preset_modal_title": "Save preset",
+  "screen_advancedSearch_preset_name_label": "Preset name",
+  "screen_advancedSearch_preset_name_placeholder": "Enter preset name",
+  "screen_advancedSearch_add_button": "Add",
+  "screen_advancedSearch_update_button": "Update",
+  "screen_advancedSearch_no_presets": "You don't have any preset yet !",
+
+  "screen_advancedSearch_canonical_tag_banner": "Browsing canonical tag: {{tag}}",
+  "screen_advancedSearch_no_canonical_tag_banner": "No canonical tag where provided. Excludes won't be available.",
+
+  "screen_advancedSearch_filter_work_info": "Work Info",
+  "screen_advancedSearch_filter_work_tags": "Work Tags",
+  "screen_advancedSearch_filter_exclude": "Work Tag Exclude",
+  "screen_advancedSearch_filter_stats": "Work Stats",
+  "screen_advancedSearch_filter_search_options": "Search Options",
+
+  "screen_advancedSearch_label_any_field": "Any Field",
+  "screen_advancedSearch_placeholder_any_field": "Search within all fields",
+  "screen_advancedSearch_label_title": "Title",
+  "screen_advancedSearch_placeholder_title": "Work title",
+  "screen_advancedSearch_label_creator": "Creator",
+  "screen_advancedSearch_placeholder_creator": "Author/creator name",
+  "screen_advancedSearch_label_date": "Date",
+  "screen_advancedSearch_placeholder_date": "e.g., >2023-01-01",
+  "screen_advancedSearch_label_completion_status": "Completion Status",
+  "screen_advancedSearch_label_crossovers": "Crossovers",
+  "screen_advancedSearch_label_single_chapter": "Single Chapter",
+  "screen_advancedSearch_label_word_count": "Word Count",
+  "screen_advancedSearch_placeholder_word_count": "e.g., >1000, 1000-5000",
+  "screen_advancedSearch_label_language": "Language",
+
+  "screen_advancedSearch_label_fandoms": "Fandoms",
+  "screen_advancedSearch_placeholder_fandoms": "e.g., Harry Potter, Marvel",
+  "screen_advancedSearch_label_rating": "Rating",
+  "screen_advancedSearch_label_warnings": "Warnings",
+  "screen_advancedSearch_label_categories": "Categories",
+  "screen_advancedSearch_label_characters": "Characters",
+  "screen_advancedSearch_placeholder_characters": "e.g., Harry Potter, Hermione Granger",
+  "screen_advancedSearch_label_relationships": "Relationships",
+  "screen_advancedSearch_placeholder_relationships": "e.g., Harry Potter/Draco Malfoy",
+  "screen_advancedSearch_label_additional_tags": "Additional Tags",
+  "screen_advancedSearch_placeholder_additional_tags": "e.g., Found Family, Hurt/Comfort",
+
+  "screen_advancedSearch_label_exclude_fandoms": "Exclude Fandoms",
+  "screen_advancedSearch_label_exclude_characters": "Exclude Characters",
+  "screen_advancedSearch_label_exclude_relationships": "Exclude Relationships",
+  "screen_advancedSearch_label_exclude_additional_tags": "Exclude Additional Tags",
+  "screen_advancedSearch_label_exclude_ratings": "Exclude Ratings",
+  "screen_advancedSearch_label_exclude_warnings": "Exclude Warnings",
+
+  "screen_advancedSearch_label_hits": "Hits",
+  "screen_advancedSearch_placeholder_hits": "e.g., >1000",
+  "screen_advancedSearch_label_kudos": "Kudos",
+  "screen_advancedSearch_placeholder_kudos": "e.g., >100",
+  "screen_advancedSearch_label_comments": "Comments",
+  "screen_advancedSearch_placeholder_comments": "e.g., >10",
+  "screen_advancedSearch_label_bookmarks": "Bookmarks",
+  "screen_advancedSearch_placeholder_bookmarks": "e.g., >50",
+
+  "screen_advancedSearch_label_sort_by": "Sort by",
+  "screen_advancedSearch_label_sort_direction": "Sort Direction",
+
+  "screen_advancedSearch_sort_best_match": "Best Match",
+  "screen_advancedSearch_sort_creator": "Creator",
+  "screen_advancedSearch_sort_title": "Title",
+  "screen_advancedSearch_sort_date_posted": "Date Posted",
+  "screen_advancedSearch_sort_date_updated": "Date Updated",
+  "screen_advancedSearch_sort_word_count": "Word Count",
+  "screen_advancedSearch_sort_hits": "Hits",
+  "screen_advancedSearch_sort_kudos": "Kudos",
+  "screen_advancedSearch_sort_comments": "Comments",
+  "screen_advancedSearch_sort_bookmarks": "Bookmarks",
+
+  "screen_advancedSearch_sort_ascending": "Ascending",
+  "screen_advancedSearch_sort_descending": "Descending",
+
+  "screen_advancedSearch_rating_any": "Any Rating",
+  "screen_advancedSearch_rating_not_rated": "Not Rated",
+  "screen_advancedSearch_rating_general_audiences": "General Audiences",
+  "screen_advancedSearch_rating_teen_and_up": "Teen And Up Audiences",
+  "screen_advancedSearch_rating_mature": "Mature",
+  "screen_advancedSearch_rating_explicit": "Explicit",
+
+  "screen_advancedSearch_warning_creator_chose_not_to_use": "Creator Chose Not To Use Archive Warnings",
+  "screen_advancedSearch_warning_graphic_depictions": "Graphic Depictions Of Violence",
+  "screen_advancedSearch_warning_major_character_death": "Major Character Death",
+  "screen_advancedSearch_warning_no_archive_warnings": "No Archive Warnings Apply",
+  "screen_advancedSearch_warning_rape_noncon": "Rape/Non-Con",
+  "screen_advancedSearch_warning_underage_sex": "Underage Sex",
+
+  "screen_advancedSearch_category_ff": "F/F",
+  "screen_advancedSearch_category_fm": "F/M",
+  "screen_advancedSearch_category_gen": "Gen",
+  "screen_advancedSearch_category_mm": "M/M",
+  "screen_advancedSearch_category_multi": "Multi",
+  "screen_advancedSearch_category_other": "Other",
+
+  "screen_advancedSearch_crossover_include": "Include crossovers",
+  "screen_advancedSearch_crossover_exclude": "Exclude crossovers",
+  "screen_advancedSearch_crossover_only": "Only crossovers",
+
+  "screen_advancedSearch_completion_all": "All works",
+  "screen_advancedSearch_completion_complete_only": "Complete works only",
+  "screen_advancedSearch_completion_wip_only": "Works in progress only",
+
+  "reader_incognito_mode": "Incognito Mode",
+  "reader_pull_up_next": "Pull up for next chapter",
+  "reader_release_next": "Release for next chapter",
+  "reader_error_fallback": "Something went horribly wrong if you see this",
+  "reader_error_opening_link": "Error opening link",
+
+  "global_search_search_in_library": "Search in library",
+  "global_search_start_searching": "Start searching",
+  "global_search_search_across": "Search across tags, fandoms, ships, characters, and more",
+  "global_search_no_results": "No results",
+  "global_search_nothing_found": "Nothing found for \"{{term}}\"",
+  "global_search_end": "You reached the end!",
+  "global_search_section_categories": "Categories",
+  "global_search_section_presets": "Presets",
+  "global_search_section_library": "Library",
+  "global_search_section_works": "Works",
+  "global_search_section_all_tags": "All Tags",
+  "global_search_section_fandoms": "Fandoms",
+  "global_search_section_relationships": "Relationships",
+  "global_search_section_characters": "Characters",
+  "global_search_section_freeform": "Freeform",
+
+  "screen_user_profile_title": "User profile",
+  "screen_user_profile_loading": "Loading profile...",
+  "screen_user_profile_error_load": "Failed to load user data",
+  "screen_user_profile_joined": "Joined: {{date}}",
+  "screen_user_profile_pseud_of": "Pseud of {{username}}",
+  "screen_user_profile_bio": "Bio",
+  "screen_user_profile_bookmark_button": "Bookmark",
+  "screen_user_profile_works_button": "Works",
+
+  "screen_work_loading": "Loading work information...",
+  "screen_work_not_found": "Work not found",
+  "screen_work_add_to_library": "Add to Library",
+  "screen_work_in_library": "In Library",
+  "screen_work_like": "Like",
+  "screen_work_liked": "Liked",
+  "screen_work_sending": "Sending...",
+  "screen_work_more_info": "More Info",
+  "screen_work_open_in_web": "Open in Web",
+  "screen_work_by_author": "by {{author}}",
+  "screen_work_chapters_header": "Chapters",
+  "screen_work_chapters_count": "{{count}} chapter",
+  "screen_work_chapters_count_plural": "{{count}} chapters",
+  "screen_work_next_chapter": "Next chapter",
+  "screen_work_unread": "Unread",
+  "screen_work_all": "All",
+  "screen_work_next_x_chapters": "Next {{count}} chapters",
+  "screen_work_native_download": "Native Download",
+  "screen_work_delete_all": "Delete all",
+  "screen_work_save_as_file": "Save as file",
+  "screen_work_choose_format": "Choose a format to download to your device",
+  "screen_work_refresh": "Refresh",
+  "screen_work_bookmark": "Bookmark",
+  "screen_work_mark_for_later": "Mark for later",
+
+  "screen_work_toast_error_deleting": "Error deleting",
+  "screen_work_toast_removed_from_library": "Removed from library",
+  "screen_work_toast_added_to_library": "Added to library",
+  "screen_work_toast_added_to_library_in_collection": "Added to library in \"{{collection}}\"",
+  "screen_work_toast_failed_to_add_to_library": "Failed to add to library",
+  "screen_work_toast_kudo_sent": "Kudo sent successfully!",
+  "screen_work_toast_failed_to_send_kudo": "Failed to send kudo. Please try again.",
+  "screen_work_toast_added_to_bookmarks": "Added to bookmarks",
+  "screen_work_toast_marked_for_later": "Marked for Later",
+  "screen_work_toast_failed_to_load_chapter": "Failed to load chapter",
+  "screen_work_toast_download_complete": "Download complete",
+  "screen_work_toast_download_complete_sub": "{{filename}} saved to Downloads",
+  "screen_work_toast_download_failed": "Download failed",
+  "screen_work_toast_download_failed_sub": "Server returned {{statusCode}}",
+  "screen_work_toast_error_reloading_work": "Error reloading work.",
+  "screen_work_toast_error_loading_work": "Something went wrong while loading the work.",
+  "screen_work_toast_no_new_chapters_to_download": "No new chapters to download",
+  "screen_work_toast_added_chapters_to_queue": "Added {{count}} chapters to download list."
 }
