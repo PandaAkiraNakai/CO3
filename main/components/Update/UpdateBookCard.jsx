@@ -17,6 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { deleteDownloaded, isDownloaded } from '../../downloads/Downloader';
 import Toast from 'react-native-toast-message';
 import { processQueue } from '../../downloads/DownloadManager';
+import { useTranslation } from 'react-i18next';
 
 const imageMappings = {
   rating: {
@@ -61,6 +62,8 @@ const UpdateBookCard = ({ update, workDAO, theme, onPress }) => {
   const [isDownloadedFile, setIsDownloadedFile] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const isMounted = useRef(true);
+
+  const {t} = useTranslation();
 
   useEffect(() => {
     loadWork();
@@ -141,7 +144,7 @@ const UpdateBookCard = ({ update, workDAO, theme, onPress }) => {
           setIsDownloadedFile(false);
           setShowDelete(false);
         } catch (error) {
-          Toast.show({ type: "error", text1: "Error deleting", text2: error.message });
+          Toast.show({ type: "error", text1: t("component_update_bookcard_deletion_failed"), text2: error.message });
         } finally {
           if (isMounted.current) setIsInQueue(false);
         }
@@ -180,7 +183,7 @@ const UpdateBookCard = ({ update, workDAO, theme, onPress }) => {
   if (loading || !work) {
     return (
       <View style={[styles.card, { backgroundColor: theme.cardBackground, borderColor: theme.borderColor }]}>
-        <Text style={[styles.loadingText, { color: theme.secondaryTextColor }]}>Loading...</Text>
+        <Text style={[styles.loadingText, { color: theme.secondaryTextColor }]}>{t("general_loading")}</Text>
       </View>
     );
   }
@@ -283,7 +286,7 @@ const UpdateBookCard = ({ update, workDAO, theme, onPress }) => {
             {work.title}
           </Text>
           <Text style={[styles.chapter, { color: theme.primaryColor }]}>
-            Chapter {update.chapterNumber}
+            {t("component_history_item_chapter_start", {start: update.chapterNumber})}
           </Text>
         </View>
 

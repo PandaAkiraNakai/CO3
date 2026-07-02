@@ -15,6 +15,7 @@ import CategorySelectionModal from '../WorkScreen/CategorySelectionModal';
 import { markForLater } from '../../web/other/markedLater';
 import { bookmark } from '../../web/other/bookmarks';
 import { normalizeWorkData } from '../../storage/dao/WorkDAO';
+import { useTranslation } from 'react-i18next';
 
 const QuickActionsModal = ({
   isOpen,
@@ -28,6 +29,8 @@ const QuickActionsModal = ({
   const [categories, setCategories] = useState(null);
   const [categoryAction, setCategoryAction] = useState(null);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -102,14 +105,14 @@ const QuickActionsModal = ({
         setInLibrary(false);
         Toast.show({
           type: 'success',
-          text1: 'Removed from Library',
-          text2: 'Successfully removed this work from library',
+          text1: t("component_quick_actions_toast_library_remove_success_title"),
+          text2: t("component_quick_actions_toast_library_remove_success_sub"),
         });
       } catch (error) {
         Toast.show({
           type: 'error',
-          text1: 'Failed to Remove',
-          text2: error.message || 'An error occurred',
+          text1: t("component_quick_actions_toast_library_remove_failed_title"),
+          text2: error.message || t("component_quick_actions_toast_library_remove_failed_sub"),
         });
       }
     } else if (categories.length === 1) {
@@ -119,14 +122,14 @@ const QuickActionsModal = ({
         setInLibrary(true);
         Toast.show({
           type: 'success',
-          text1: 'Added to Library',
-          text2: 'Successfully added this work to the library',
+          text1: t("component_quick_actions_toast_library_add_success_title"),
+          text2: t("component_quick_actions_toast_library_add_success_sub"),
         });
       } catch (error) {
         Toast.show({
           type: 'error',
-          text1: 'Failed to Add',
-          text2: error.message || 'An error occurred',
+          text1: t("component_quick_actions_toast_library_add_failed_title"),
+          text2: error.message || t("component_quick_actions_toast_library_add_failed_sub"),
         });
       }
     } else {
@@ -141,15 +144,15 @@ const QuickActionsModal = ({
       .then(() => {
         Toast.show({
           type: 'success',
-          text1: 'Marked for Later',
-          text2: 'Successfully marked this work for later',
+          text1: t("component_quick_actions_toast_mark_later_success_title"),
+          text2: t("component_quick_actions_toast_mark_later_success_sub"),
         });
       })
       .catch(error => {
         Toast.show({
           type: 'error',
-          text1: 'Failed to Mark for Later',
-          text2: error.message || 'An error occurred',
+          text1: t("component_quick_actions_toast_mark_later_failed_title"),
+          text2: error.message || t("component_quick_actions_toast_mark_later_failed_sub"),
         });
       });
   };
@@ -162,13 +165,13 @@ const QuickActionsModal = ({
       setInLibrary(true);
       Toast.show({
         type: 'success',
-        text1: 'Added to Library',
+        text1: t("component_quick_actions_toast_library_add_success_title"),
       });
     } catch (error) {
       Toast.show({
         type: 'error',
-        text1: 'Failed to Add',
-        text2: error.message || 'An error occurred',
+        text1: t("component_quick_actions_toast_library_add_failed_title"),
+        text2: error.message || t("component_quick_actions_toast_library_add_failed_sub"),
       });
     }
   };
@@ -180,15 +183,15 @@ const QuickActionsModal = ({
       .then(() => {
         Toast.show({
           type: 'success',
-          text1: 'Bookmarked',
-          text2: 'Successfully bookmarked this work',
+          text1: t("component_quick_actions_toast_bookmark_success_title"),
+          text2: t("component_quick_actions_toast_bookmark_success_sub"),
         });
       })
       .catch(error => {
         Toast.show({
           type: 'error',
-          text1: 'Failed to Bookmark',
-          text2: error.message || 'An error occurred',
+          text1: t("component_quick_actions_toast_bookmark_failed_title"),
+          text2: error.message || t("component_quick_actions_toast_bookmark_failed_sub"),
         });
       });
   };
@@ -250,7 +253,7 @@ const QuickActionsModal = ({
                     color="white"
                   />
                   <Text style={styles.actionButtonText}>
-                    {inLibrary ? 'Remove from library' : 'Add to Library'}
+                    {inLibrary ? t("component_quick_actions_button_library_remove") : t("component_quick_actions_button_library_add")}
                   </Text>
                 </TouchableOpacity>
 
@@ -265,7 +268,7 @@ const QuickActionsModal = ({
                   activeOpacity={0.7}
                 >
                   <Icon name="schedule" size={24} color="white" />
-                  <Text style={styles.actionButtonText}>Mark for Later</Text>
+                  <Text style={styles.actionButtonText}>{t("component_quick_actions_button_mark_later")}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -279,7 +282,7 @@ const QuickActionsModal = ({
                   activeOpacity={0.7}
                 >
                   <Icon name="bookmark" size={24} color="white" />
-                  <Text style={styles.actionButtonText}>Bookmark</Text>
+                  <Text style={styles.actionButtonText}>{t("component_quick_actions_button_bookmark")}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -293,7 +296,7 @@ const QuickActionsModal = ({
         onSelect={handleCategorySelect}
         onCancel={() => setShowCategoryModal(false)}
         theme={theme}
-        title="Add to Collection"
+        title={t("component_quick_actions_add_collection")}
       />
     </Modal>
   );

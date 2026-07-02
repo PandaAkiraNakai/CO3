@@ -41,6 +41,7 @@
   "screen_library_sort_selector_read": "Last Read",
   "screen_library_sort_selector_alphabetical": "Alphabetical",
   "screen_library_sort_selector_date": "Date Added",
+  "screen_library_select_category_modal_title": "Select Collection",
 
 
   "screen_update_last_updated": "Library last updated: {{last_update}}",
@@ -426,7 +427,7 @@
 
   "component_side_menu_title": "Settings",
   "component_side_menu_incognito_switch": "Incognito Mode",
-  "component_side_menu_support": "Support us",
+  "component_side_menu_support": "Support us",Loading...
 
   "component_update_work_card_author": "By {{author}}",
 
@@ -478,5 +479,38 @@
   "component_book_details_modal_warnings": "Warnings:",
   "component_book_details_modal_no_warnings": "No specific warnings for this book.",
   "component_book_details_modal_desc": "Description:",
+
+  "component_quick_actions_toast_library_remove_success_title": "Removed from Library",
+  "component_quick_actions_toast_library_remove_success_sub": "Successfully removed this work from library",
+  "component_quick_actions_toast_library_remove_failed_title": "Failed to Remove",
+  "component_quick_actions_toast_library_remove_failed_sub": "An error occurred",
+  "component_quick_actions_toast_library_add_success_title": "Added to Library",
+  "component_quick_actions_toast_library_add_success_sub": "Successfully added this work to the library",
+  "component_quick_actions_toast_library_add_failed_title": "Failed to Add",
+  "component_quick_actions_toast_library_add_failed_sub": "An error occurred",
+  "component_quick_actions_toast_mark_later_success_title": "Marked for Later",
+  "component_quick_actions_toast_mark_later_success_sub": "Successfully marked this work for later",
+  "component_quick_actions_toast_mark_later_failed_title": "Failed to Mark for Later",
+  "component_quick_actions_toast_mark_later_failed_sub": "An error occurred",
+  "component_quick_actions_toast_bookmark_success_title": "Bookmarked",
+  "component_quick_actions_toast_bookmark_success_sub": "Successfully bookmarked this work",
+  "component_quick_actions_toast_bookmark_failed_title": "Failed to Bookmark",
+  "component_quick_actions_toast_bookmark_failed_sub": "An error occurred",
+  "component_quick_actions_button_library_remove": "Remove from library",
+  "component_quick_actions_button_library_add": "Add to Library",
+  "component_quick_actions_button_mark_later": "Mark for Later",
+  "component_quick_actions_button_bookmark": "Bookmark",
+  "component_quick_actions_add_collection": "Add to Collection",
+
+  "component_comments_title": "Comments",
+  "component_comments_deleted": "Comment deleted",
+  "component_comments_author_deleted": "Deleted User",
+  "component_comments_author_guest": "(Guest)",
+  "component_comments_reduced": "Comment reduced",
+  "component_comments_loading": "Loading comments...",
+  "component_comments_none": "No comments",
+  "component_comments_end": "No more comments",
+
+  "component_update_bookcard_deletion_failed": "Error deleting"
 
 }

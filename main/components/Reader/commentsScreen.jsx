@@ -15,6 +15,7 @@ import HtmlTextRenderer from '../common/HtmlTextRenderer';
 import { getJsonSettings } from '../../storage/jsonSettings';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import UserInfoScreen from '../../screens/UserInfo';
+import { useTranslation } from 'react-i18next';
 
 export const CommentsScreen = ({
   setCommentsVisible, currentTheme, singleChapter, workOrChapterId, setScreens,
@@ -28,9 +29,10 @@ export const CommentsScreen = ({
   const [minusList, setMinusList] = useState([]);
   const [page, setPage] = useState(1);
 
+  const {t} = useTranslation();
+
   useEffect(() => {
     asyncFetchComments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [singleChapter, workOrChapterId, page])
 
   const asyncFetchComments = async () => {
@@ -68,7 +70,7 @@ export const CommentsScreen = ({
       ) : comment.isDeleted ? (
         <View style={[styles.specialCommentContainer, { backgroundColor: currentTheme.cardBackground }]}>
           <Text style={[styles.deletedCommentText, { color: currentTheme.textColor }]}>
-            Comment deleted
+            {t("component_comments_deleted")}
           </Text>
         </View>) : (
         <View style={[styles.innerCommentContainer, { backgroundColor: currentTheme.cardBackground }]}>
@@ -76,7 +78,7 @@ export const CommentsScreen = ({
           <View style={styles.commentTextContainer}>
             {comment.authorIsDeleted ? (
               <Text style={[styles.commentAuthor, { color: currentTheme.warningTextColor }]}>
-                Deleted User
+                {t("component_comments_author_deleted")}
               </Text>
             ) : (
               <TouchableOpacity activeOpacity={0} onPress={() => {
@@ -99,13 +101,13 @@ export const CommentsScreen = ({
                 }) : null;
               }}>
                 <Text style={[styles.commentAuthor, { color: currentTheme.textColor }, comment.username ? { borderBottomWidth: 1, borderBottomColor: currentTheme.textColor } : {}]}>
-                  {comment.author} {comment.authorIsGuest ? "(Guest)" : null /* The "??" operator is sometimes broken */}
+                  {comment.author} {comment.authorIsGuest ? t("component_comments_author_guest") : null /* The "??" operator is sometimes broken */}
                 </Text>
               </TouchableOpacity>
             )}
             {minusList.includes(comment.id) ? (
               <Text style={[styles.commentAuthor, { color: currentTheme.secondaryTextColor }]}>
-                Comment reduced
+                {t("component_comments_reduced")}
               </Text>
             ) : preferHTML ? (
               <HtmlTextRenderer extraTagsStyles={
@@ -144,9 +146,6 @@ export const CommentsScreen = ({
           <Text style={[styles.loadingText, { color: currentTheme.textColor }]}>
             Loading comments...
           </Text>
-          <Text style={[styles.loadingStepText, { color: currentTheme.textColor }]}>
-            {step}
-          </Text>
         </View>
       </SafeAreaView>
     );
@@ -157,7 +156,7 @@ export const CommentsScreen = ({
       <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
         <View style={styles.loadingContainer}>
           <Text style={[styles.loadingText, { color: currentTheme.textColor }]}>
-            No comments
+            {t("component_comments_none")}
           </Text>
         </View>
       </SafeAreaView>
@@ -171,7 +170,7 @@ export const CommentsScreen = ({
           <Icon name="arrow-back" size={24} color={currentTheme.textColor} />
         </TouchableOpacity>
         <Text style={[styles.title, { color: currentTheme.textColor }]}>
-          Comments
+          {t("component_comments_title")}
         </Text>
       </View>
       <FlatList
@@ -183,7 +182,7 @@ export const CommentsScreen = ({
         ListFooterComponent={cannotNext && (
           <View style={styles.loadingContainer}>
             <Text style={[styles.loadingText, { color: currentTheme.textColor }]}>
-              No more comments
+              {t("component_comments_end")}
             </Text>
           </View>
         )}

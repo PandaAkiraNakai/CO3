@@ -717,7 +717,7 @@ const LibraryScreen = ({
         onSelect={handleCollectionSelect}
         onCancel={() => setShowAllCollectionsModal(false)}
         theme={currentTheme}
-        title="Select Collection"
+        title={t("screen_library_select_category_modal_title")}
       />
     </View>
   );
