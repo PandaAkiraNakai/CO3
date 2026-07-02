@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTranslation } from 'react-i18next';
 
 export default function HelpScreen({ setScreens, currentTheme }) {
   function onBack() {
@@ -19,6 +20,8 @@ export default function HelpScreen({ setScreens, currentTheme }) {
     });
   }
 
+  const { t } = useTranslation();
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -26,7 +29,7 @@ export default function HelpScreen({ setScreens, currentTheme }) {
           <Icon name="arrow-back" size={24} color={currentTheme.textColor} />
         </TouchableOpacity>
         <Text style={[styles.title, { color: currentTheme.textColor }]}>
-          Help
+          {t("screen_help_title")}
         </Text>
       </View>
       <ScrollView>
@@ -39,21 +42,21 @@ export default function HelpScreen({ setScreens, currentTheme }) {
             ]}
           />
           <Text style={[styles.title, { color: currentTheme.textColor }]}>
-            Client Of Our Own
+            {t("general_app_name")}
           </Text>
           <Text style={[{ paddingTop: 20, color: currentTheme.textColor }]}>
-            Do you need help or do you have an issue ?
+            {t("screen_help_sub")}
           </Text>
         </View>
         <View style={[{ margin: 16 }]}>
           <LinkButton
             url="https://discord.gg/3wMGWu2xMF"
-            label="Ask on the Discord"
+            label={t("screen_help_discord")}
             theme={currentTheme}
           />
           <LinkButton
             url="https://github.com/tbvns/CO3/issues"
-            label="Open an issue on GitHub"
+            label={t("screen_help_github")}
             theme={currentTheme}
           />
         </View>

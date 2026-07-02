@@ -16,6 +16,7 @@ import { getUsername } from '../../storage/Credentials';
 import { fetchMarkedLater } from '../../web/other/markedLater';
 import EmptyState from '../../components/History/Empty';
 import Toast from 'react-native-toast-message';
+import { useTranslation } from 'react-i18next';
 
 export default function ReadLaterScreen({
   setScreens,
@@ -38,6 +39,8 @@ export default function ReadLaterScreen({
   const [viewMode, setViewMode] = useState('med');
   const [error, setError] = useState(null);
 
+  const { t } = useTranslation();
+
   const PAGE_SIZE = 20;
 
   useEffect(() => {
@@ -58,7 +61,7 @@ export default function ReadLaterScreen({
       description: work.description,
       lastUpdated: work.updated
         ? new Date(work.updated).toLocaleDateString()
-        : 'Unknown',
+        : t("general_unknown"),
       likes: work.kudos,
       bookmarks: work.bookmarks,
       words: work.words,
@@ -165,7 +168,7 @@ export default function ReadLaterScreen({
         <Icon name="arrow-back" size={24} color={currentTheme.textColor} />
       </TouchableOpacity>
       <Text style={[styles.title, { color: currentTheme.textColor }]}>
-        Marked for Later
+        {t("screen_read_later_title")}
       </Text>
 
       <TouchableOpacity
@@ -194,7 +197,7 @@ export default function ReadLaterScreen({
             { color: currentTheme.placeholderColor },
           ]}
         >
-          Loading more...
+          {t("screen_read_later_loading_more")}
         </Text>
       </View>
     );
@@ -202,19 +205,40 @@ export default function ReadLaterScreen({
 
   const rennderError = () => {
     return (
-      <View style={[styles.centerContainer, { backgroundColor: currentTheme.backgroundColor }]}>
-        <View style={[styles.errorContainer, { backgroundColor: currentTheme.cardBackground, borderColor: currentTheme.borderColor }]}>
+      <View
+        style={[
+          styles.centerContainer,
+          { backgroundColor: currentTheme.backgroundColor },
+        ]}
+      >
+        <View
+          style={[
+            styles.errorContainer,
+            {
+              backgroundColor: currentTheme.cardBackground,
+              borderColor: currentTheme.borderColor,
+            },
+          ]}
+        >
           <Text style={[styles.errorTitle, { color: currentTheme.textColor }]}>
-            Failed to Load Entries
+            {t('screen_read_later_error')}
           </Text>
-          <Text style={[styles.errorMessage, { color: currentTheme.secondaryTextColor }]}>
+          <Text
+            style={[
+              styles.errorMessage,
+              { color: currentTheme.secondaryTextColor },
+            ]}
+          >
             {error.message}
           </Text>
           <TouchableOpacity
-            style={[styles.retryButton, { backgroundColor: currentTheme.primaryColor }]}
+            style={[
+              styles.retryButton,
+              { backgroundColor: currentTheme.primaryColor },
+            ]}
             onPress={() => loadInitialEntries()}
           >
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={styles.retryButtonText}>{t('general_retry')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -225,7 +249,7 @@ export default function ReadLaterScreen({
     return (
       <LoadingSpinner
         currentTheme={currentTheme}
-        message="Loading entries..."
+        message={t("screen_read_later_loading")}
       />
     );
   }
@@ -244,8 +268,8 @@ export default function ReadLaterScreen({
       :       (
           entries.length === 0 ?
             <EmptyState currentTheme={currentTheme}
-                        textLine1={"No chapters yet."}
-                        textLine2={"Mark chapter for later to see them here."}
+                        textLine1={t("screen_read_later_empty")}
+                        textLine2={t("screen_read_later_empty_sub")}
             />
             :
             <FlatList

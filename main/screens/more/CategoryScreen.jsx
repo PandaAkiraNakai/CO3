@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTranslation } from 'react-i18next';
 
 export default function CategoryScreen({
   currentTheme,
@@ -20,6 +21,8 @@ export default function CategoryScreen({
   const [categories, setCategories] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editValue, setEditValue] = useState('');
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadCategories();
@@ -50,13 +53,19 @@ export default function CategoryScreen({
   }
 
   async function addCategories() {
-    const newCategoryName = findValidName('New Category');
+    const newCategoryName = findValidName();
     const updated = [...categories, newCategoryName];
     setCategories(updated);
     await saveCategories(updated);
   }
 
-  function findValidName(name, count = 0) {
+  function findValidName(name = undefined, count = 0) {
+    if (!name && count > 0) {
+        name = t("screen_category_new_category_count", { count: count });
+    } else if (!name) {
+        name = t("screen_category_new_category");
+    }
+
     const testName = count === 0 ? name : `${name} ${count}`;
     if (categories.includes(testName)) {
       return findValidName(name, count + 1);
@@ -66,12 +75,12 @@ export default function CategoryScreen({
 
   function showDeleteConfirmation(category) {
     Alert.alert(
-      'Delete Category',
-      `Are you sure you want to delete "${category}"?`,
+      t("screen_category_delete_title"),
+      t("screen_category_delete_message", { category: category }),
       [
-        { text: 'Cancel', onPress: () => {}, style: 'cancel' },
+        { text: t("general_cancel"), onPress: () => {}, style: 'cancel' },
         {
-          text: 'Delete',
+          text: t("general_delete"),
           onPress: () => removeCategories(category),
           style: 'destructive',
         },
@@ -103,9 +112,9 @@ export default function CategoryScreen({
       )
     ) {
       Alert.alert(
-        'Duplicate Name',
-        `A category named "${trimmedName}" already exists.`,
-        [{ text: 'OK', onPress: () => {} }],
+        t("screen_category_duplicate_title"),
+        t("screen_category_duplicate_message", { trimmedName: trimmedName }),
+        [{ text: t("general_ok"), onPress: () => {} }],
       );
       return;
     }
@@ -230,7 +239,7 @@ export default function CategoryScreen({
           <TouchableOpacity onPress={onBack}>
             <Icon name="arrow-back" size={24} color={currentTheme?.textColor} />
           </TouchableOpacity>
-          <Text style={styles.title}>Manage Categories</Text>
+          <Text style={styles.title}>{t("screen_category_title")}</Text>
         </View>
       </View>
 

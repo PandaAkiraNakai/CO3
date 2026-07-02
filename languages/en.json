@@ -1,8 +1,11 @@
 {
+  "general_app_name": "Client Of Our Own",
   "general_global_search_placeholder": "Search works, authors...",
   "general_loading": "Loading...",
   "general_retry": "Retry",
   "general_cancel": "Cancel",
+  "general_delete": "Delete",
+  "general_ok": "OK",
   "general_restart": "Restart",
   "general_error": "Error",
   "general_success": "Success",
@@ -163,6 +166,56 @@
   "screen_bookmarks_loading": "Loading bookmarks...",
   "screen_bookmarks_loading_more": "Loading more...",
   "screen_bookmarks_empty_title": "No bookmarks yet.",
-  "screen_bookmarks_empty_subtitle": "Bookmarked work will appear here."
+  "screen_bookmarks_empty_subtitle": "Bookmarked work will appear here.",
+
+  "screen_read_later_title": "Marked for Later",
+  "screen_read_later_loading": "Loading entries...",
+  "screen_read_later_loading_more": "Loading more...",
+  "screen_read_later_error": "Failed to Load Entries",
+  "screen_read_later_error_not_logged_in": "Please log in to see works marked as Read Later on your account.",
+  "screen_read_later_empty": "No works yet.",
+  "screen_read_later_empty_sub": "Mark works for later to see them here.",
+
+  "screen_category_title": "Manage Categories",
+  "screen_category_new_category": "New Category",
+  "screen_category_new_category_count": "New Category {{count}}",
+  "screen_category_duplicate_title": "Duplicate Name",
+  "screen_category_duplicate_message": "A category named {{trimmedName}} already exists.",
+  "screen_category_delete_title": "Delete Category",
+  "screen_category_delete_message": "Are you sure you want to delete {{category}}?",
+
+  "screen_stats_title": "Statistics",
+  "screen_stats_reading_activity": "READING ACTIVITY",
+  "screen_stats_chapter_read": "Chapters Read",
+  "screen_stats_work_started": "Works Started",
+  "screen_stats_your_preference": "YOUR PREFERENCES",
+  "screen_stats_favorite_author": "Favourite Authors",
+  "screen_stats_work_count": "{{count}} work",
+  "screen_stats_work_count_plural": "{{count}} works",
+  "screen_stats_no_data": "No data yet",
+  "screen_stats_preferred_tags": "Preferred Tags",
+
+  "screen_storage_title": "Data and storage",
+  "screen_storage_section_database": "Database",
+  "screen_storage_button_export_database": "Export database",
+  "screen_storage_export_database_success": "Exported database",
+  "screen_storage_export_database_success_sub": "Database exported to download folder.",
+  "screen_storage_export_database_error_generic": "Failed to export database",
+
+  "screen_about_title": "About CO3",
+  "screen_about_sub": "The Open Source AO3 Mobile Reader",
+  "screen_about_text_1": "CO3 is an open source project which aims at making reading on AO3 with a mobile device a lot easier.",
+  "screen_about_text_2": "It follows the GPL V3 licence, and will be free of ads, of subscription and of any paid features, forever.",
+  "screen_about_news": "What's new ?",
+  "screen_about_source": "Source code",
+  "screen_about_discord": "Discord",
+  "screen_about_support": "Support me",
+  "screen_about_version": "Version {{co3Version}}",
+
+  "screen_help_title": "Help",
+  "screen_help_sub": "Do you need help or do you have an issue ?",
+  "screen_help_discord": "Ask on the Discord",
+  "screen_help_github": "Open an issue on GitHub"
+
 
 }

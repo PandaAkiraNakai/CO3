@@ -201,7 +201,7 @@ export default function BookmarksScreen({
             style={[styles.retryButton, { backgroundColor: currentTheme.primaryColor }]}
             onPress={() => loadInitialBookmarks()}
           >
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={styles.retryButtonText}>{t("general_retry")}</Text>
           </TouchableOpacity>
         </View>
       </View>
