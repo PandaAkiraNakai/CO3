@@ -1,0 +1,28 @@
+Ajouts
+- Ajout de l'option "Autoriser la sélection de texte" qui permet d'autoriser la sélection de texte dans le lecteur
+- Ajout du paramètre "Favoriser les descriptions complètes" qui permet d'autoriser les descriptions complètes partout (même dans le menu de navigation)
+- Ajout du système de téléchargement complet
+- Ajout du paramètre "Télécharger lors d'une mise à jour"
+- Ajout du paramètre "Télécharger pendant la lecture"
+- Ajout d'une action de double click pour la barre de navigation
+- Ajout du support des commentaires (lecture uniquement) (par @dinarudimdams)
+- Les filtres sont maintenant sauvegardés
+- Vous pouvez créer des préréglages pour les filtres
+- Page profile des utilisateurs
+- Support HTML pour quelques composants
+- Ajout du paramètre "Favoriser l'HTML" qui autorise l'HTML dans certains composants
+
+Amélioration
+- Amélioration des états vides de quelques composants
+- Ajout d'un soulignement pour les balises HTML "a"
+
+Changements internes
+- Ajout d'un cache pour l'écran de travail, ce qui le rend deux fois plus rapide que le site web dans certains cas
+- Amélioration du temps de rendement de l'écran de navigation
+- Ajout d'une infrastructure complète de téléchargement
+- Script de mise à jour de DatabaseManager (la base de données en est maintenant en version 2)
+- L'application supporte à présent l'ouverture des liens /works/*
+
+J'ai probablement oublié quelque chose.
+Aussi, la plupart des boutons font quelque chose !
+L'application est dans un bien meilleur état que la B0.0.1, et j'en suis plutôt fier !

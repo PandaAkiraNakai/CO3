@@ -1,0 +1,5 @@
+Fonctionnalités:
+- La plupart des fonctionnalités d'AO3 requises pour la lecture
+- Système de bibliothèque
+- Système de mise à jour périodique avec notification
+- Historique local et historique local des "kudos"

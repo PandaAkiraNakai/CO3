@@ -1,0 +1,6 @@
+Ce qui a changé
+- Remplacement de la barre de recherche par une IU de recherche globale par @tbvns
+- Ajout du support de police d'écriture personnalisée par @dinarudimdams
+- Cliquer sur un nom d'utilisateur dans la section commentaire ouvre à présent le profile de l'utilisateur (par @dinarudimdams)
+
+La compilation des applications est maintenant disponible pour iOS, ils sont cependant non testé donc il peut y avoir des problèmes bizarres. Nous n'avons aucun appareil Apple pour essayer l'application donc nous nous baserons sur vos retours.
