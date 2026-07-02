@@ -84,3 +84,13 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+gradle.projectsEvaluated {
+    def codegenTaskPaths = rootProject.subprojects
+        .findAll { it.tasks.findByName("generateCodegenArtifactsFromSchema") != null }
+        .collect { "${it.path}:generateCodegenArtifactsFromSchema" }
+
+    tasks.matching { it.name.startsWith("configureCMake") || it.name.startsWith("externalNativeBuildClean") }.all { t ->
+        t.dependsOn(codegenTaskPaths)
+    }
+}
