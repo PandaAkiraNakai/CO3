@@ -15,6 +15,7 @@ import BookCard from '../../components/Library/BookCard';
 import LoadingSpinner from '../../components/History/Spinner';
 import { getUsername } from '../../storage/Credentials';
 import EmptyState from '../../components/History/Empty';
+import { useTranslation } from 'react-i18next';
 
 export default function BookmarksScreen({
   setScreens,
@@ -38,6 +39,8 @@ export default function BookmarksScreen({
   const [viewMode, setViewMode] = useState('med');
   const [error, setError] = useState(null);
 
+  const { t } = useTranslation();
+
   const PAGE_SIZE = 20;
 
   useEffect(() => {
@@ -58,7 +61,7 @@ export default function BookmarksScreen({
       description: work.description,
       lastUpdated: work.updated
         ? new Date(work.updated).toLocaleDateString()
-        : 'Unknown',
+        : t("general_unknown"),
       likes: work.kudos,
       bookmarks: work.bookmarks,
       words: work.words,
@@ -80,7 +83,7 @@ export default function BookmarksScreen({
       usrname = await getUsername()
 
     if (!usrname) {
-      setError({message: "Please log in to see bookmarked works on your account."})
+      setError({message: t("screen_bookmarks_error_not_logged_in")})
       setLoading(false)
       return;
     }
@@ -168,7 +171,7 @@ export default function BookmarksScreen({
         <Icon name="arrow-back" size={24} color={currentTheme.textColor} />
       </TouchableOpacity>
       <Text style={[styles.title, { color: currentTheme.textColor }]}>
-        {username ? username + "'s " : ""}Bookmarks
+        {username ? t("screen_bookmarks_title_username", { username: username }) : t("screen_bookmarks_title")}Bookmarks
       </Text>
 
       <TouchableOpacity
@@ -189,7 +192,7 @@ export default function BookmarksScreen({
       <View style={[styles.centerContainer, { backgroundColor: currentTheme.backgroundColor }]}>
         <View style={[styles.errorContainer, { backgroundColor: currentTheme.cardBackground, borderColor: currentTheme.borderColor }]}>
           <Text style={[styles.errorTitle, { color: currentTheme.textColor }]}>
-            Failed to Load Bookmarks
+            {t("screen_bookmarks_error")}
           </Text>
           <Text style={[styles.errorMessage, { color: currentTheme.secondaryTextColor }]}>
             {error.message}
@@ -216,7 +219,7 @@ export default function BookmarksScreen({
             { color: currentTheme.placeholderColor },
           ]}
         >
-          Loading more...
+          {t("screen_bookmarks_loading_more")}
         </Text>
       </View>
     );
@@ -226,7 +229,7 @@ export default function BookmarksScreen({
     return (
       <LoadingSpinner
         currentTheme={currentTheme}
-        message="Loading bookmarks..."
+        message={t("screen_bookmarks_loading")}
       />
     );
   }
@@ -245,8 +248,8 @@ export default function BookmarksScreen({
       : (
           bookmarks.length === 0 ? (
             <EmptyState currentTheme={currentTheme}
-                        textLine1={"No bookmarks yet."}
-                        textLine2={"Bookmarked work will appear here."}
+                        textLine1={t("screen_bookmarks_empty_title")}
+                        textLine2={t("screen_bookmarks_empty_subtitle")}
             />
           ) : (
             <FlatList

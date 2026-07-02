@@ -6,6 +6,7 @@
   "general_restart": "Restart",
   "general_error": "Error",
   "general_success": "Success",
+  "general_unknown": "Unknown",
   "general_unknown_author": "Unknown Author",
   "general_unknown_work": "Unknown Work",
 
@@ -154,4 +155,14 @@
   "screen_kudos_history_no_entries_filter_sub": "There are no entries matching the filter.",
   "screen_kudos_history_no_entries": "No kudos history yet.",
   "screen_kudos_history_no_entries_sub": "Kudoed work will appear here.",
+
+  "screen_bookmarks_title": "Bookmarks",
+  "screen_bookmarks_title_username": "{{username}}'s Bookmarks",
+  "screen_bookmarks_error": "Failed to Load Bookmarks",
+  "screen_bookmarks_error_not_logged_in": "Please log in to see bookmarked works on your account.",
+  "screen_bookmarks_loading": "Loading bookmarks...",
+  "screen_bookmarks_loading_more": "Loading more...",
+  "screen_bookmarks_empty_title": "No bookmarks yet.",
+  "screen_bookmarks_empty_subtitle": "Bookmarked work will appear here."
+
 }
