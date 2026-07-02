@@ -24,6 +24,7 @@ import {
   setUsernameOnly,
 } from '../../storage/Credentials';
 import CustomAlert from '../../components/CustomAlert';
+import { useTranslation } from 'react-i18next';
 
 const LoginScreen = ({ currentTheme, setScreens }) => {
   const [username, setUsername] = useState('');
@@ -43,6 +44,8 @@ const LoginScreen = ({ currentTheme, setScreens }) => {
     password: '',
     hasStoredPassword: false,
   });
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     checkLoginStatus();
@@ -143,15 +146,15 @@ const LoginScreen = ({ currentTheme, setScreens }) => {
         }
 
         setIsLoggedIn(true);
-        showAlert('Success', 'Logged in successfully!');
+        showAlert(t("general_success"), t("screen_account_login_success"));
       } else {
-        showAlert('Login Failed', 'Invalid credentials or server error');
+        showAlert(t("screen_account_login_failed"), t("screen_account_login_failed_invalid_creds_or_server_error"));
       }
     } catch (error) {
       console.error('Login error:', error);
       showAlert(
-        'Login Error',
-        'An error occurred during login. Please try again.',
+        t("screen_account_login_failed"),
+        t("screen_account_login_failed_generic"),
       );
     } finally {
       setIsLoading(false);
@@ -169,16 +172,14 @@ const LoginScreen = ({ currentTheme, setScreens }) => {
       setRememberPassword(false);
     } catch (error) {
       console.error('Logout error:', error);
-      showAlert('Error', 'Failed to logout properly');
+      showAlert(t("general_error"), t("screen_account_logout_failed"));
     }
   };
 
   const showRememberPasswordInfo = () => {
     showAlert(
-      'Remember Password',
-      "When enabled, we securely store your username and password using your device's biometric authentication or passcode. " +
-        'This allows us to automatically re-login in the background if your session expires, without interrupting your reading experience. ' +
-        'Your login information is encrypted and never sent to external servers, only stored securely on your device.',
+      t("screen_account_remember_password_modal_title"),
+      t("screen_account_remember_password_modal_text"),
     );
   };
 
@@ -238,7 +239,7 @@ const LoginScreen = ({ currentTheme, setScreens }) => {
               <Text
                 style={[styles.statusText, { color: currentTheme.textColor }]}
               >
-                You are logged in
+                {t("screen_account_logged_in_title")}
               </Text>
               <Text
                 style={[
@@ -246,7 +247,7 @@ const LoginScreen = ({ currentTheme, setScreens }) => {
                   { color: currentTheme.placeholderColor },
                 ]}
               >
-                Your session is active
+                {t("screen_account_logged_in_subtitle")}
               </Text>
             </View>
 
@@ -263,7 +264,7 @@ const LoginScreen = ({ currentTheme, setScreens }) => {
                   { color: currentTheme.textColor },
                 ]}
               >
-                Check current session
+                {t("screen_account_check_session_button")}
               </Text>
             </TouchableOpacity>
 
@@ -295,7 +296,7 @@ const LoginScreen = ({ currentTheme, setScreens }) => {
               <Text
                 style={[styles.modalTitle, { color: currentTheme.textColor }]}
               >
-                Current Session
+                {t("screen_account_current_session")}
               </Text>
               <View style={styles.sessionInfoContainer}>
                 <Text
@@ -304,7 +305,7 @@ const LoginScreen = ({ currentTheme, setScreens }) => {
                     { color: currentTheme.placeholderColor },
                   ]}
                 >
-                  Username:
+                  {t("screen_account_current_username")}
                 </Text>
                 <Text
                   style={[
@@ -324,7 +325,7 @@ const LoginScreen = ({ currentTheme, setScreens }) => {
                       { color: currentTheme.placeholderColor },
                     ]}
                   >
-                    Password:
+                    {t("screen_account_current_password")}
                   </Text>
                   <Text
                     style={[
@@ -381,19 +382,19 @@ const LoginScreen = ({ currentTheme, setScreens }) => {
           <Icon name="arrow-back" size={24} color={currentTheme.textColor} />
         </TouchableOpacity>
         <Text style={[styles.title_top, { color: currentTheme.textColor }]}>
-          Account
+          {t('screen_account_title')}
         </Text>
       </View>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.content}>
           <Text style={[styles.title, { color: currentTheme.textColor }]}>
-            Login with your AO3 account
+            {t('screen_account_text')}
           </Text>
 
           <View style={styles.formContainer}>
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { color: currentTheme.textColor }]}>
-                Username
+                {t("screen_account_username")}
               </Text>
               <TextInput
                 style={[
@@ -414,7 +415,7 @@ const LoginScreen = ({ currentTheme, setScreens }) => {
 
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { color: currentTheme.textColor }]}>
-                Password
+                {t("screen_account_password")}
               </Text>
               <TextInput
                 style={[
@@ -450,7 +451,7 @@ const LoginScreen = ({ currentTheme, setScreens }) => {
                     { color: currentTheme.textColor },
                   ]}
                 >
-                  Remember my password
+                  {t("screen_account_remember_password")}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -474,7 +475,7 @@ const LoginScreen = ({ currentTheme, setScreens }) => {
               disabled={isLoading}
             >
               <Text style={styles.loginButtonText}>
-                {isLoading ? 'Logging in...' : 'Login'}
+                {isLoading ? t("screen_account_login_loading") : t("screen_account_login")}
               </Text>
             </TouchableOpacity>
 

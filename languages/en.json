@@ -4,6 +4,8 @@
   "general_retry": "Retry",
   "general_cancel": "Cancel",
   "general_restart": "Restart",
+  "general_error": "Error",
+  "general_success": "Success",
   "general_unknown_author": "Unknown Author",
   "general_unknown_work": "Unknown Work",
 
@@ -121,5 +123,26 @@
   "screen_preferences_onboarding_button_title": "Restart Onboarding",
   "screen_preferences_onboarding_button_text": "Go through the setup screens again",
   "screen_preferences_onboarding_title": "Restart Onboarding",
-  "screen_preferences_onboarding_text": "This will take you back through the setup screens. Continue?"
+  "screen_preferences_onboarding_text": "This will take you back through the setup screens. Continue?",
+
+  "screen_account_title": "Account",
+  "screen_account_text": "Login with your AO3 account",
+  "screen_account_username": "Username",
+  "screen_account_password": "Password",
+  "screen_account_remember_password": "Remember my password",
+  "screen_account_remember_password_modal_title": "Remember Password",
+  "screen_account_remember_password_modal_text": "When enabled, we securely store your username and password using your device's biometric authentication or passcode. This allows us to automatically re-login in the background if your session expires, without interrupting your reading experience. Your login information is encrypted and never sent to external servers, only stored securely on your device.",
+  "screen_account_current_session": "Current Session",
+  "screen_account_current_username": "Username:",
+  "screen_account_current_password": "Password:",
+  "screen_account_login": "Login",
+  "screen_account_login_loading": "Logging in...",
+  "screen_account_login_success": "Logged in successfully!",
+  "screen_account_login_failed": "Login Failed",
+  "screen_account_login_failed_invalid_creds_or_server_error": "Invalid credentials or server error",
+  "screen_account_login_failed_generic": "An error occurred during login. Please try again.",
+  "screen_account_logout_failed": "Failed to logout properly",
+  "screen_account_logged_in_title": "You are logged in",
+  "screen_account_logged_in_subtitle": "Your session is active",
+  "screen_account_check_session_button": "Check current session"
 }
