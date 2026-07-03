@@ -115,10 +115,12 @@
 
 
   "screen_preferences_title": "Paramètres",
+  "screen_preferences_title_general": "Général",
   "screen_preferences_title_reader": "Lecteur",
   "screen_preferences_title_appearance": "Apparence",
   "screen_preferences_title_update": "Mise à jour",
   "screen_preferences_title_download": "Téléchargement",
+  "screen_preferences_label_language": "Langue",
   "screen_preferences_sample_title": "Chapitre d'exemple",
   "screen_preferences_sample_text": "Ceci est un texte d'exemple pour vous permettre de prévisualiser les paramètres de votre lecteur. Vous pouvez ajuster la taille de la police d'écriture à l'aide des contrôles ci-dessous.",
   "screen_preferences_sample_blockquotes": "Les citations est les autres éléments seront aussi le reflet de vos paramètres personnalisés.",

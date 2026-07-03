@@ -24,6 +24,7 @@ import CustomDropdown from '../../components/common/CustomDropdown';
 import { pick, keepLocalCopy } from '@react-native-documents/picker';
 import { readFile } from "react-native-fs"
 import { useTranslation } from 'react-i18next';
+import { availableLanguages, changeLanguage } from '../../storage/LanguageManager';
 
 const PreferencesScreen = ({
                              currentTheme,
@@ -56,7 +57,7 @@ const PreferencesScreen = ({
 
   const activeTheme = themes[theme] || currentTheme;
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation(); // i18n is reactive
 
   useEffect(() => {
     loadSettings();
@@ -221,6 +222,10 @@ const PreferencesScreen = ({
     saveJsonSettingsData({ downloadOnUpdate: newValue });
   };
 
+  const handleLanguageChange = async (lng) => {
+    await changeLanguage(lng);
+  };
+
   const handleRestartOnboarding = () => {
     Alert.alert(
       t("screen_preferences_onboarding_title"),
@@ -378,6 +383,44 @@ const PreferencesScreen = ({
       </View>
 
       <ScrollView style={styles.content}>
+        <View
+          style={[
+            styles.section,
+            { borderBottomColor: activeTheme.borderColor },
+          ]}
+        >
+          <View style={styles.sectionHeader}>
+            <Icon name="language" size={20} color={activeTheme.iconColor} />
+            <Text
+              style={[{ color: activeTheme.textColor }, styles.sectionTitle]}
+            >
+              {t('screen_preferences_title_general')}
+            </Text>
+          </View>
+
+          <View style={[styles.settingItem, { borderBottomWidth: 0 }]}>
+            <Text
+              style={[{ color: activeTheme.textColor }, styles.settingText]}
+            >
+              {t('screen_preferences_label_language')}
+            </Text>
+            <CustomDropdown
+              selectedValue={i18n.language}
+              onValueChange={handleLanguageChange}
+              theme={activeTheme}
+              style={{ marginTop: 8 }}
+            >
+              {availableLanguages.map(lang => (
+                <CustomDropdown.Item
+                  key={lang.code}
+                  label={lang.label}
+                  value={lang.code}
+                />
+              ))}
+            </CustomDropdown>
+          </View>
+        </View>
+
         {/* READER SETTINGS */}
         <View
           style={[
