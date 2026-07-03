@@ -1,0 +1,5 @@
+Ce qui a changé
+- Le module "notifee" se compile localement et l'updater.js a été modifié, par @tbvns dans #11
+- Conforme à F-Droid, par @tbvns dans #12
+
+Ceci ne change rien à l'expérience utilisateur. Ce sont principalement des changements internes pour F-Droid

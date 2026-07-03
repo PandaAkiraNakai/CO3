@@ -1,0 +1,8 @@
+What's Changed
+- Switched RN from oldArch to newArch, fix crashes on android cold load by @tbvns
+- Improved initial loading screen by @tbvns
+- Fixed GitHub actions to support new arch by @tbvns
+- Added database support to the desktop app prototype by @tbvns
+
+This is mostly an update to make CO3 more future-proof by removing the reliance on the deprecated oldArch that has been removed from newer versions of RN.
+This will also make CO3 significantly more reliable for everything that's not Cloudflare / network related. So expect fewer crashes and better overall performances.

@@ -1,0 +1,10 @@
+Changements:
+- Ignore le téléchargement si le chapitre est déjà téléchargé #53
+- Ajout d'un menu de débogage pour mieux déboguer la base de données
+- Changement de la façon dont le nombre max de chapitres est géré si inconnu #58
+- Ajout d'un support de pseudonyme passable #57
+
+Toutes les modifications ont été faites par @tbvns
+
+Avertissement:
+En raison de la correction de bugs critiques à l'origine de problèmes persistants, toutes les œuvres de votre bibliothèque seront temporairement marquées comme "corrigée", vous devrez probablement lancer une mise à jour pour corriger le nombre max de chapitres.

@@ -1,0 +1,6 @@
+Ajouts
+- Support de l'exclusion Beta, ce qui devrait corriger #2 (par @tbvns)
+
+Corrections
+- Correction des plantages liés au téléchargement #38 (par @tbvns)
+- Les Webview sont à présent utilisées uniquement quand nécessaire, ce qui devrait corriger #39 (par @tbvns)

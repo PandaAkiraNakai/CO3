@@ -1,0 +1,5 @@
+What's changed
+- Better Cloudflare detection, useful for public Wi-Fi and untrusted connections
+- Critical fix in the Preset system to allow for loading without crashes, and fix Canonical tags handling
+
+All changes by @tbvns

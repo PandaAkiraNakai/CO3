@@ -1,0 +1,3 @@
+Fixes
+- Added a scroll view to user profiles fixes #41 by @tbvns
+- Parse "." as "*d*", fixes #42 by @tbvns
