@@ -44,13 +44,13 @@ export default function HelpScreen({ setScreens, currentTheme }) {
           <Text style={[styles.title, { color: currentTheme.textColor }]}>
             {t("general_app_name")}
           </Text>
-          <Text style={[{ paddingTop: 20, color: currentTheme.textColor }]}>
+          <Text style={[{ paddingTop: 20, margin: 16, color: currentTheme.textColor }]}>
             {t("screen_help_sub")}
           </Text>
         </View>
         <View style={[{ margin: 16 }]}>
           <LinkButton
-            url="https://discord.gg/3wMGWu2xMF"
+            url="https://tbvns.xyz/discord"
             label={t("screen_help_discord")}
             theme={currentTheme}
           />

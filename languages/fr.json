@@ -13,6 +13,32 @@
   "general_unknown_author": "Auteur Inconnu",
   "general_unknown_work": "Œuvre Inconnu",
   "general_back": "Retour",
+  "general_not_applicable": "Non applicable",
+
+
+  "onboard_step1_title": "Le lecteur AO3 gratuit et open source",
+  "onboard_step1_ligne1": "Aucun abonnement. Aucune publicité. Aucune fonctionnalité payante.",
+  "onboard_step1_ligne2": "Vos histoires, comme elles se doivent d'être.",
+  "onboard_step1_button": "Commencer",
+
+  "onboard_step2_language_title": "Choisissez votre langue",
+  "onboard_step2_language_sub": "Choisissez la langue avec laquelle vous êtes le plus à l'aise. Vous pourrez la changer plus tard dans les paramètres.",
+  "onboard_step2_button": "Continuer",
+
+  "onboard_step3_title": "Choisissez votre thème",
+  "onboard_step3_sub": "Choisissez l'apparence de CO3. Vous pouvez toujours la changer plus tard.",
+  "onboard_step3_info_text": "Plus d'options d'affichage, taille de police, densité d'affichage, etc. sont disponibles dans le menu Préférences.",
+  "onboard_step3_button": "Continuer",
+
+  "onboard_step4_title": "Soutenir l'écosystème",
+  "onboard_step4_sub": "CO3 sera toujours 100 % gratuit. Mais si vous souhaitez contribuer, voici comment :",
+  "onboard_step4_ao3_label": "Archive of Our Own",
+  "onboard_step4_ao3_desc": "AO3 est une organisation à but non lucratif gérée par des fans, pour des fans. Les dons permettent de maintenir les serveurs en fonctionnement pour tous.",
+  "onboard_step4_ao3_cta": "Faire un don à AO3",
+  "onboard_step4_co3_label": "Développement de CO3",
+  "onboard_step4_co3_desc": "CO3 est développé et maintenu sur du temps libre. Tout soutien aide à apporter de nouvelles fonctionnalités.",
+  "onboard_step4_co3_cta": "Offrez-moi un café",
+  "onboard_step4_button": "Commencer à lire",
 
 
   "navigation_library": "Bibliothèque",
@@ -40,7 +66,7 @@
   "screen_library_sort_selector_read": "Dernière lecture",
   "screen_library_sort_selector_alphabetical": "Ordre alphabétique",
   "screen_library_sort_selector_date": "Date d'ajout",
-
+  "screen_library_select_category_modal_title": "Sélectionner une collection",
 
   "screen_update_last_updated": "Dernière mise à jour de la bibliothèque : {{last_update}}",
   "screen_update_time_now": "maintenant",
@@ -78,7 +104,7 @@
   "screen_more_subtitle": "Paramètres et fonctionnalités additionnels",
   "screen_more_nav_preference": "Préférences",
   "screen_more_nav_account": "Compte",
-  "screen_more_nav_kudos": "Historique \"Kudos\"",
+  "screen_more_nav_kudos": "Historique des Kudos",
   "screen_more_nav_bookmarks": "Signets",
   "screen_more_nav_later": "Marquées pour plus tard",
   "screen_more_nav_categories": "Catégories",
@@ -99,8 +125,8 @@
   "screen_preferences_sample_end": "Essayez différentes tailles de police d'écriture afin de trouver ce qui est le mieux pour vous !",
   "screen_preferences_setting_custom_size": "Utiliser une taille personnalisée",
   "screen_preferences_font_size_text": "Taille de la police d'écriture : {{size}}",
-  "screen_preferences_setting_custom_font": "Utiliser une police d'écriture personnalisée",
-  "screen_preferences_setting_show_date": "Montrer la date du chapitre",
+  "screen_preferences_setting_custom_font": "Utiliser une police personnalisée",
+  "screen_preferences_setting_show_date": "Montrer la date des chapitre",
   "screen_preferences_setting_allow_text_select": "Autoriser la sélection du texte",
   "screen_preferences_setting_show_full_desc": "Favoriser les descriptions complètes",
   "screen_preferences_setting_prefer_html": "Favoriser l'HTML",
@@ -113,7 +139,7 @@
   "screen_preferences_label_view_mode": "Mode d'affichage",
   "screen_preferences_label_view_mode_full": "Complet",
   "screen_preferences_label_view_mode_med": "Moyen",
-  "screen_preferences_label_view_mode_small": "Petit",
+  "screen_preferences_label_view_mode_small": "Compact",
   "screen_preferences_label_check_frequency": "Fréquence de vérification",
   "screen_preferences_selector_check_frequency_12_hours": "12 heures",
   "screen_preferences_selector_check_frequency_daily": "Quotidien",
@@ -132,9 +158,9 @@
   "screen_preferences_selector_download_while_reading_next_3": "Les 3 prochains chapitres",
   "screen_preferences_selector_download_while_reading_next_5": "Les 5 prochains chapitres",
   "screen_preferences_selector_download_while_reading_next_10": "Les 10 prochains chapitres",
-  "screen_preferences_onboarding_button_title": "Redémarrer l'intégration",
+  "screen_preferences_onboarding_button_title": "Recommencé le processus d'accueil",
   "screen_preferences_onboarding_button_text": "Parcourir à nouveau les écrans de configuration",
-  "screen_preferences_onboarding_title": "Redémarrer l'intégration",
+  "screen_preferences_onboarding_title": "Recommencé le processus d'accueil.",
   "screen_preferences_onboarding_text": "Ceci vous ramènera aux écrans de configuration. Continuer ?",
 
 
@@ -475,5 +501,38 @@
   "component_book_details_modal_no_tags": "Aucun balise disponible.",
   "component_book_details_modal_warnings": "Avertissements :",
   "component_book_details_modal_no_warnings": "Aucun avertissement spécifique pour cette œuvre.",
-  "component_book_details_modal_desc": "Description :"
+  "component_book_details_modal_desc": "Description :",
+
+  "component_quick_actions_toast_library_remove_success_title": "Supprimé de la bibliothèque",
+  "component_quick_actions_toast_library_remove_success_sub": "Cette œuvre a été supprimée de votre bibliothèque avec succès",
+  "component_quick_actions_toast_library_remove_failed_title": "Échec de la suppression",
+  "component_quick_actions_toast_library_remove_failed_sub": "Une erreur est survenue",
+  "component_quick_actions_toast_library_add_success_title": "Ajouté à la bibliothèque",
+  "component_quick_actions_toast_library_add_success_sub": "Cette œuvre a été ajoutée à votre bibliothèque avec succès",
+  "component_quick_actions_toast_library_add_failed_title": "Échec de l'ajout",
+  "component_quick_actions_toast_library_add_failed_sub": "Une erreur est survenue",
+  "component_quick_actions_toast_mark_later_success_title": "Marquée pour plus tard",
+  "component_quick_actions_toast_mark_later_success_sub": "Cette œuvre a été marquée pour plus tard avec succès",
+  "component_quick_actions_toast_mark_later_failed_title": "Échec du marquage pour plus tard",
+  "component_quick_actions_toast_mark_later_failed_sub": "Une erreur est survenue",
+  "component_quick_actions_toast_bookmark_success_title": "Ajouté aux signets",
+  "component_quick_actions_toast_bookmark_success_sub": "Cette œuvre a été ajoutée à vos signets avec succès",
+  "component_quick_actions_toast_bookmark_failed_title": "Échec de l'ajout aux signets",
+  "component_quick_actions_toast_bookmark_failed_sub": "Une erreur est survenue",
+  "component_quick_actions_button_library_remove": "Supprimer de la bibliothèque",
+  "component_quick_actions_button_library_add": "Ajouter à la bibliothèque",
+  "component_quick_actions_button_mark_later": "Marquer pour plus tard",
+  "component_quick_actions_button_bookmark": "Ajouter aux signets",
+  "component_quick_actions_add_collection": "Ajouter à la collection",
+
+  "component_comments_title": "Commentaires",
+  "component_comments_deleted": "Commentaire supprimé",
+  "component_comments_author_deleted": "Utilisateur supprimé",
+  "component_comments_author_guest": "(Invité)",
+  "component_comments_reduced": "Commentaire réduit",
+  "component_comments_loading": "Chargement des commentaires...",
+  "component_comments_none": "Aucun commentaire",
+  "component_comments_end": "Plus de commentaires",
+
+  "component_update_bookcard_deletion_failed": "Erreur lors de la suppression"
 }

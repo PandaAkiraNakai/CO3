@@ -16,6 +16,31 @@
   "general_not_applicable": "N/A",
 
 
+  "onboard_step1_title": "The free, open source AO3 reader",
+  "onboard_step1_ligne1": "No subscriptions. No ads. No paywalled features.",
+  "onboard_step1_ligne2": "Just your stories, the way they should be.",
+  "onboard_step1_button": "Get Started",
+
+  "onboard_step2_language_title": "Pick your language",
+  "onboard_step2_language_sub": "Pick the language you're most comfortable with. You can change this later in settings.",
+  "onboard_step2_button": "Continue",
+
+  "onboard_step3_title": "Pick your theme",
+  "onboard_step3_sub": "Choose how CO3 looks. You can always change this later.",
+  "onboard_step3_info_text": "More display options, font size, view density, and more, are available in the Preferences menu.",
+  "onboard_step3_button": "Continue",
+
+  "onboard_step4_title": "Support the ecosystem",
+  "onboard_step4_sub": "CO3 will always be 100% free. But if you'd like to give back, here's how:",
+  "onboard_step4_ao3_label": "Archive of Our Own",
+  "onboard_step4_ao3_desc": "AO3 is a non-profit run by fans, for fans. Donations keep the servers running for everyone.",
+  "onboard_step4_ao3_cta": "Donate to AO3",
+  "onboard_step4_co3_label": "CO3 Development",
+  "onboard_step4_co3_desc": "CO3 is built and maintained in spare time. Any support helps keep new features coming.",
+  "onboard_step4_co3_cta": "Buy me a coffee",
+  "onboard_step4_button": "Start reading",
+
+
   "navigation_library": "Library",
   "navigation_update": "Update",
   "navigation_browse": "Browse",
@@ -427,7 +452,7 @@
 
   "component_side_menu_title": "Settings",
   "component_side_menu_incognito_switch": "Incognito Mode",
-  "component_side_menu_support": "Support us",Loading...
+  "component_side_menu_support": "Support us",
 
   "component_update_work_card_author": "By {{author}}",
 

@@ -70,7 +70,7 @@ export default function AboutScreen({ setScreens, currentTheme, db }) {
             theme={currentTheme}
           />
           <LinkButton
-            url="https://discord.gg/3wMGWu2xMF"
+            url="https://tbvns.xyz/discord"
             label={t("screen_about_discord")}
             theme={currentTheme}
           />

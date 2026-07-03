@@ -2,13 +2,29 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import en from '../../languages/en.json';
+import fr from '../../languages/fr.json';
 
-const resources = {
-  en: { translation: en },
-  // es: { translation: es },
-};
+export const availableLanguages = [
+  {
+    code: 'en',
+    label: 'English',
+    flag: 'GB',
+    translation: en,
+  },
+  {
+    code: 'fr',
+    label: 'Français',
+    flag: 'FR',
+    translation: fr,
+  },
+];
 
-const getSavedLanguage = async () => {
+const resources = {};
+availableLanguages.forEach(lang => {
+  resources[lang.code] = { translation: lang.translation };
+});
+
+export const getSavedLanguage = async () => {
   try {
     const savedLang = await AsyncStorage.getItem('app_language');
     return savedLang || 'en';
@@ -23,6 +39,12 @@ i18n.use(initReactI18next).init({
   interpolation: {
     escapeValue: false,
   },
+});
+
+getSavedLanguage().then(savedLang => {
+  if (savedLang !== i18n.language) {
+    i18n.changeLanguage(savedLang);
+  }
 });
 
 export const changeLanguage = async lng => {

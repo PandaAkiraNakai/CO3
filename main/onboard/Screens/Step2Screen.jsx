@@ -1,34 +1,30 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTranslation } from 'react-i18next';
+import { availableLanguages, changeLanguage } from '../../storage/LanguageManager';
+import { getFlagImage } from '../../utils/FlagUtils';
 
-const THEMES = [
-  {
-    key: 'light',
-    label: 'Light',
-    icon: 'wb-sunny',
-    bg: '#ffffff',
-    text: '#111827',
-    preview: ['#ffffff', '#f3f4f6', '#e5e7eb'],
-  },
-  {
-    key: 'dark',
-    label: 'Dark',
-    icon: 'brightness-3',
-    bg: '#1f2937',
-    text: '#f3f4f6',
-    preview: ['#1f2937', '#374151', '#4b5563'],
-  },
-  {
-    key: 'black',
-    label: 'Black',
-    icon: 'brightness-1',
-    bg: '#000000',
-    text: '#f9fafb',
-    preview: ['#000000', '#111111', '#1a1a1a'],
-  },
-];
+export default function Step2({ currentTheme, setScreen }) {
+  const { t, i18n } = useTranslation(); // i18n is reactive
+  const currentLng = i18n.language;
 
-export default function Step2({ currentTheme, setScreen, theme, setTheme }) {
+  const languages = availableLanguages.map(lang => ({
+    key: lang.code,
+    label: lang.label,
+    flag: lang.flag,
+  }));
+
+  const selectLanguage = async (lng) => {
+    await changeLanguage(lng);
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -37,63 +33,50 @@ export default function Step2({ currentTheme, setScreen, theme, setTheme }) {
         bounces={true}
       >
         <Text style={[styles.heading, { color: currentTheme.textColor }]}>
-          Pick your theme
+          {t('onboard_step2_language_title')}
         </Text>
         <Text style={[styles.subheading, { color: currentTheme.secondaryTextColor }]}>
-          Choose how CO3 looks. You can always change this later.
+          {t('onboard_step2_language_sub')}
         </Text>
 
-        <View style={styles.themeList}>
-          {THEMES.map(t => {
-            const isActive = theme === t.key;
+        <View style={styles.grid}>
+          {languages.map((lang) => {
+            const isActive = lang.key === currentLng;
             return (
               <TouchableOpacity
-                key={t.key}
+                key={lang.key}
                 style={[
-                  styles.themeCard,
+                  styles.languageCard,
                   {
-                    backgroundColor: t.bg,
-                    borderColor: isActive ? currentTheme.primaryColor : currentTheme.borderColor,
+                    backgroundColor: currentTheme.cardBackground || '#fff',
+                    borderColor: isActive
+                      ? currentTheme.primaryColor
+                      : currentTheme.borderColor,
                     borderWidth: isActive ? 2 : 1,
                   },
                 ]}
-                onPress={() => setTheme(t.key)}
+                onPress={() => selectLanguage(lang.key)}
                 activeOpacity={0.85}
               >
-                <View style={styles.previewStrips}>
-                  {t.preview.map((color, i) => (
-                    <View
-                      key={i}
-                      style={[styles.strip, { backgroundColor: color, opacity: 1 - i * 0.15 }]}
-                    />
-                  ))}
-                </View>
-                <View style={styles.themeCardBottom}>
-                  <Icon name={t.icon} size={18} color={t.text} />
-                  <Text style={[styles.themeLabel, { color: t.text }]}>{t.label}</Text>
-                  {isActive && (
-                    <View style={[styles.activeBadge, { backgroundColor: currentTheme.primaryColor }]}>
-                      <Icon name="check" size={12} color="#fff" />
-                    </View>
-                  )}
-                </View>
+                <Image source={getFlagImage(lang.flag)} style={styles.flag} resizeMode="contain" />
+                <Text style={[styles.languageLabel, { color: currentTheme.textColor }]}>
+                  {lang.label}
+                </Text>
+                {isActive && (
+                  <View style={[styles.activeBadge, { backgroundColor: currentTheme.primaryColor }]}>
+                    <Icon name="check" size={12} color="#fff" />
+                  </View>
+                )}
               </TouchableOpacity>
             );
           })}
-        </View>
-
-        <View style={[styles.infoBox, { backgroundColor: currentTheme.inputBackground, borderColor: currentTheme.borderColor }]}>
-          <Icon name="tune" size={16} color={currentTheme.secondaryTextColor} />
-          <Text style={[styles.infoText, { color: currentTheme.secondaryTextColor }]}>
-            More display options, font size, view density, and more, are available in the Preferences menu.
-          </Text>
         </View>
       </ScrollView>
 
       <View style={[styles.navRow, { borderTopColor: currentTheme.borderColor }]}>
         <TouchableOpacity
           style={[styles.backButton, { borderColor: currentTheme.borderColor }]}
-          onPress={() => setScreen(prev => prev - 1)}
+          onPress={() => setScreen((prev) => Math.max(0, prev - 1))}
           activeOpacity={0.7}
         >
           <Icon name="arrow-back" size={20} color={currentTheme.textColor} />
@@ -101,10 +84,10 @@ export default function Step2({ currentTheme, setScreen, theme, setTheme }) {
 
         <TouchableOpacity
           style={[styles.nextButton, { backgroundColor: currentTheme.primaryColor }]}
-          onPress={() => setScreen(prev => prev + 1)}
+          onPress={() => setScreen((prev) => prev + 1)}
           activeOpacity={0.85}
         >
-          <Text style={styles.nextButtonText}>Continue</Text>
+          <Text style={styles.nextButtonText}>{t('onboard_step2_button')}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -132,58 +115,43 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 32,
   },
-  themeList: {
+  grid: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 20,
-  },
-  themeCard: {
-    flex: 1,
-    borderRadius: 14,
-    overflow: 'hidden',
-    height: 120,
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
+    gap: 12,
   },
-  previewStrips: {
-    flex: 1,
-    padding: 10,
-    gap: 5,
-  },
-  strip: {
-    height: 8,
-    borderRadius: 4,
-  },
-  themeCardBottom: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingBottom: 10,
-    gap: 6,
-  },
-  themeLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    flex: 1,
-  },
-  activeBadge: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
+  languageCard: {
+    width: '47%',
+    aspectRatio: 1,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  infoBox: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
-    padding: 14,
-    borderRadius: 12,
+    padding: 12,
     borderWidth: 1,
+    position: 'relative',
   },
-  infoText: {
-    fontSize: 13,
-    lineHeight: 20,
-    flex: 1,
+  flag: {
+    width: 90,
+    height: 67,
+    marginBottom: 12,
+    borderRadius: 4,
+    alignSelf: 'center',
+  },
+  languageLabel: {
+    fontSize: 15,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  activeBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   navRow: {
     flexDirection: 'row',

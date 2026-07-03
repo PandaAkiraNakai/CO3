@@ -1,6 +1,9 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 export default function Step1({ currentTheme, setScreen }) {
+  const {t} = useTranslation();
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -17,18 +20,18 @@ export default function Step1({ currentTheme, setScreen }) {
         </View>
 
         <Text style={[styles.appName, { color: currentTheme.textColor }]}>
-          Client Of Our Own
+          {t('general_app_name')}
         </Text>
 
         <Text style={[styles.tagline, { color: currentTheme.secondaryTextColor }]}>
-          The free, open source AO3 reader
+          {t("onboard_step1_title")}
         </Text>
 
         <View style={[styles.divider, { backgroundColor: currentTheme.borderColor }]} />
 
         <Text style={[styles.body, { color: currentTheme.secondaryTextColor }]}>
-          No subscriptions. No ads. No paywalled features.{'\n'}
-          Just your stories, the way they should be.
+          { t("onboard_step1_ligne1") + '\n' + t("onboard_step1_ligne2")}
+
         </Text>
       </ScrollView>
 
@@ -38,7 +41,7 @@ export default function Step1({ currentTheme, setScreen }) {
           onPress={() => setScreen(prev => prev + 1)}
           activeOpacity={0.85}
         >
-          <Text style={styles.nextButtonText}>Get Started</Text>
+          <Text style={styles.nextButtonText}>{t("onboard_step1_button")}</Text>
         </TouchableOpacity>
       </View>
     </View>
