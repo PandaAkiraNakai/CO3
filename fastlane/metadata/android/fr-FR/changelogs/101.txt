@@ -1,0 +1,4 @@
+Ce qui a changé
+- Ajout de la gestion arrière pour iOS #50 (par @tbvns)
+- Autorisation des interactions avec détails #49 (par @alekxeyuk)
+- Ajout d'une vérification des signets propre au compte #44 (par @tbvns)

@@ -1,0 +1,8 @@
+Ce qui a changé
+- Passage de l'ancienne architecture à la nouvelle architecture React Native, correction des plantages au démarrage à froid sous Android (par @tbvns)
+- Amélioration de l'écran de chargement initial (par @tbvns)
+- Correction des actions GitHub pour supporter la nouvelle architecture (par @tbvns)
+- Ajout du support de la base de données au prototype de l'application de bureau (par @tbvns)
+
+Ceci est principalemet une mise à jour pour rendre CO3 plus pérenne en supprimant la dépendance à l'égard de l'ancienne architecture maintenant obselète et supprimée des dernières versions de React Native.
+Ceci va aussi permettre à CO3 d'être plus fiable pour tout ce qui n'est pas de Cloudflare ou lié au réseau. Donc expectez moins de plantages et de meilleures performances globales.

@@ -1,0 +1,27 @@
+Cette mise à jour concerne principalemet la correction de bugs et l'amélioration de l'IU.
+
+Ajouts:
+- Ajout des informations de la version dans l'écran "à propos"
+- La recherche globale peut maintenant rechercher dans les catégories #13
+- Ajout d'un processus d'accueil
+- Ajout de l'option "Jamais" dans la fréquence de vérification #36
+
+Corrections:
+- Correction d'un bug avec le Webview #15
+- Changement de liscence dans AboutScreen.jsx #26
+- Correction de la Webview qui ne changeait pas de thème dans Preferences.jsx #21
+- Correction du composant "montrer les balises et les avertissements" qui s'étendait trop bas #23
+- Ajout d'une marge en bas du BookDetailsModal.jsx #24
+- Correction de la taille du BookDetailsModal.jsx pour corriger la hauteur min
+- Correction du showDate qui montrait "époque" #22
+- Correction de l'écran Preferences.jsx qui clignotait à l'ouveture #30
+- Correction d'un problème de débordement avec le sélecteur de date #39
+- Correction du sélecteur de date qui ne permettait pas le défilement
+- Correction du UserWorkScreen.jsx qui pointait la mauvaise URL
+- Correction de l'affichage étrange des objets de l'historique lorsqu'on clique dessus #33
+- Correction de la ligne noire en haut du StorageScreen.jsx #31
+- Correction d'un problème de plantage si le mot de passe n'était pas sauvegardé, ajout d'un bouton retour dans l'écran de connection #20
+- Empêche BookmarksScreen.jsx et ReadLaterScreen.jsx de s'ouvrir si l'utilisateur n'est pas connecté #25
+- Suppression d'un espace anormal pour les descriptions vides
+
+Toutes les modifications ont été faites par @tbvns

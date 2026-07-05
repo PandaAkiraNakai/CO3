@@ -1,0 +1,27 @@
+This update is mostly bug fixes and UI improvement.
+
+Additions:
+- Add version info to about screen
+- Global search can now search through Categories #13
+- Added Onboarding screens
+- Add a "Never" option to the check frequencies. Fixes #36
+
+Fixes:
+- Fix Webview bug in #15
+- Changed license in AboutScreen.jsx fixes #26
+- Fixe webview not changing theme in Preferences.jsx #21
+- Fixes show tags and warning extending down too much #23
+- Added a margin at the bottom of BookDetailsModal.jsx #24
+- Fix size of BookDetailsModal.jsx to fix min height
+- Fix showDate showing epoch #22
+- Fixe Preferences.jsx screen flashing on open #30
+- Fixes date selector breaching containment #19
+- Fix date selector not using scroll views
+- Fix UserWorkScreen.jsx pointing to the wrong URL
+- Fix history items having a weird looks when pressed #33
+- Fix black line at the top of StorageScreen.jsx #31
+- Fix showing session crashing the app if the password wasn't saved, added a back button to log in screen #20
+- Prevent BookmarksScreen.jsx and ReadLaterScreen.jsx from opening if the user is not logged in #25
+- Remove weird gap for empty descriptions
+
+All the comits by @tbvns

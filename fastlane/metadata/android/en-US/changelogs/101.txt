@@ -1,0 +1,4 @@
+What's Changed
+- Add iOS back gesture by @tbvns, fixes #50
+- Allow interaction with details by @alekxeyuk, merge #49
+- Add proper account check for bookmarks by @tbvns, fixes #44
