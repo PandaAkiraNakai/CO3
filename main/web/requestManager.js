@@ -1,4 +1,4 @@
-import ky from 'ky';
+import ky, { TimeoutError } from 'ky';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchViaWebView } from './WebviewFetcher';
 import { Platform } from 'react-native';
@@ -57,8 +57,6 @@ export default async function getUrl(url) {
   try {
     const html = await ky.get(url).text();
 
-    console.log(html);
-
     if (isCFChallenge(html)) {
       console.log(`isCfChalenged fiered with ${html}`);
       await enableCFMode(hostname);
@@ -69,6 +67,10 @@ export default async function getUrl(url) {
     return html;
   } catch (err) {
     if (cloudflareErrorCodes.includes(err?.response?.status)) {
+      await enableCFMode(hostname);
+      return fetchViaWebView(url, { cfWarning: true });
+    }
+    if (err instanceof TimeoutError) {
       await enableCFMode(hostname);
       return fetchViaWebView(url, { cfWarning: true });
     }

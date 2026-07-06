@@ -664,7 +664,7 @@ const PreferencesScreen = ({
             </Text>
           </View>
 
-          <View style={styles.settingItem}>
+          <View style={[styles.settingItem, { borderBottomColor: activeTheme.borderColor }]}>
             <Text
               style={[{ color: activeTheme.textColor }, styles.settingText]}
             >
