@@ -11,6 +11,7 @@ import Toast from 'react-native-toast-message';
 import { exportDb } from '../../storage/DatabaseManager';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
+import CustomToast from '../../components/common/CustomToast';
 
 export default function StorageScreen({
   route
@@ -80,6 +81,7 @@ export default function StorageScreen({
           </Text>
         </TouchableOpacity>
       </ScrollView>
+      <CustomToast currentTheme={currentTheme} />
     </SafeAreaView>
   );
 }
