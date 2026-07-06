@@ -203,7 +203,7 @@ const HistoryScreen = ({
       t('screen_history_clear_title'),
       t('screen_history_clear_text'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('general_cancel'), style: 'cancel' },
         {
           text: t('screen_history_clear_button'),
           style: 'destructive',

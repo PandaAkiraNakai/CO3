@@ -288,7 +288,7 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
       "Clear Filters",
       "Are you sure you want to clear all filters?",
       [
-        { text: "Cancel", style: "cancel" },
+        { text: t('general_cancel'), style: "cancel" },
         {
           text: "Clear",
           onPress: () => {
@@ -337,7 +337,7 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
     <View style={styles.headerContainer}>
       <View>
         <Text style={[styles.title, { color: currentTheme.textColor }]}>
-          {t('Browse Works')}
+          {t('screen_browse_title')}
         </Text>
         <View style={styles.subtitleContainer}>
           <Text

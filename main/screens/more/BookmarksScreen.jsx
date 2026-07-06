@@ -183,7 +183,6 @@ export default function BookmarksScreen({
         {username
           ? t('screen_bookmarks_title_username', { username: username })
           : t('screen_bookmarks_title')}
-        Bookmarks
       </Text>
 
       <TouchableOpacity
@@ -376,6 +375,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
+    textAlign: 'center',
   },
   errorMessage: {
     fontSize: 14,

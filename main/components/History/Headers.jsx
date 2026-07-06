@@ -18,17 +18,22 @@ const HistoryHeader = ({
       <View>
         {isKudosHistory ? null : (
           <Text style={[styles.title, { color: currentTheme.textColor }]}>
-            Reading History
+            {t('screen_history_title')}
           </Text>
         )}
         <Text
           style={[styles.subtitle, { color: currentTheme.placeholderColor }]}
         >
           {isFilterActive
-            ? t('component_history_header_count_filtered', {
-                totalCount: totalCount,
-              })
-            : t('component_history_header_count', { totalCount: totalCount })}
+            ? (
+              totalCount > 1 ? t('component_history_header_count_filtered_plural', { totalCount: totalCount })
+              : t('component_history_header_count_filtered', { totalCount: totalCount })
+            )
+            : (
+              totalCount > 1 ? t('component_history_header_count_plural', { totalCount: totalCount })
+              : t('component_history_header_count', { totalCount: totalCount })
+            )
+          }
         </Text>
       </View>
 
