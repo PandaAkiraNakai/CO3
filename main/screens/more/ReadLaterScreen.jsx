@@ -15,21 +15,27 @@ import LoadingSpinner from '../../components/History/Spinner';
 import { getUsername } from '../../storage/Credentials';
 import { fetchMarkedLater } from '../../web/other/markedLater';
 import EmptyState from '../../components/History/Empty';
-import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ReadLaterScreen({
-  setScreens,
-  currentTheme,
-  workDAO,
-  libraryDAO,
-  historyDAO,
-  settingsDAO,
-  progressDAO,
-  kudoHistoryDAO,
-  screens,
-  chapterDAO,
+  route
 }) {
+  const {
+    setScreens,
+    currentTheme,
+    workDAO,
+    libraryDAO,
+    historyDAO,
+    settingsDAO,
+    progressDAO,
+    kudoHistoryDAO,
+    screens,
+    chapterDAO,
+  } = route.params;
+
+  const navigation = useNavigation();
+
   const [entries, setentries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -61,7 +67,7 @@ export default function ReadLaterScreen({
       description: work.description,
       lastUpdated: work.updated
         ? new Date(work.updated).toLocaleDateString()
-        : t("general_unknown"),
+        : t('general_unknown'),
       likes: work.kudos,
       bookmarks: work.bookmarks,
       words: work.words,
@@ -77,10 +83,13 @@ export default function ReadLaterScreen({
   };
 
   const loadInitialEntries = async () => {
-    const username = await getUsername()
+    const username = await getUsername();
     if (!username) {
-      setError({message: "Please log in to see works marked as Read Later on your account."})
-      setLoading(false)
+      setError({
+        message:
+          'Please log in to see works marked as Read Later on your account.',
+      });
+      setLoading(false);
       return;
     }
 
@@ -93,7 +102,7 @@ export default function ReadLaterScreen({
     } catch (error) {
       console.error('Error loading marked for later entries:', error);
       setentries([]);
-      setError(error)
+      setError(error);
     } finally {
       setLoading(false);
     }
@@ -117,7 +126,7 @@ export default function ReadLaterScreen({
       }
     } catch (error) {
       console.error('Error loading more bookmarks:', error);
-      setError(error)
+      setError(error);
     } finally {
       setLoadingMore(false);
     }
@@ -130,11 +139,7 @@ export default function ReadLaterScreen({
   }, []);
 
   const onBack = () => {
-    setScreens(prev => {
-      const newScreens = [...prev];
-      newScreens.pop();
-      return newScreens;
-    });
+    navigation.goBack();
   };
 
   const openTagSearch = tag => {
@@ -168,7 +173,7 @@ export default function ReadLaterScreen({
         <Icon name="arrow-back" size={24} color={currentTheme.textColor} />
       </TouchableOpacity>
       <Text style={[styles.title, { color: currentTheme.textColor }]}>
-        {t("screen_read_later_title")}
+        {t('screen_read_later_title')}
       </Text>
 
       <TouchableOpacity
@@ -197,7 +202,7 @@ export default function ReadLaterScreen({
             { color: currentTheme.placeholderColor },
           ]}
         >
-          {t("screen_read_later_loading_more")}
+          {t('screen_read_later_loading_more')}
         </Text>
       </View>
     );
@@ -243,13 +248,13 @@ export default function ReadLaterScreen({
         </View>
       </View>
     );
-  }
+  };
 
   if (loading) {
     return (
       <LoadingSpinner
         currentTheme={currentTheme}
-        message={t("screen_read_later_loading")}
+        message={t('screen_read_later_loading')}
       />
     );
   }
@@ -263,38 +268,37 @@ export default function ReadLaterScreen({
     >
       {renderHeader()}
 
-      {error ?
+      {error ? (
         rennderError()
-      :       (
-          entries.length === 0 ?
-            <EmptyState currentTheme={currentTheme}
-                        textLine1={t("screen_read_later_empty")}
-                        textLine2={t("screen_read_later_empty_sub")}
+      ) : entries.length === 0 ? (
+        <EmptyState
+          currentTheme={currentTheme}
+          textLine1={t('screen_read_later_empty')}
+          textLine2={t('screen_read_later_empty_sub')}
+        />
+      ) : (
+        <FlatList
+          data={entries}
+          renderItem={renderEntry}
+          keyExtractor={(item, index) => `${item.id || index}`}
+          onEndReached={loadMoreEntries}
+          onEndReachedThreshold={0.1}
+          ListFooterComponent={renderFooter}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[currentTheme.primaryColor]}
+              tintColor={currentTheme.primaryColor}
             />
-            :
-            <FlatList
-              data={entries}
-              renderItem={renderEntry}
-              keyExtractor={(item, index) => `${item.id || index}`}
-              onEndReached={loadMoreEntries}
-              onEndReachedThreshold={0.1}
-              ListFooterComponent={renderFooter}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={onRefresh}
-                  colors={[currentTheme.primaryColor]}
-                  tintColor={currentTheme.primaryColor}
-                />
-              }
-              contentContainerStyle={styles.contentContainer}
-              scrollEventThrottle={16}
-              removeClippedSubviews={true}
-              maxToRenderPerBatch={10}
-              updateCellsBatchingPeriod={50}
-            />
-        )}
-
+          }
+          contentContainerStyle={styles.contentContainer}
+          scrollEventThrottle={16}
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={10}
+          updateCellsBatchingPeriod={50}
+        />
+      )}
     </View>
   );
 }
