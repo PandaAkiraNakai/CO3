@@ -301,10 +301,10 @@ const LibraryScreen = ({
 
   const getSortDisplayName = (sort) => {
     switch (sort) {
-      case 'lastRead': return 'Last Read';
-      case 'alphabetical': return 'Alphabetical';
-      case 'dateAdded': return 'Date Added';
-      default: return 'Last Read';
+      case 'lastRead': return 'Last Read'; //TODO add trad here
+      case 'alphabetical': return 'Alphabetical'; //TODO add trad here
+      case 'dateAdded': return 'Date Added'; //TODO add trad here
+      default: return 'Last Read'; //TODO add trad here
     }
   };
 

@@ -257,6 +257,10 @@ export const ReaderWrapper = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(undefined);
 
+  useEffect(() => {
+    libraryDAO.updateReadIndex(chapterData.workId)
+  }, [chapterData.workId, libraryDAO]);
+
   const handleChapterChange = (newChapterData) => {
     setError(false)
     if (newChapterData) {
