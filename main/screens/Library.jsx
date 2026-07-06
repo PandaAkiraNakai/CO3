@@ -301,10 +301,10 @@ const LibraryScreen = ({
 
   const getSortDisplayName = (sort) => {
     switch (sort) {
-      case 'lastRead': return 'Last Read'; //TODO add trad here
-      case 'alphabetical': return 'Alphabetical'; //TODO add trad here
-      case 'dateAdded': return 'Date Added'; //TODO add trad here
-      default: return 'Last Read'; //TODO add trad here
+      case 'lastRead': return t("screen_library_sort_selector_read");
+      case 'alphabetical': return t("screen_library_sort_selector_alphabetical");
+      case 'dateAdded': return t("screen_library_sort_selector_date");
+      default: return t("screen_library_select_category_modal_title");
     }
   };
 
