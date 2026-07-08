@@ -1,0 +1,10 @@
+Changes:
+- Skip download if the chapter is already downloaded, fixes #53
+- Added debug menu for easier Database debugging
+- Changed the way unknown max chapters are handled, fixes #58
+- Added somewhat proper pseud support, fixes #57
+
+All changes by @tbvns
+
+Warning:
+Due to critical bug fixes that caused some persistent issues, all works in your library will be set to a temporary patched status, you might need to trigger and update to fix max chapter counts.

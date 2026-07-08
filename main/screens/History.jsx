@@ -16,8 +16,9 @@ import CalendarModal from '../components/History/CalendarModal';
 import EmptyState from '../components/History/Empty';
 import LoadingSpinner from '../components/History/Spinner';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import KudoHistoryScreen from './more/KudoHistory';
 import WorkScreen from './workScreen';
+import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
 
 const HistoryScreen = ({
   currentTheme,
@@ -28,9 +29,11 @@ const HistoryScreen = ({
   settingsDAO,
   progressDAO,
   kudoHistoryDAO,
-  chapterDAO
+  chapterDAO,
 }) => {
   const insets = useSafeAreaInsets();
+
+  const navigation = useNavigation();
 
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +48,8 @@ const HistoryScreen = ({
   const [isFilterActive, setIsFilterActive] = useState(false);
   const [readingDates, setReadingDates] = useState([]);
 
+  const { t } = useTranslation();
+
   const PAGE_SIZE = 20;
 
   useEffect(() => {
@@ -55,14 +60,14 @@ const HistoryScreen = ({
   }, [historyDAO, loadInitialHistory, loadReadingDates, workDAO]);
 
   useEffect(() => {
-    const subscription = DeviceEventEmitter.addListener('doubleTap', (id) => {
-      handleClick(history[0])
-    })
+    const subscription = DeviceEventEmitter.addListener('doubleTap', id => {
+      handleClick(history[0]);
+    });
 
     return () => {
-      subscription.remove()
-    }
-  }, [history])
+      subscription.remove();
+    };
+  }, [history]);
 
   const loadReadingDates = async () => {
     try {
@@ -87,8 +92,8 @@ const HistoryScreen = ({
           const work = await workDAO.get(item.workId);
           return {
             ...item,
-            book_title: work ? work.title : 'Unknown Book',
-            book_author: work ? work.author : 'Unknown Author',
+            book_title: work ? work.title : t('general_unknown_work'),
+            book_author: work ? work.author : t('general_unknown_author'),
           };
         } catch (error) {
           console.error(
@@ -97,8 +102,8 @@ const HistoryScreen = ({
           );
           return {
             ...item,
-            book_title: 'Unknown Book',
-            book_author: 'Unknown Author',
+            book_title: t('general_unknown_work'),
+            book_author: t('general_unknown_author'),
           };
         }
       }),
@@ -195,12 +200,12 @@ const HistoryScreen = ({
 
   const clearHistory = () => {
     Alert.alert(
-      'Clear History',
-      'Are you sure you want to clear all reading history?',
+      t('screen_history_clear_title'),
+      t('screen_history_clear_text'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('general_cancel'), style: 'cancel' },
         {
-          text: 'Clear',
+          text: t('screen_history_clear_button'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -266,25 +271,20 @@ const HistoryScreen = ({
   };
 
   function handleClick(item) {
-    setScreens(prevScreens => [
-      ...prevScreens,
-      <WorkScreen
-        workId={item.workId}
-        currentTheme={currentTheme}
-        settingsDAO={settingsDAO}
-        workDAO={workDAO}
-        libraryDAO={libraryDAO}
-        setScreens={setScreens}
-        historyDAO={historyDAO}
-        progressDAO={progressDAO}
-        loadChapter={item.chapterEnd || item.chapter || 0}
-        kudoHistoryDAO={kudoHistoryDAO}
-        chapterDAO={chapterDAO}
-
-      />,
-    ]);
+    navigation.push("Work", {
+      workId: item.workId,
+      currentTheme: currentTheme,
+      settingsDAO: settingsDAO,
+      workDAO: workDAO,
+      libraryDAO: libraryDAO,
+      setScreens: setScreens,
+      historyDAO: historyDAO,
+      progressDAO: progressDAO,
+      loadChapter: item.chapterEnd || item.chapter || 0,
+      kudoHistoryDAO: kudoHistoryDAO,
+      chapterDAO: chapterDAO,
+    })
   }
-
 
   const clearDateFilter = async () => {
     setDateRange({ start: null, end: null });
@@ -324,7 +324,7 @@ const HistoryScreen = ({
     return (
       <LoadingSpinner
         currentTheme={currentTheme}
-        message="Loading history..."
+        message={t('screen_history_loading')}
       />
     );
   }

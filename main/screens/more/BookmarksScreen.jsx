@@ -15,20 +15,25 @@ import BookCard from '../../components/Library/BookCard';
 import LoadingSpinner from '../../components/History/Spinner';
 import { getUsername } from '../../storage/Credentials';
 import EmptyState from '../../components/History/Empty';
+import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
 
 export default function BookmarksScreen({
-  setScreens,
-  currentTheme,
-  workDAO,
-  libraryDAO,
-  historyDAO,
-  settingsDAO,
-  progressDAO,
-  kudoHistoryDAO,
-  username,
-  chapterDAO,
-  pseud
+  route
 }) {
+  const {
+    setScreens,
+    currentTheme,
+    workDAO,
+    libraryDAO,
+    historyDAO,
+    settingsDAO,
+    progressDAO,
+    kudoHistoryDAO,
+    username,
+    chapterDAO,
+    pseud,
+  } = route.params;
   const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -38,10 +43,12 @@ export default function BookmarksScreen({
   const [viewMode, setViewMode] = useState('med');
   const [error, setError] = useState(null);
 
+  const { t } = useTranslation();
+
   const PAGE_SIZE = 20;
 
   useEffect(() => {
-    loadInitialBookmarks()
+    loadInitialBookmarks();
   }, [loadInitialBookmarks]);
 
   const formatWork = work => {
@@ -58,7 +65,7 @@ export default function BookmarksScreen({
       description: work.description,
       lastUpdated: work.updated
         ? new Date(work.updated).toLocaleDateString()
-        : 'Unknown',
+        : t('general_unknown'),
       likes: work.kudos,
       bookmarks: work.bookmarks,
       words: work.words,
@@ -76,25 +83,28 @@ export default function BookmarksScreen({
   const loadInitialBookmarks = async () => {
     let usrname = username;
 
-    if (!username)
-      usrname = await getUsername()
+    if (!username) usrname = await getUsername();
 
     if (!usrname) {
-      setError({message: "Please log in to see bookmarked works on your account."})
-      setLoading(false)
+      setError({ message: t('screen_bookmarks_error_not_logged_in') });
+      setLoading(false);
       return;
     }
 
     try {
       setLoading(true);
       setCurrentPage(1);
-      const res = pseud ? (await fetchBookmarks(1, username, pseud)) : (username ? await fetchBookmarks(1, username) : await fetchBookmarks(1));
+      const res = pseud
+        ? await fetchBookmarks(1, username, pseud)
+        : username
+        ? await fetchBookmarks(1, username)
+        : await fetchBookmarks(1);
       setBookmarks(res || []);
       setHasMore((res?.length || 0) === PAGE_SIZE);
     } catch (error) {
       console.error('Error loading bookmarks:', error);
       setBookmarks([]);
-      setError(error)
+      setError(error);
     } finally {
       setLoading(false);
     }
@@ -106,7 +116,11 @@ export default function BookmarksScreen({
     try {
       setLoadingMore(true);
       const nextPage = currentPage + 1;
-      const res = pseud ? (await fetchBookmarks(nextPage, username, pseud)) : (username ? await fetchBookmarks(nextPage, username) : await fetchBookmarks(nextPage));
+      const res = pseud
+        ? await fetchBookmarks(nextPage, username, pseud)
+        : username
+        ? await fetchBookmarks(nextPage, username)
+        : await fetchBookmarks(nextPage);
       const moreData = res || [];
 
       if (moreData.length > 0) {
@@ -118,7 +132,7 @@ export default function BookmarksScreen({
       }
     } catch (error) {
       console.error('Error loading more bookmarks:', error);
-      setError(error)
+      setError(error);
     } finally {
       setLoadingMore(false);
     }
@@ -130,12 +144,10 @@ export default function BookmarksScreen({
     setRefreshing(false);
   }, []);
 
+  const navigation = useNavigation();
+
   const onBack = () => {
-    setScreens(prev => {
-      const newScreens = [...prev];
-      newScreens.pop();
-      return newScreens;
-    });
+    navigation.goBack();
   };
 
   const openTagSearch = tag => {
@@ -168,16 +180,24 @@ export default function BookmarksScreen({
         <Icon name="arrow-back" size={24} color={currentTheme.textColor} />
       </TouchableOpacity>
       <Text style={[styles.title, { color: currentTheme.textColor }]}>
-        {username ? username + "'s " : ""}Bookmarks
+        {username
+          ? t('screen_bookmarks_title_username', { username: username })
+          : t('screen_bookmarks_title')}
       </Text>
 
       <TouchableOpacity
         style={{ marginLeft: 'auto' }}
-        onPress={() =>
-        {username ? Linking.openURL(`https://archiveofourown.org/users/${username}/bookmarks`)
-          : getUsername().then(usrname => {Linking.openURL(`https://archiveofourown.org/users/${usrname}/bookmarks`)}
-        )}
-        }
+        onPress={() => {
+          username
+            ? Linking.openURL(
+                `https://archiveofourown.org/users/${username}/bookmarks`,
+              )
+            : getUsername().then(usrname => {
+                Linking.openURL(
+                  `https://archiveofourown.org/users/${usrname}/bookmarks`,
+                );
+              });
+        }}
       >
         <Icon name="link" size={24} color={currentTheme.textColor} />
       </TouchableOpacity>
@@ -186,24 +206,45 @@ export default function BookmarksScreen({
 
   const rennderError = () => {
     return (
-      <View style={[styles.centerContainer, { backgroundColor: currentTheme.backgroundColor }]}>
-        <View style={[styles.errorContainer, { backgroundColor: currentTheme.cardBackground, borderColor: currentTheme.borderColor }]}>
+      <View
+        style={[
+          styles.centerContainer,
+          { backgroundColor: currentTheme.backgroundColor },
+        ]}
+      >
+        <View
+          style={[
+            styles.errorContainer,
+            {
+              backgroundColor: currentTheme.cardBackground,
+              borderColor: currentTheme.borderColor,
+            },
+          ]}
+        >
           <Text style={[styles.errorTitle, { color: currentTheme.textColor }]}>
-            Failed to Load Bookmarks
+            {t('screen_bookmarks_error')}
           </Text>
-          <Text style={[styles.errorMessage, { color: currentTheme.secondaryTextColor }]}>
+          <Text
+            style={[
+              styles.errorMessage,
+              { color: currentTheme.secondaryTextColor },
+            ]}
+          >
             {error.message}
           </Text>
           <TouchableOpacity
-            style={[styles.retryButton, { backgroundColor: currentTheme.primaryColor }]}
+            style={[
+              styles.retryButton,
+              { backgroundColor: currentTheme.primaryColor },
+            ]}
             onPress={() => loadInitialBookmarks()}
           >
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={styles.retryButtonText}>{t('general_retry')}</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
-  }
+  };
 
   const renderFooter = () => {
     if (!loadingMore) return null;
@@ -216,7 +257,7 @@ export default function BookmarksScreen({
             { color: currentTheme.placeholderColor },
           ]}
         >
-          Loading more...
+          {t('screen_bookmarks_loading_more')}
         </Text>
       </View>
     );
@@ -226,7 +267,7 @@ export default function BookmarksScreen({
     return (
       <LoadingSpinner
         currentTheme={currentTheme}
-        message="Loading bookmarks..."
+        message={t('screen_bookmarks_loading')}
       />
     );
   }
@@ -240,39 +281,37 @@ export default function BookmarksScreen({
     >
       {renderHeader()}
 
-      {error ?
+      {error ? (
         rennderError()
-      : (
-          bookmarks.length === 0 ? (
-            <EmptyState currentTheme={currentTheme}
-                        textLine1={"No bookmarks yet."}
-                        textLine2={"Bookmarked work will appear here."}
+      ) : bookmarks.length === 0 ? (
+        <EmptyState
+          currentTheme={currentTheme}
+          textLine1={t('screen_bookmarks_empty_title')}
+          textLine2={t('screen_bookmarks_empty_subtitle')}
+        />
+      ) : (
+        <FlatList
+          data={bookmarks}
+          renderItem={renderBookmark}
+          keyExtractor={(item, index) => `${item.id || index}`}
+          onEndReached={loadMoreBookmarks}
+          onEndReachedThreshold={0.1}
+          ListFooterComponent={renderFooter}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[currentTheme.primaryColor]}
+              tintColor={currentTheme.primaryColor}
             />
-          ) : (
-            <FlatList
-              data={bookmarks}
-              renderItem={renderBookmark}
-              keyExtractor={(item, index) => `${item.id || index}`}
-              onEndReached={loadMoreBookmarks}
-              onEndReachedThreshold={0.1}
-              ListFooterComponent={renderFooter}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={onRefresh}
-                  colors={[currentTheme.primaryColor]}
-                  tintColor={currentTheme.primaryColor}
-                />
-              }
-              contentContainerStyle={styles.contentContainer}
-              scrollEventThrottle={16}
-              removeClippedSubviews={true}
-              maxToRenderPerBatch={10}
-              updateCellsBatchingPeriod={50}
-            />
-          )
-        )}
-
+          }
+          contentContainerStyle={styles.contentContainer}
+          scrollEventThrottle={16}
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={10}
+          updateCellsBatchingPeriod={50}
+        />
+      )}
     </View>
   );
 }
@@ -336,6 +375,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
+    textAlign: 'center',
   },
   errorMessage: {
     fontSize: 14,

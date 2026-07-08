@@ -1,7 +1,15 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
-const EmptyState = ({ currentTheme, isFilterActive, textLine1 = "No reading history yet", textLine2 = "Start reading to see your progress here"}) => {
+const EmptyState = ({
+  currentTheme,
+  isFilterActive,
+  textLine1,
+  textLine2,
+}) => {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.emptyState}>
       <Text
@@ -10,9 +18,7 @@ const EmptyState = ({ currentTheme, isFilterActive, textLine1 = "No reading hist
           { color: currentTheme.placeholderColor },
         ]}
       >
-        {isFilterActive
-          ? 'No reading history for selected dates'
-          : textLine1}
+        {isFilterActive ? t('component_empty_for_range_title') : textLine1 ?? t('component_empty_title')}
       </Text>
       <Text
         style={[
@@ -20,9 +26,7 @@ const EmptyState = ({ currentTheme, isFilterActive, textLine1 = "No reading hist
           { color: currentTheme.placeholderColor },
         ]}
       >
-        {isFilterActive
-          ? 'Try selecting different dates'
-          : textLine2}
+        {isFilterActive ? t('component_empty_for_range_sub') : textLine2 ?? t('component_empty_sub')}
       </Text>
     </View>
   );
@@ -38,6 +42,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '500',
         marginBottom: 8,
+        textAlign: 'center',
     },
     emptyStateSubtext: {
         fontSize: 14,

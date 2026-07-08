@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTranslation } from 'react-i18next';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -24,6 +25,8 @@ const CalendarModal = ({
                            onApplyFilter,
                        }) => {
     const [selectedDates, setSelectedDates] = useState({});
+
+    const { t } = useTranslation();
 
     const handleCalendarDayPress = (day) => {
         const dateString = day.dateString;
@@ -114,7 +117,7 @@ const CalendarModal = ({
                         <ScrollView style={[styles.modalContainer, { backgroundColor: currentTheme.backgroundColor }]}>
                           <View style={styles.modalHeader}>
                             <Text style={[styles.modalTitle, { color: currentTheme.textColor }]}>
-                              Select Date Range
+                              {t("component_calendar_title")}
                             </Text>
                             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
                               <Icon name="close" size={24} color={currentTheme.placeholderColor} />
@@ -123,10 +126,10 @@ const CalendarModal = ({
 
                           <Text style={[styles.modalSubtitle, { color: currentTheme.placeholderColor }]}>
                             {dateRange.start && dateRange.end
-                              ? `Selected: ${dateRange.start} to ${dateRange.end}`
+                              ? t("component_calendar_sub_start_end", { start: dateRange.start, end: dateRange.end })
                               : dateRange.start
-                                ? `Start: ${dateRange.start} (tap another date to set end)`
-                                : 'Tap a date to start selection. Dots indicate reading activity.'
+                                ? t("component_calendar_sub_start", { start: dateRange.start })
+                                : t("component_calendar_sub")
                             }
                           </Text>
 
@@ -163,7 +166,7 @@ const CalendarModal = ({
                               onPress={handleClearSelection}
                             >
                               <Text style={[styles.modalButtonText, { color: currentTheme.placeholderColor }]}>
-                                Clear Selection
+                                {t("component_calendar_clear")}
                               </Text>
                             </TouchableOpacity>
 
@@ -179,7 +182,7 @@ const CalendarModal = ({
                               onPress={onApplyFilter}
                             >
                               <Text style={[styles.modalButtonText, { color: 'white' }]}>
-                                {dateRange.start ? 'Apply Filter' : 'Show All'}
+                                {dateRange.start ? t("component_calendar_apply") : t("component_calendar_show_all")}
                               </Text>
                             </TouchableOpacity>
                           </View>

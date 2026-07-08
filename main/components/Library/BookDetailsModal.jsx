@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTranslation } from 'react-i18next';
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -40,11 +41,13 @@ const BookDetailsModal = ({
   const showDescriptionSection = mode === 'summary' || mode === 'full';
   const showMetadataSection = mode === 'full';
 
-  let modalTitle = `Details for "${book.title}"`;
+  const { t } = useTranslation();
+
+  let modalTitle = t("component_book_details_modal_title", {title: book.title});
   if (mode === 'summary') {
-    modalTitle = `Tags & Warnings for "${book.title}"`;
+    modalTitle = t("component_book_details_modal_title_tags_and_warning", {title: book.title});
   } else if (mode === 'allTags') {
-    modalTitle = `All Tags for "${book.title}"`;
+    modalTitle = t("component_book_details_modal_title_tags", {title: book.title});
   }
 
   return (
@@ -102,7 +105,7 @@ const BookDetailsModal = ({
                               { color: theme.textColor },
                             ]}
                           >
-                            Tags:
+                            {t("component_book_details_modal_tags")}
                           </Text>
                         </View>
                         {book.tags && book.tags.length > 0 ? (
@@ -147,7 +150,7 @@ const BookDetailsModal = ({
                                       { color: theme.primaryColor },
                                     ]}
                                   >
-                                    See all tags ({book.tags.length})
+                                    {t("component_book_details_modal_see_all_tags", {count: book.tags.length})}
                                   </Text>
                                 </TouchableOpacity>
                               )}
@@ -159,7 +162,7 @@ const BookDetailsModal = ({
                               { color: theme.secondaryTextColor },
                             ]}
                           >
-                            No tags available.
+                            {t("component_book_details_modal_no_tags")}
                           </Text>
                         )}
                       </View>
@@ -175,7 +178,7 @@ const BookDetailsModal = ({
                               { color: theme.textColor },
                             ]}
                           >
-                            Warnings:
+                            {t("component_book_details_modal_warnings")}
                           </Text>
                         </View>
                         {book.warnings && book.warnings.length > 0 ? (
@@ -212,7 +215,7 @@ const BookDetailsModal = ({
                               { color: theme.secondaryTextColor },
                             ]}
                           >
-                            No specific warnings for this book.
+                            {t("component_book_details_modal_no_warnings")}
                           </Text>
                         )}
                       </View>
@@ -232,7 +235,7 @@ const BookDetailsModal = ({
                               { color: theme.textColor },
                             ]}
                           >
-                            Description:
+                            {t("component_book_details_modal_desc")}
                           </Text>
                         </View>
                         <Text
@@ -244,50 +247,48 @@ const BookDetailsModal = ({
                     )}
 
                     {showMetadataSection && (
-                      <View style={styles.section}>
-                        <View style={styles.metadata}>
-                          <View style={styles.metadataRow}>
-                            <Icon name="schedule" size={14} color={theme.iconColor} />
-                            <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
-                              Updated: {book.lastUpdated}
-                            </Text>
-                          </View>
-                          <View style={styles.metadataRow}>
-                            <Icon name="favorite" size={14} color="#ef4444" />
-                            <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
-                              {book.likes?.toLocaleString() || "?"} Likes
-                            </Text>
-                          </View>
-                          <View style={styles.metadataRow}>
-                            <Icon name="book" size={14} color="#f97316" />
-                            <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
-                              {book.currentChapter + "/" + (book.chapterCount || "?")} Chapters
-                            </Text>
-                          </View>
-                          <View style={styles.metadataRow}>
-                            <Icon name="bookmark" size={14} color="#eab308" />
-                            <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
-                              {book.bookmarks?.toLocaleString() || 0} Bookmarks
-                            </Text>
-                          </View>
-                          <View style={styles.metadataRow}>
-                            <Icon name="visibility" size={14} color="#8b5cf6" />
-                            <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
-                              {book.views?.toLocaleString() || 0} Views
-                            </Text>
-                          </View>
-                          <View style={styles.metadataRow}>
-                            <Icon name="text-snippet" size={14} color="#6e6e6e" />
-                            <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
-                              {book.words?.toLocaleString() || 0} Words
-                            </Text>
-                          </View>
-                          <View style={styles.metadataRow}>
-                            <Icon name="language" size={14} color="#22c55e" />
-                            <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
-                              {book.language || 'English'}
-                            </Text>
-                          </View>
+                      <View style={styles.metadata}>
+                        <View style={styles.metadataRow}>
+                          <Icon name="schedule" size={14} color={theme.iconColor} />
+                          <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
+                            {t("component_generic_updated", {date: book.lastUpdated})}
+                          </Text>
+                        </View>
+                        <View style={styles.metadataRow}>
+                          <Icon name="favorite" size={14} color="#ef4444" />
+                          <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
+                            {t("component_generic_kudos", {count: book.likes?.toLocaleString() || "?"})}
+                          </Text>
+                        </View>
+                        <View style={styles.metadataRow}>
+                          <Icon name="book" size={14} color="#f97316" />
+                          <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
+                            {t("component_generic_chapter", {chapters: book.currentChapter + "/" + (book.chapterCount || "?")})}
+                          </Text>
+                        </View>
+                        <View style={styles.metadataRow}>
+                          <Icon name="bookmark" size={14} color="#eab308" />
+                          <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
+                            {t("component_generic_bookmarks", {bookmarks: book.bookmarks?.toLocaleString() || 0})}
+                          </Text>
+                        </View>
+                        <View style={styles.metadataRow}>
+                          <Icon name="visibility" size={14} color="#8b5cf6" />
+                          <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
+                            {t("component_generic_views", {views: book.views?.toLocaleString() || 0})}
+                          </Text>
+                        </View>
+                        <View style={styles.metadataRow}>
+                          <Icon name="text-snippet" size={14} color="#6e6e6e" />
+                          <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
+                            {t("component_generic_words", {words: book.words?.toLocaleString() || 0})}
+                          </Text>
+                        </View>
+                        <View style={styles.metadataRow}>
+                          <Icon name="language" size={14} color="#22c55e" />
+                          <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
+                            {t("component_generic_language", {language: book.language || t("general_unknown")})}
+                          </Text>
                         </View>
                       </View>
                     )}

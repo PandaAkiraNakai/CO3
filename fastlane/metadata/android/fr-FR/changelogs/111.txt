@@ -1,0 +1,5 @@
+Ce qui a changé
+- Meilleure détection de Cloudflare, très utile pour les connections Wi-Fi publiques et les connections peu fiables
+- Correction majeure dans le système de préréglages pour autoriser le chargement sans plantage, et correction de la gestion des balises canoniques
+
+Toutes les modifications ont été faites par @tbvns

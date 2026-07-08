@@ -16,6 +16,8 @@ import BookCard from '../components/Library/BookCard';
 import CategorySelectionModal from '../components/WorkScreen/CategorySelectionModal.jsx';
 import { getJsonSettings } from '../storage/jsonSettings';
 import ReadLaterScreen from './more/ReadLaterScreen';
+import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
 
 const SortIcon = ({ color, size }) => (
   <View
@@ -97,22 +99,24 @@ const LibraryScreen = ({
 
   const pageSize = 20;
 
+  const { t } = useTranslation();
+
+  const navigation = useNavigation();
+
   useEffect(() => {
     const subscription = DeviceEventEmitter.addListener('doubleTap', (id) => {
-      setScreens(prev => [...prev,
-        <ReadLaterScreen
-          setScreens={setScreens}
-          currentTheme={currentTheme}
-          workDAO={workDAO}
-          libraryDAO={libraryDAO}
-          historyDAO={historyDAO}
-          settingsDAO={settingsDAO}
-          progressDAO={progressDAO}
-          kudoHistoryDAO={kudoHistoryDAO}
-          screens={screens}
-          chapterDAO={chapterDAO}
-        />
-      ])
+      navigation.push("ReadLaterScreen", {
+        setScreens: setScreens,
+        currentTheme: currentTheme,
+        workDAO: workDAO,
+        libraryDAO: libraryDAO,
+        historyDAO: historyDAO,
+        settingsDAO: settingsDAO,
+        progressDAO: progressDAO,
+        kudoHistoryDAO: kudoHistoryDAO,
+        screens: screens,
+        chapterDAO: chapterDAO,
+      });
     })
 
     return () => {
@@ -297,10 +301,10 @@ const LibraryScreen = ({
 
   const getSortDisplayName = (sort) => {
     switch (sort) {
-      case 'lastRead': return 'Last Read';
-      case 'alphabetical': return 'Alphabetical';
-      case 'dateAdded': return 'Date Added';
-      default: return 'Last Read';
+      case 'lastRead': return t("screen_library_sort_selector_read");
+      case 'alphabetical': return t("screen_library_sort_selector_alphabetical");
+      case 'dateAdded': return t("screen_library_sort_selector_date");
+      default: return t("screen_library_select_category_modal_title");
     }
   };
 
@@ -315,22 +319,43 @@ const LibraryScreen = ({
       <View style={styles.titleContainer}>
         <View>
           <Text style={[styles.title, { color: currentTheme.textColor }]}>
-            Your Library
+            {t('screen_library_title')}
           </Text>
           <View style={styles.subtitleContainer}>
-            <Text style={[styles.subtitle, { color: currentTheme.placeholderColor }]}>
-              {totalCount} work{totalCount === 1 ? '' : 's'}
-              {selectedCollection && ` in ${selectedCollection}`}
-              {isSearching && ` matching "${searchTerm}"`}
+            <Text
+              style={[
+                styles.subtitle,
+                { color: currentTheme.placeholderColor },
+              ]}
+            >
+              {totalCount <= 1
+                ? t('screen_library_subtitle', { count: totalCount })
+                : t('screen_library_subtitle_plural', { count: totalCount })}
+              {selectedCollection &&
+                t('screen_library_subtitle_collection', {
+                  collection: selectedCollection,
+                })}
+              {isSearching &&
+                t('screen_library_subtitle_match_filter', {
+                  query: searchTerm,
+                })}
             </Text>
           </View>
         </View>
         <TouchableOpacity
-          style={[styles.sortButton, { backgroundColor: currentTheme.cardBackground, borderColor: currentTheme.borderColor }]}
+          style={[
+            styles.sortButton,
+            {
+              backgroundColor: currentTheme.cardBackground,
+              borderColor: currentTheme.borderColor,
+            },
+          ]}
           onPress={() => setShowSortModal(true)}
         >
           <SortIcon color={currentTheme.textColor} size={16} />
-          <Text style={[styles.sortButtonText, { color: currentTheme.textColor }]}>
+          <Text
+            style={[styles.sortButtonText, { color: currentTheme.textColor }]}
+          >
             {getSortDisplayName(sortType)}
           </Text>
         </TouchableOpacity>
@@ -338,37 +363,65 @@ const LibraryScreen = ({
 
       {allCollections.length > 1 && (
         <View style={styles.collectionsContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.collectionsScroll}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.collectionsScroll}
+          >
             <TouchableOpacity
               style={[
                 styles.collectionChip,
-                { backgroundColor: selectedCollection === null ? currentTheme.primaryColor : currentTheme.cardBackground },
-                { borderColor: currentTheme.borderColor }
+                {
+                  backgroundColor:
+                    selectedCollection === null
+                      ? currentTheme.primaryColor
+                      : currentTheme.cardBackground,
+                },
+                { borderColor: currentTheme.borderColor },
               ]}
               onPress={() => handleCollectionFilter(null)}
             >
-              <Text style={[
-                styles.collectionChipText,
-                { color: selectedCollection === null ? 'white' : currentTheme.textColor }
-              ]}>
+              <Text
+                style={[
+                  styles.collectionChipText,
+                  {
+                    color:
+                      selectedCollection === null
+                        ? 'white'
+                        : currentTheme.textColor,
+                  },
+                ]}
+              >
                 All
               </Text>
             </TouchableOpacity>
 
-            {getTopCollections().map((collectionData) => (
+            {getTopCollections().map(collectionData => (
               <TouchableOpacity
                 key={collectionData.name}
                 style={[
                   styles.collectionChip,
-                  { backgroundColor: selectedCollection === collectionData.name ? currentTheme.primaryColor : currentTheme.cardBackground },
-                  { borderColor: currentTheme.borderColor }
+                  {
+                    backgroundColor:
+                      selectedCollection === collectionData.name
+                        ? currentTheme.primaryColor
+                        : currentTheme.cardBackground,
+                  },
+                  { borderColor: currentTheme.borderColor },
                 ]}
                 onPress={() => handleCollectionFilter(collectionData.name)}
               >
-                <Text style={[
-                  styles.collectionChipText,
-                  { color: selectedCollection === collectionData.name ? 'white' : currentTheme.textColor }
-                ]}>
+                <Text
+                  style={[
+                    styles.collectionChipText,
+                    {
+                      color:
+                        selectedCollection === collectionData.name
+                          ? 'white'
+                          : currentTheme.textColor,
+                    },
+                  ]}
+                >
                   {collectionData.name}
                 </Text>
               </TouchableOpacity>
@@ -379,11 +432,15 @@ const LibraryScreen = ({
                 style={[
                   styles.collectionChip,
                   { backgroundColor: currentTheme.cardBackground },
-                  { borderColor: currentTheme.borderColor }
+                  { borderColor: currentTheme.borderColor },
                 ]}
                 onPress={() => setShowAllCollectionsModal(true)}
               >
-                <Icon name="more-horiz" size={18} color={currentTheme.textColor} />
+                <Icon
+                  name="more-horiz"
+                  size={18}
+                  color={currentTheme.textColor}
+                />
               </TouchableOpacity>
             )}
           </ScrollView>
@@ -397,8 +454,13 @@ const LibraryScreen = ({
       return (
         <View style={styles.footerLoader}>
           <ActivityIndicator size="small" color={currentTheme.primaryColor} />
-          <Text style={[styles.footerText, { color: currentTheme.secondaryTextColor }]}>
-            Loading more works...
+          <Text
+            style={[
+              styles.footerText,
+              { color: currentTheme.secondaryTextColor },
+            ]}
+          >
+            {t('screen_library_loading_more')}
           </Text>
         </View>
       );
@@ -407,8 +469,13 @@ const LibraryScreen = ({
     if (!hasMore && works.length > 0) {
       return (
         <View style={styles.footerLoader}>
-          <Text style={[styles.footerText, { color: currentTheme.placeholderColor }]}>
-            No more works to load
+          <Text
+            style={[
+              styles.footerText,
+              { color: currentTheme.placeholderColor },
+            ]}
+          >
+            {t('screen_library_end')}
           </Text>
         </View>
       );
@@ -428,22 +495,34 @@ const LibraryScreen = ({
 
     return (
       <View style={styles.emptyContainer}>
-        <Icon name="library-books" size={64} color={currentTheme.placeholderColor} />
+        <Icon
+          name="library-books"
+          size={64}
+          color={currentTheme.placeholderColor}
+        />
         <Text style={[styles.emptyTitle, { color: currentTheme.textColor }]}>
-          {isSearching ? 'No matches found' : 'Your library is empty'}
-        </Text>
-        <Text style={[styles.emptyText, { color: currentTheme.secondaryTextColor }]}>
           {isSearching
-            ? `No works found matching "${searchTerm}"`
-            : 'Browse and add some works to get started!'
-          }
+            ? t('screen_library_no_result')
+            : t('screen_library_empty')}
+        </Text>
+        <Text
+          style={[styles.emptyText, { color: currentTheme.secondaryTextColor }]}
+        >
+          {isSearching
+            ? t('screen_library_no_result_sub', { search_term: searchTerm })
+            : t('screen_library_empty_sub')}
         </Text>
         {!isSearching && (
           <TouchableOpacity
-            style={[styles.addFirstButton, { backgroundColor: currentTheme.primaryColor }]}
+            style={[
+              styles.addFirstButton,
+              { backgroundColor: currentTheme.primaryColor },
+            ]}
             onPress={handleGoToBrowse}
           >
-            <Text style={styles.addFirstButtonText}>Browse Works</Text>
+            <Text style={styles.addFirstButtonText}>
+              {t('screen_library_browse_works_button')}
+            </Text>
           </TouchableOpacity>
         )}
       </View>
@@ -482,31 +561,60 @@ const LibraryScreen = ({
         activeOpacity={1}
         onPress={() => setShowSortModal(false)}
       >
-        <View style={[styles.sortModal, { backgroundColor: currentTheme.cardBackground, borderColor: currentTheme.borderColor }]}>
-          <Text style={[styles.sortModalTitle, { color: currentTheme.textColor }]}>
-            Sort by
+        <View
+          style={[
+            styles.sortModal,
+            {
+              backgroundColor: currentTheme.cardBackground,
+              borderColor: currentTheme.borderColor,
+            },
+          ]}
+        >
+          <Text
+            style={[styles.sortModalTitle, { color: currentTheme.textColor }]}
+          >
+            {t('screen_library_sort_menu_title')}
           </Text>
           {[
-            { key: 'lastRead', label: 'Last Read' },
-            { key: 'alphabetical', label: 'Alphabetical' },
-            { key: 'dateAdded', label: 'Date Added' }
-          ].map((option) => (
+            { key: 'lastRead', label: t('screen_library_sort_selector_read') },
+            {
+              key: 'alphabetical',
+              label: t('screen_library_sort_selector_alphabetical'),
+            },
+            { key: 'dateAdded', label: t('screen_library_sort_selector_date') },
+          ].map(option => (
             <TouchableOpacity
               key={option.key}
               style={[
                 styles.sortOption,
-                { backgroundColor: sortType === option.key ? currentTheme.primaryColor + '20' : 'transparent' }
+                {
+                  backgroundColor:
+                    sortType === option.key
+                      ? currentTheme.primaryColor + '20'
+                      : 'transparent',
+                },
               ]}
               onPress={() => handleSortChange(option.key)}
             >
-              <Text style={[
-                styles.sortOptionText,
-                { color: sortType === option.key ? currentTheme.primaryColor : currentTheme.textColor }
-              ]}>
+              <Text
+                style={[
+                  styles.sortOptionText,
+                  {
+                    color:
+                      sortType === option.key
+                        ? currentTheme.primaryColor
+                        : currentTheme.textColor,
+                  },
+                ]}
+              >
                 {option.label}
               </Text>
               {sortType === option.key && (
-                <Icon name="check" size={20} color={currentTheme.primaryColor} />
+                <Icon
+                  name="check"
+                  size={20}
+                  color={currentTheme.primaryColor}
+                />
               )}
             </TouchableOpacity>
           ))}
@@ -517,10 +625,15 @@ const LibraryScreen = ({
 
   if (loading) {
     return (
-      <View style={[styles.centerContainer, { backgroundColor: currentTheme.backgroundColor }]}>
+      <View
+        style={[
+          styles.centerContainer,
+          { backgroundColor: currentTheme.backgroundColor },
+        ]}
+      >
         <ActivityIndicator size="large" color={currentTheme.primaryColor} />
         <Text style={[styles.loadingText, { color: currentTheme.textColor }]}>
-          Loading library...
+          {t('screen_library_loading')}
         </Text>
       </View>
     );
@@ -528,19 +641,40 @@ const LibraryScreen = ({
 
   if (error) {
     return (
-      <View style={[styles.centerContainer, { backgroundColor: currentTheme.backgroundColor }]}>
-        <View style={[styles.errorContainer, { backgroundColor: currentTheme.cardBackground, borderColor: currentTheme.borderColor }]}>
+      <View
+        style={[
+          styles.centerContainer,
+          { backgroundColor: currentTheme.backgroundColor },
+        ]}
+      >
+        <View
+          style={[
+            styles.errorContainer,
+            {
+              backgroundColor: currentTheme.cardBackground,
+              borderColor: currentTheme.borderColor,
+            },
+          ]}
+        >
           <Text style={[styles.errorTitle, { color: currentTheme.textColor }]}>
-            Failed to Load Library
+            {t('screen_library_loading_failed')}
           </Text>
-          <Text style={[styles.errorMessage, { color: currentTheme.secondaryTextColor }]}>
+          <Text
+            style={[
+              styles.errorMessage,
+              { color: currentTheme.secondaryTextColor },
+            ]}
+          >
             {error.message}
           </Text>
           <TouchableOpacity
-            style={[styles.retryButton, { backgroundColor: currentTheme.primaryColor }]}
+            style={[
+              styles.retryButton,
+              { backgroundColor: currentTheme.primaryColor },
+            ]}
             onPress={() => loadWorks(true)}
           >
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={styles.retryButtonText}>{t('general_retry')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -584,7 +718,7 @@ const LibraryScreen = ({
         onSelect={handleCollectionSelect}
         onCancel={() => setShowAllCollectionsModal(false)}
         theme={currentTheme}
-        title="Select Collection"
+        title={t("screen_library_select_category_modal_title")}
       />
     </View>
   );

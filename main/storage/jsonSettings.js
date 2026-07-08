@@ -49,26 +49,25 @@ export async function saveJsonSettings(jsonSettings) {
 }
 
 export const UPDATE_INTERVALS = {
-  TWELVE_HOURS: { label: '12 Hours', value: 720 },
-  DAILY: { label: 'Daily', value: 1440 },
-  EVERY_2_DAYS: { label: 'Every 2 Days', value: 2880 },
-  EVERY_3_DAYS: { label: 'Every 3 Days', value: 4320 },
-  WEEKLY: { label: 'Weekly', value: 10080 },
-  NEVER: { label: 'Never', value: -1 },
+  TWELVE_HOURS: { label: 'screen_preferences_selector_check_frequency_12_hours', value: 720 },
+  DAILY: { label: 'screen_preferences_selector_check_frequency_daily', value: 1440 },
+  EVERY_2_DAYS: { label: 'screen_preferences_selector_check_frequency_every_2_days', value: 2880 },
+  EVERY_3_DAYS: { label: 'screen_preferences_selector_check_frequency_every_3_days', value: 4320 },
+  WEEKLY: { label: 'screen_preferences_selector_check_frequency_weekly', value: 10080 },
+  NEVER: { label: 'screen_preferences_selector_check_frequency_never', value: -1 },
 };
 
 export const UPDATE_RESTRICTIONS = {
-  NONE: { label: 'No Restriction', value: updateRestictionType.None },
-  WIFI: { label: 'WiFi Only', value: updateRestictionType.Wifi },
-  // UNMETERED: { label: 'Unmetered Only', value: updateRestictionType.Unmetered },
-  NOT_ROAMING: { label: 'Not Roaming', value: updateRestictionType.NotRoaming },
+  NONE: { label: 'screen_preferences_selector_network_restriction_none', value: updateRestictionType.None },
+  WIFI: { label: 'screen_preferences_selector_network_restriction_wifi', value: updateRestictionType.Wifi },
+  NOT_ROAMING: { label: 'screen_preferences_selector_network_restriction_not_roaming', value: updateRestictionType.NotRoaming },
 };
 
 export const DOWNLOAD_WHILE_READING = {
-  DISABLED: { label: 'Disabled', value: 0 },
-  NEXT_CHAPTER: { label: 'Next Chapter', value: 1 },
-  TWO_CHAPTERS: { label: 'Next 2 Chapters', value: 2 },
-  THREE_CHAPTERS: { label: 'Next 3 Chapters', value: 3 },
-  FIVE_CHAPTERS: { label: 'Next 5 Chapters', value: 5 },
-  TEN_CHAPTERS: { label: 'Next 10 Chapters', value: 10 },
+  DISABLED: { label: 'screen_preferences_selector_download_while_reading_disabled', value: 0 },
+  NEXT_CHAPTER: { label: 'screen_preferences_selector_download_while_reading_next', value: 1 },
+  TWO_CHAPTERS: { label: 'screen_preferences_selector_download_while_reading_next_2', value: 2 },
+  THREE_CHAPTERS: { label: 'screen_preferences_selector_download_while_reading_next_3', value: 3 },
+  FIVE_CHAPTERS: { label: 'screen_preferences_selector_download_while_reading_next_5', value: 5 },
+  TEN_CHAPTERS: { label: 'screen_preferences_selector_download_while_reading_next_10', value: 10 },
 };

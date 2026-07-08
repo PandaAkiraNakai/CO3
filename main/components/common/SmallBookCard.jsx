@@ -1,22 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  DeviceEventEmitter,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React from 'react';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {
-  addToDownloadQueue,
-  getDownloadQueue,
-} from '../../downloads/DownloadQueue';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { deleteDownloaded, isDownloaded } from '../../downloads/Downloader';
-import Toast from 'react-native-toast-message';
-import { processQueue } from '../../downloads/DownloadManager';
+import { useTranslation } from 'react-i18next';
 
 const imageMappings = {
   rating: {
@@ -53,10 +38,12 @@ const imageMappings = {
 };
 
 const UpdateBookCard = ({ work, theme, onPress }) => {
+  const { t } = useTranslation();
+
   if (!work) {
     return (
       <View style={[styles.card, { backgroundColor: theme.cardBackground, borderColor: theme.borderColor }]}>
-        <Text style={[styles.loadingText, { color: theme.secondaryTextColor }]}>Loading...</Text>
+        <Text style={[styles.loadingText, { color: theme.secondaryTextColor }]}>{t("general_loading")}</Text>
       </View>
     );
   }
@@ -151,7 +138,7 @@ const UpdateBookCard = ({ work, theme, onPress }) => {
             {work.title}
           </Text>
           <Text style={[styles.chapter, { color: theme.primaryColor }]}>
-            By {work.author}
+            {t("component_update_work_card_author", { author: work.author })}
           </Text>
         </View>
         <Icon

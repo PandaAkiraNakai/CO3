@@ -1,0 +1,11 @@
+Additions
+- Basic statistic screen
+- Added the ability to click on Author in the stats screens, fixes #45
+- Desktop APP POC, maybe in future versions
+
+Changes
+- Changed double click action on History button
+- Increased book cards border radius
+
+Fixes
+- Fix the inability to remove canonical tag

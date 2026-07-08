@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTranslation } from 'react-i18next';
 
 const CategorySelectionModal = ({
   visible,
@@ -15,8 +16,10 @@ const CategorySelectionModal = ({
   onSelect,
   onCancel,
   theme,
-  title = 'Select Collection',
+  title,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <Modal
       visible={visible}
@@ -77,7 +80,7 @@ const CategorySelectionModal = ({
               <Text
                 style={[styles.cancelButtonText, { color: theme.textColor }]}
               >
-                Cancel
+                {t('general_cancel')}
               </Text>
             </TouchableOpacity>
           </View>

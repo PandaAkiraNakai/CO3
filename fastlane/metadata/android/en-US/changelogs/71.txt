@@ -1,0 +1,6 @@
+Additions
+- Beta exclude support, should fix #2 by @tbvns
+
+Fixes
+- Fixes crashes from #38 (download crashes) by @tbvns
+- Should fix #39, webview is now only used when necessary by @tbvns

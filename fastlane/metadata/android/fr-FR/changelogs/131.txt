@@ -1,0 +1,7 @@
+Changements
+- Ajout de la possibilité de mettre à jour les œuvres individuellement #54
+- Ajout du nombre de mots dans la section meta #56
+- Ajout de l'option de téléchargement natif #60
+- Correction du support d'exclusion (à partir de mes test, enfin) #62
+
+Toutes les modifications ont été faites par @tbvns.

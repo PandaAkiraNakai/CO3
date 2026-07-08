@@ -21,7 +21,6 @@ import {
   View,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { LinearGradient } from 'react-native-linear-gradient';
 import BookDetailsModal from '../components/Library/BookDetailsModal';
 import { fetchWorkFromWorkID } from '../web/worksScreen/fetchWork';
 import { fetchChapterWithTheme } from '../web/worksScreen/fetchChapter';
@@ -44,12 +43,11 @@ import {
   addToDownloadQueue,
   getDownloadQueue,
 } from '../downloads/DownloadQueue';
-import {
-  deleteDownloaded,
-  isDownloaded,
-} from '../downloads/Downloader';
+import { deleteDownloaded, isDownloaded } from '../downloads/Downloader';
 import { WorkDescription } from '../components/WorkScreen/DescriptionComponent';
 import RNFS from 'react-native-fs';
+import { useTranslation } from 'react-i18next';
+import { StackActions, useNavigation } from '@react-navigation/native';
 
 const NATIVE_DOWNLOAD_FORMATS = ['azw3', 'epub', 'mobi', 'pdf', 'html'];
 
@@ -57,6 +55,7 @@ const ITEM_HEIGHT_COMPACT = 56;
 const ITEM_HEIGHT_EXPANDED = 72;
 
 const ChapterItem = React.memo(({ chapter, index, currentTheme, onPress, showDate }) => {
+  const { t } = useTranslation();
   const [isInQueue, setIsInQueue] = useState(false);
   const [hasFailed, setHasFailed] = useState(false);
   const [isDownloadedFile, setIsDownloadedFile] = useState(false);
@@ -75,7 +74,7 @@ const ChapterItem = React.memo(({ chapter, index, currentTheme, onPress, showDat
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const year = date.getFullYear();
-    subtitleParts.push(`${month}/${day}/${year}`); //TODO: Modify this if not in the US cuz ima go crazy, I can't read that fr
+    subtitleParts.push(`${month}/${day}/${year}`);
   }
   if (showDate && hasProgress) subtitleParts.push(progressText);
   const subtitleToRender = subtitleParts.join(" | ");
@@ -144,7 +143,7 @@ const ChapterItem = React.memo(({ chapter, index, currentTheme, onPress, showDat
           setIsDownloadedFile(false);
           setShowDelete(false);
         } catch (error) {
-          Toast.show({ type: "error", text1: "Error deleting", text2: error.message });
+          Toast.show({ type: "error", text1: t("screen_work_toast_error_deleting"), text2: error.message });
         } finally {
           if (isMounted.current) setIsInQueue(false);
         }
@@ -234,28 +233,33 @@ const ChapterItem = React.memo(({ chapter, index, currentTheme, onPress, showDat
 });
 
 
-const ReaderWrapper = ({
-                         initialChapterData,
-                         currentTheme,
-                         setScreens,
-                         screens,
-                         chapterList,
-                         historyDAO,
-                         progressDAO,
-                         settingsDAO,
-                         jsonSettings,
-                         libraryDAO,
-                         chapterDAO,
-                         kudoHistoryDAO,
-                         workDAO,
+export const ReaderWrapper = ({
+                         route
                        }) => {
+  const {
+    initialChapterData,
+    currentTheme,
+    setScreens,
+    screens,
+    chapterList,
+    historyDAO,
+    progressDAO,
+    settingsDAO,
+    jsonSettings,
+    libraryDAO,
+    chapterDAO,
+    kudoHistoryDAO,
+    workDAO,
+  } = route.params;
+
+  const { t } = useTranslation();
   const [chapterData, setChapterData] = useState(initialChapterData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(undefined);
 
-  const handleBack = () => {
-    setScreens(prev => prev.slice(0, -1));
-  };
+  useEffect(() => {
+    libraryDAO.updateReadIndex(chapterData.workId)
+  }, [chapterData.workId, libraryDAO]);
 
   const handleChapterChange = (newChapterData) => {
     setError(false)
@@ -333,7 +337,7 @@ const ReaderWrapper = ({
             style={[styles.retryButton, { backgroundColor: currentTheme.primaryColor }]}
             onPress={() => handleChapterChange(chapterData)}
           >
-            <Text style={styles.retryButtonText}>Back</Text>
+            <Text style={styles.retryButtonText}>{t('general_back')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -375,21 +379,26 @@ const ReaderWrapper = ({
   );
 };
 
-const ChapterInfoScreen = ({
-                             workId,
-                             currentTheme,
-                             libraryDAO,
-                             workDAO,
-                             setScreens,
-                             settingsDAO,
-                             historyDAO,
-                             progressDAO,
-                             loadChapter,
-                             kudoHistoryDAO,
-                             openTagSearch,
-                             url,
-                             chapterDAO
-                           }) => {
+const ChapterInfoScreen = ({ route }) => {
+  const {
+    workId,
+    currentTheme,
+    libraryDAO,
+    workDAO,
+    setScreens,
+    settingsDAO,
+    historyDAO,
+    progressDAO,
+    loadChapter,
+    kudoHistoryDAO,
+    openTagSearch,
+    url,
+    chapterDAO
+  } = route.params;
+
+  const navigation = useNavigation();
+
+  const { t } = useTranslation();
   const [work, setWork] = useState(null);
   const [chapters, setChapters] = useState([]);
   const [chapterProgress, setChapterProgress] = useState({});
@@ -420,7 +429,7 @@ const ChapterInfoScreen = ({
   const showToast = (message, type = 'error') => {
     Toast.show({
       type: type,
-      text1: type === 'success' ? 'Success' : 'Error',
+      text1: type === 'success' ? t('general_success') : t('general_error'),
       text2: message,
       position: 'bottom',
       bottomOffset: 80,
@@ -463,7 +472,7 @@ const ChapterInfoScreen = ({
     if (action === 'remove') {
       await libraryDAO.remove(workId);
       setInLibrary(false);
-      showToast('Removed from library', 'success');
+      showToast(t('screen_work_toast_removed_from_library'), 'success');
       return;
     }
 
@@ -491,13 +500,13 @@ const ChapterInfoScreen = ({
       await libraryDAO.add(workId, collection);
 
       setInLibrary(true);
-      showToast(
-        `Added to library${collection !== 'Default' ? ` in "${collection}"` : ''}`,
-        'success'
-      );
+      const message = collection !== 'Default'
+        ? t('screen_work_toast_added_to_library_in_collection', { collection })
+        : t('screen_work_toast_added_to_library');
+      showToast(message, 'success');
     } catch (error) {
       console.error('Error adding to library:', error);
-      showToast('Failed to add to library');
+      showToast(t('screen_work_toast_failed_to_add_to_library'));
     }
   };
 
@@ -527,22 +536,18 @@ const ChapterInfoScreen = ({
       setChapterProgress(progressMap);
 
       const hasLoadChapterIndex = typeof loadChapter === 'number';
-
       const chapterUrlMatch = url ? url.match(/\/chapters\/(\d+)/) : null;
       const hasUrlTrigger = !!chapterUrlMatch;
 
       if ((hasLoadChapterIndex && workData.chapters && workData.chapters[loadChapter]) || hasUrlTrigger) {
-
         let chapterToLoad;
         let actualIndex = -1;
 
         if (hasLoadChapterIndex) {
           chapterToLoad = workData.chapters[loadChapter];
           actualIndex = loadChapter;
-        }
-        else if (hasUrlTrigger) {
+        } else if (hasUrlTrigger) {
           const chapterId = chapterUrlMatch[1];
-
           chapterToLoad = workData.chapters.find((ch) => String(ch.id) === String(chapterId));
           actualIndex = workData.chapters.findIndex((ch) => String(ch.id) === String(chapterId));
 
@@ -566,48 +571,38 @@ const ChapterInfoScreen = ({
 
             const chapterListForNav = workData.chapters.map((c) => ({ id: c.id, title: c.name }));
 
-            setScreens((prevScreens) => {
-              const stackWithoutCurrent = prevScreens.slice(0, -1);
+            navigation.dispatch(
+              StackActions.replace('Work', {
+                workId,
+                currentTheme,
+                libraryDAO,
+                workDAO,
+                settingsDAO,
+                historyDAO,
+                progressDAO,
+                kudoHistoryDAO,
+                openTagSearch,
+                chapterDAO,
+                loadChapter: null,
+                url: null,
+              })
+            );
 
-              const cleanHistoryScreen = (
-                <ChapterInfoScreen
-                  key={`${workId}_clean`}
-                  workId={workId}
-                  currentTheme={currentTheme}
-                  libraryDAO={libraryDAO}
-                  workDAO={workDAO}
-                  setScreens={setScreens}
-                  settingsDAO={settingsDAO}
-                  historyDAO={historyDAO}
-                  progressDAO={progressDAO}
-                  kudoHistoryDAO={kudoHistoryDAO}
-                  openTagSearch={openTagSearch}
-                  loadChapter={null}
-                  url={null}
-                  chapterDAO={chapterDAO}
-                />
-              );
-
-              const readerScreen = (
-                <ReaderWrapper
-                  key={`reader_${chapterToLoad.id}`}
-                  initialChapterData={initialChapterData}
-                  currentTheme={currentTheme}
-                  setScreens={setScreens}
-                  chapterList={chapterListForNav}
-                  settingsDAO={settingsDAO}
-                  historyDAO={historyDAO}
-                  progressDAO={progressDAO}
-                  jsonSettings={jsonSettings}
-                  libraryDAO={libraryDAO}
-                  chapterDAO={chapterDAO}
-                  kudoHistoryDAO={kudoHistoryDAO}
-                  workDAO={workDAO}
-                />
-              );
-
-              return [...stackWithoutCurrent, cleanHistoryScreen, readerScreen];
-            });
+            navigation.dispatch(
+              StackActions.push('Reader', {
+                initialChapterData,
+                currentTheme,
+                chapterList: chapterListForNav,
+                settingsDAO,
+                historyDAO,
+                progressDAO,
+                jsonSettings,
+                libraryDAO,
+                chapterDAO,
+                kudoHistoryDAO,
+                workDAO,
+              })
+            );
 
             return;
           }
@@ -615,7 +610,6 @@ const ChapterInfoScreen = ({
           console.log("Could not find chapter from URL. Staying on Info Screen.");
         }
       }
-
     } catch (err) {
       console.error('Error loading work data:', err);
       setError(err.message || 'Failed to load work data');
@@ -659,18 +653,18 @@ const ChapterInfoScreen = ({
         };
         await kudoHistoryDAO.add(kudoEntry);
 
-        showToast('Kudo sent successfully!', 'success');
+        showToast(t('screen_work_toast_kudo_sent'), 'success');
       } else {
-        showToast('Failed to send kudo. Please try again.');
+        showToast(t('screen_work_toast_failed_to_send_kudo'));
       }
     } catch (error) {
       console.error('Error sending kudo:', error);
-      showToast('Failed to send kudo. Please try again.');
+      showToast(t('screen_work_toast_failed_to_send_kudo'));
       setLiked(false);
     } finally {
       setLikeLoading(false);
     }
-  }, [workId, likeLoading, kudoHistoryDAO]);
+  }, [workId, likeLoading, kudoHistoryDAO, t]);
 
   const handleMoreInfo = useCallback(() => {
     setModalMode('full');
@@ -689,7 +683,7 @@ const ChapterInfoScreen = ({
   const handleBookmark = async () => {
     setMenuVisible(false);
     bookmark(work).then(() => {
-      showToast('Added to bookmarks', 'success');
+      showToast(t('screen_work_toast_added_to_bookmarks'), 'success');
     }) .catch(error => {
       showToast(error, 'error');
     })
@@ -698,7 +692,7 @@ const ChapterInfoScreen = ({
   const handleMarkForLater = async () => {
     setMenuVisible(false);
     markForLater(work).then(() => {
-      showToast('Marked for Later', 'success');
+      showToast(t('screen_work_toast_marked_for_later'), 'success');
     }) .catch(error => {
       showToast(error, 'error');
     })
@@ -715,7 +709,7 @@ const ChapterInfoScreen = ({
       chapterContent = await fetchChapterWithTheme(workId, chapter.id, currentTheme, settingsDAO);
 
       if (!chapterContent) {
-        showToast('Failed to load chapter', 'error')
+        showToast(t('screen_work_toast_failed_to_load_chapter'), 'error')
         return;
       }
 
@@ -732,29 +726,26 @@ const ChapterInfoScreen = ({
 
       const chapterListForNav = chapters.map(c => ({ id: c.id, title: c.name }));
 
-      setScreens(prevScreens => [
-        ...prevScreens,
-        <ReaderWrapper
-          key={chapter.id}
-          initialChapterData={initialChapterData}
-          currentTheme={currentTheme}
-          setScreens={setScreens}
-          chapterList={chapterListForNav}
-          settingsDAO={settingsDAO}
-          historyDAO={historyDAO}
-          progressDAO={progressDAO}
-          jsonSettings={jsonSettings}
-          libraryDAO={libraryDAO}
-          chapterDAO={chapterDAO}
-          kudoHistoryDAO={kudoHistoryDAO}
-          workDAO={workDAO}
-        />
-      ]);
+      navigation.push("Reader", {
+        key: chapter.id,
+        initialChapterData: initialChapterData,
+        currentTheme: currentTheme,
+        setScreens: setScreens,
+        chapterList: chapterListForNav,
+        settingsDAO: settingsDAO,
+        historyDAO: historyDAO,
+        progressDAO: progressDAO,
+        jsonSettings: jsonSettings,
+        libraryDAO: libraryDAO,
+        chapterDAO: chapterDAO,
+        kudoHistoryDAO: kudoHistoryDAO,
+        workDAO: workDAO,
+      })
 
     } catch (error) {
       console.error('Error opening chapter reader:', error);
     }
-  }, [workId, work, chapters, currentTheme, setScreens, settingsDAO, historyDAO, progressDAO, workDAO]);
+  }, [workId, work, chapters, currentTheme, setScreens, settingsDAO, historyDAO, progressDAO, workDAO, t]);
 
   const formatWork = useCallback((work) => ({
     id: work.id,
@@ -768,7 +759,7 @@ const ChapterInfoScreen = ({
     warnings: work.warnings,
     description: work.description,
     descriptionHTML: work.descriptionHTML,
-    lastUpdated: work.updated ? new Date(work.updated).toLocaleDateString() : 'Unknown',
+    lastUpdated: work.updated ? new Date(work.updated).toLocaleDateString() : t("general_unknown"),
     likes: work.kudos,
     bookmarks: work.bookmarks,
     words: work.words,
@@ -779,13 +770,13 @@ const ChapterInfoScreen = ({
   function getTextForNb(nb) {
     switch (nb) {
       case 1:
-        return "Next chapter"
+        return t("screen_work_next_chapter");
       case -1:
-        return "Unread"
+        return t("screen_work_unread");
       case -2:
-        return "All"
+        return t("screen_work_all");
       default:
-        return `Next ${nb} chapters`
+        return t("screen_work_next_x_chapters", { count: nb });
     }
   }
 
@@ -824,7 +815,7 @@ const ChapterInfoScreen = ({
             onPress={handleBookmark}
           >
             <Icon name="bookmark-add" size={20} color={currentTheme.textColor} />
-            <Text style={[styles.menuItemText, { color: currentTheme.textColor }]}>Bookmark</Text>
+            <Text style={[styles.menuItemText, { color: currentTheme.textColor }]}>{t("screen_work_bookmark")}</Text>
           </TouchableOpacity>
 
           <View style={[styles.menuDivider, { backgroundColor: currentTheme.borderColor }]} />
@@ -834,7 +825,7 @@ const ChapterInfoScreen = ({
             onPress={handleMarkForLater}
           >
             <Icon name="watch-later" size={20} color={currentTheme.textColor} />
-            <Text style={[styles.menuItemText, { color: currentTheme.textColor }]}>Mark for later</Text>
+            <Text style={[styles.menuItemText, { color: currentTheme.textColor }]}>{t("screen_work_mark_for_later")}</Text>
           </TouchableOpacity>
 
           <View style={[styles.menuDivider, { backgroundColor: currentTheme.borderColor }]} />
@@ -844,7 +835,7 @@ const ChapterInfoScreen = ({
             onPress={handleRefresh}
           >
             <Icon name="refresh" size={20} color={currentTheme.textColor} />
-            <Text style={[styles.menuItemText, { color: currentTheme.textColor }]}>Refresh</Text>
+            <Text style={[styles.menuItemText, { color: currentTheme.textColor }]}>{t("screen_work_refresh")}</Text>
           </TouchableOpacity>
         </View>
       </Pressable>
@@ -881,7 +872,7 @@ const ChapterInfoScreen = ({
             }}
           >
             <Icon name="download" size={20} color={currentTheme.primaryColor} />
-            <Text style={[styles.menuItemText, { color: currentTheme.primaryColor }]}>Native Download</Text>
+            <Text style={[styles.menuItemText, { color: currentTheme.primaryColor }]}>{t("screen_work_native_download")}</Text>
           </TouchableOpacity>
 
           <View style={[styles.menuDivider, { backgroundColor: currentTheme.borderColor }]} />
@@ -891,7 +882,7 @@ const ChapterInfoScreen = ({
             onPress={deleteAllChapters}
           >
             <Icon name="delete" size={20} color={currentTheme.textColor} />
-            <Text style={[styles.menuItemText, { color: currentTheme.textColor }]}>Delete all</Text>
+            <Text style={[styles.menuItemText, { color: currentTheme.textColor }]}>{t("screen_work_delete_all")}</Text>
           </TouchableOpacity>
         </View>
       </Pressable>
@@ -911,10 +902,10 @@ const ChapterInfoScreen = ({
       >
         <Pressable style={[styles.nativeModalCard, { backgroundColor: currentTheme.headerBackground, borderColor: currentTheme.borderColor }]}>
           <Text style={[styles.nativeModalTitle, { color: currentTheme.textColor }]}>
-            Save as file
+            {t("screen_work_save_as_file")}
           </Text>
           <Text style={[styles.nativeModalSubtitle, { color: currentTheme.secondaryTextColor }]}>
-            Choose a format to download to your device
+            {t("screen_work_choose_format")}
           </Text>
 
           {NATIVE_DOWNLOAD_FORMATS.map((format) => {
@@ -951,7 +942,7 @@ const ChapterInfoScreen = ({
               style={[styles.nativeCancelButton, { borderColor: currentTheme.borderColor }]}
               onPress={() => setNativeDownloadModalVisible(false)}
             >
-              <Text style={[styles.nativeCancelText, { color: currentTheme.secondaryTextColor }]}>Cancel</Text>
+              <Text style={[styles.nativeCancelText, { color: currentTheme.secondaryTextColor }]}>{t("general_cancel")}</Text>
             </TouchableOpacity>
           )}
         </Pressable>
@@ -974,7 +965,7 @@ const ChapterInfoScreen = ({
           styles.actionButtonText,
           { color: inLibrary ? currentTheme.primaryColor : currentTheme.textColor }
         ]}>
-          {inLibrary ? 'In Library' : 'Add to Library'}
+          {inLibrary ? t("screen_work_in_library") : t("screen_work_add_to_library")}
         </Text>
       </TouchableOpacity>
 
@@ -997,7 +988,7 @@ const ChapterInfoScreen = ({
           { color: liked ? '#ef4444' : currentTheme.textColor },
           likeLoading && { color: currentTheme.secondaryTextColor }
         ]}>
-          {likeLoading ? 'Sending...' : (liked ? 'Liked' : 'Like')}
+          {likeLoading ? t("screen_work_sending") : (liked ? t("screen_work_liked") : t("screen_work_like"))}
         </Text>
       </TouchableOpacity>
 
@@ -1011,7 +1002,7 @@ const ChapterInfoScreen = ({
           color={currentTheme.iconColor}
         />
         <Text style={[styles.actionButtonText, { color: currentTheme.textColor }]}>
-          More Info
+          {t("screen_work_more_info")}
         </Text>
       </TouchableOpacity>
 
@@ -1025,7 +1016,7 @@ const ChapterInfoScreen = ({
           color={currentTheme.iconColor}
         />
         <Text style={[styles.actionButtonText, { color: currentTheme.textColor }]}>
-          Open in Web
+          {t("screen_work_open_in_web")}
         </Text>
       </TouchableOpacity>
     </View>
@@ -1053,25 +1044,23 @@ const ChapterInfoScreen = ({
       </Text>
       <TouchableOpacity
         onPress={() => {
-          setScreens(p => [...p,
-            <UserInfoScreen
-              username={work?.author}
-              currentTheme={currentTheme}
-              setScreens={setScreens}
-              onBack={() => setScreens(prev => prev.slice(0, -1))}
-              settingsDAO={settingsDAO}
-              historyDAO={historyDAO}
-              progressDAO={progressDAO}
-              kudoHistoryDAO={kudoHistoryDAO}
-              libraryDAO={libraryDAO}
-              workDAO={workDAO}
-              chapterDAO={chapterDAO}
-            />
-          ])
+          navigation.push("Work", {
+            username: work?.author,
+            currentTheme: currentTheme,
+            setScreens: setScreens,
+            onBack: () => navigation.goBack(),
+            settingsDAO: settingsDAO,
+            historyDAO: historyDAO,
+            progressDAO: progressDAO,
+            kudoHistoryDAO: kudoHistoryDAO,
+            libraryDAO: libraryDAO,
+            workDAO: workDAO,
+            chapterDAO: chapterDAO,
+          })
         }}
       >
         <Text style={[styles.workAuthor, { color: currentTheme.secondaryTextColor }]}>
-          by {work?.author}
+          {t("screen_work_by_author", { author: work?.author })}
         </Text>
       </TouchableOpacity>
 
@@ -1084,14 +1073,14 @@ const ChapterInfoScreen = ({
 
       <View style={[styles.sectionHeader, { borderBottomColor: currentTheme.borderColor, marginTop: 8 }]}>
         <Text style={[styles.sectionTitle, { color: currentTheme.textColor }]}>
-          Chapters
+          {t("screen_work_chapters_header")}
         </Text>
         <Text style={[styles.chapterCount, { color: currentTheme.secondaryTextColor }]}>
-          {chapters.length} chapters
+          {t("screen_work_chapters_count", { count: chapters.length })}
         </Text>
       </View>
     </View>
-  ), [work, currentTheme, chapters, jsonSettings, inLibrary, liked, likeLoading, setScreens]);
+  ), [work, currentTheme, chapters, jsonSettings, inLibrary, liked, likeLoading, setScreens, t]);
 
   if (loading) {
     return (
@@ -1099,7 +1088,7 @@ const ChapterInfoScreen = ({
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={currentTheme.primaryColor} />
           <Text style={[styles.loadingText, { color: currentTheme.textColor }]}>
-            Loading work information...
+            {t("screen_work_loading")}
           </Text>
         </View>
       </SafeAreaView>
@@ -1118,7 +1107,7 @@ const ChapterInfoScreen = ({
             style={[styles.retryButton, { backgroundColor: currentTheme.primaryColor }]}
             onPress={loadWorkData}
           >
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={styles.retryButtonText}>{t("general_retry")}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -1130,7 +1119,7 @@ const ChapterInfoScreen = ({
       <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
         <View style={styles.errorContainer}>
           <Text style={[styles.errorText, { color: currentTheme.textColor }]}>
-            Work not found
+            {t("screen_work_not_found")}
           </Text>
         </View>
       </SafeAreaView>
@@ -1189,10 +1178,10 @@ const ChapterInfoScreen = ({
     if (chapToDl.length > 0) {
       console.log(`Adding ${chapToDl.length} chapters to queue.`);
       await addToDownloadQueue(chapToDl);
-      showToast(`Added ${chapToDl.length} chapters to dl list.`, 'success');
+      showToast(t("screen_work_toast_added_chapters_to_queue", { count: chapToDl.length }), 'success');
       await processQueue();
     } else {
-      showToast("No new chapters to download", 'error');
+      showToast(t("screen_work_toast_no_new_chapters_to_download"), 'error');
     }
 
     setDownloadMenuVisible(false);
@@ -1217,12 +1206,12 @@ const ChapterInfoScreen = ({
     try {
       const result = await RNFS.downloadFile({ fromUrl: url, toFile: destPath }).promise;
       if (result.statusCode === 200) {
-        Toast.show({ type: 'success', text1: 'Download complete', text2: `${filename} saved to Downloads`});
+        Toast.show({ type: 'success', text1: t('screen_work_toast_download_complete'), text2: t("screen_work_toast_download_complete_sub", {filename: filename})});
       } else {
-        Toast.show({ type: 'error', text1: 'Download failed', text2: `Server returned ${result.statusCode}`});
+        Toast.show({ type: 'error', text1: t('screen_work_toast_download_failed'), text2: t("screen_work_toast_download_failed_sub", { statusCode: result.statusCode })});
       }
     } catch (err) {
-      Toast.show({ type: 'error', text1: 'Download failed', text2: err.message});
+      Toast.show({ type: 'error', text1: t('screen_work_toast_download_failed'), text2: err.message});
     } finally {
       setNativeDownloadingFormat(null);
       setNativeDownloadModalVisible(false);
@@ -1254,8 +1243,8 @@ const ChapterInfoScreen = ({
         Toast.show(
           {
             type: 'error',
-            text1: "Error reloading work.",
-            text2: "Something went wrong while loading the work.",
+            text1: t("screen_work_toast_error_reloading_work"),
+            text2: t("screen_work_toast_error_loading_work"),
           })
         setLoading(false);
         setMenuVisible(false);
@@ -1268,8 +1257,8 @@ const ChapterInfoScreen = ({
       Toast.show(
         {
           type: 'error',
-          text1: "Error reloading work.",
-          text2: "Something went wrong while loading the work.",
+          text1: t("screen_work_toast_error_reloading_work"),
+          text2: t("screen_work_toast_error_loading_work"),
         })
       setLoading(false);
       setMenuVisible(false);
@@ -1282,7 +1271,7 @@ const ChapterInfoScreen = ({
         backgroundColor={currentTheme.headerBackground}
       />
       <View style={[styles.header, { backgroundColor: currentTheme.headerBackground, borderBottomColor: currentTheme.borderColor }]}>
-        <TouchableOpacity onPress={() => setScreens(prev => prev.slice(0, -1))} style={styles.backButton}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Icon name="arrow-back" size={24} color={currentTheme.iconColor} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: currentTheme.textColor }]} numberOfLines={1}>
@@ -1332,7 +1321,7 @@ const ChapterInfoScreen = ({
         onSelect={handleCategorySelect}
         onCancel={() => setShowCategoryModal(false)}
         theme={currentTheme}
-        title="Add to Collection"
+        title={t("screen_category_new_category")}
       />
 
       <TouchableOpacity
@@ -1410,19 +1399,18 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingHorizontal: 16,
     position: 'relative',
-    // Ensure no 'flex: 1' here usually
   },
   hiddenMeasurer: {
     position: 'absolute',
     top: 0,
-    left: 16, // Must match paddingHorizontal of container
+    left: 16,
     right: 16,
     opacity: 0,
     zIndex: -10,
   },
   descriptionWrapper: {
     width: '100%',
-    overflow: 'hidden', // Essential for the fold effect
+    overflow: 'hidden',
     position: 'relative',
   },
   contentPadding: {

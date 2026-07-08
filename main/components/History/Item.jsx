@@ -1,6 +1,8 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import WorkScreen from '../../screens/workScreen';
+import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
 
 const HistoryItem = ({
   item,
@@ -15,33 +17,37 @@ const HistoryItem = ({
   hasChapter = true,
   chapterDAO,
 }) => {
-  console.log(item.date);
+  const { t } = useTranslation();
 
   const formatDate = timestamp => {
     if (typeof timestamp !== 'number' || isNaN(timestamp)) {
-      return 'N/A';
+      return t('general_not_applicable');
     }
 
     const date = new Date(timestamp);
     if (isNaN(date.getTime())) {
-      return 'N/A';
+      return t('general_not_applicable');
     }
 
     const now = new Date();
     const diffInDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
 
     if (diffInDays === 0) {
-      return `Today at ${date.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      })}`;
+      return t('component_history_item_date_today', {
+        time: date.toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+      });
     } else if (diffInDays === 1) {
-      return `Yesterday at ${date.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      })}`;
+      return t('component_history_item_date_yesterday', {
+        time: date.toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+      });
     } else if (diffInDays < 7) {
-      return `${diffInDays} days ago`;
+      return t('component_history_item_date_day', { days: diffInDays });
     } else {
       return date.toLocaleDateString();
     }
@@ -49,45 +55,44 @@ const HistoryItem = ({
 
   const formatChapterRange = (start, end) => {
     if (!end || start === end) {
-      return `Chapter ${start + 1}`;
+      return t('component_history_item_chapter_start', { start: start + 1 });
     }
-    return `Chapters ${start + 1} - ${end + 1}`;
+    return t('component_history_item_chapter_start_end', {
+      start: start + 1,
+      end: end + 1,
+    });
   };
+
+  const navigation = useNavigation();
 
   function handleClick() {
     if (hasChapter) {
-      setScreens(prevScreens => [
-        ...prevScreens,
-        <WorkScreen
-          workId={item.workId}
-          currentTheme={currentTheme}
-          settingsDAO={settingsDAO}
-          workDAO={workDAO}
-          libraryDAO={libraryDAO}
-          setScreens={setScreens}
-          historyDAO={historyDAO}
-          progressDAO={progressDAO}
-          loadChapter={item.chapterEnd || item.chapter || 0}
-          kudoHistoryDAO={kudoHistoryDAO}
-          chapterDAO={chapterDAO}
-        />,
-      ]);
+      navigation.push("Work", {
+        workId: item.workId,
+        currentTheme: currentTheme,
+        settingsDAO: settingsDAO,
+        workDAO: workDAO,
+        libraryDAO: libraryDAO,
+        setScreens: setScreens,
+        historyDAO: historyDAO,
+        progressDAO: progressDAO,
+        loadChapter: item.chapterEnd || item.chapter || 0,
+        kudoHistoryDAO: kudoHistoryDAO,
+        chapterDAO: chapterDAO,
+      })
     } else {
-      setScreens(prevScreens => [
-        ...prevScreens,
-        <WorkScreen
-          workId={item.workId}
-          currentTheme={currentTheme}
-          settingsDAO={settingsDAO}
-          workDAO={workDAO}
-          libraryDAO={libraryDAO}
-          setScreens={setScreens}
-          historyDAO={historyDAO}
-          progressDAO={progressDAO}
-          kudoHistoryDAO={kudoHistoryDAO}
-          chapterDAO={chapterDAO}
-        />,
-      ]);
+      navigation.push("Work", {
+        workId: item.workId,
+        currentTheme: currentTheme,
+        settingsDAO: settingsDAO,
+        workDAO: workDAO,
+        libraryDAO: libraryDAO,
+        setScreens: setScreens,
+        historyDAO: historyDAO,
+        progressDAO: progressDAO,
+        kudoHistoryDAO: kudoHistoryDAO,
+        chapterDAO: chapterDAO,
+      })
     }
   }
 
@@ -97,7 +102,7 @@ const HistoryItem = ({
       style={({ pressed }) => [
         styles.historyItem,
         { backgroundColor: currentTheme.cardBackground },
-        pressed && { opacity: 0.7 }
+        pressed && { opacity: 0.7 },
       ]}
     >
       <View style={styles.itemHeader}>
@@ -105,7 +110,7 @@ const HistoryItem = ({
           style={[styles.bookTitle, { color: currentTheme.textColor }]}
           numberOfLines={1}
         >
-          {item.book_title || 'Unknown Book'}
+          {item.book_title || t('general_unknown_work')}
         </Text>
         <Text
           style={[styles.readTime, { color: currentTheme.placeholderColor }]}
@@ -118,7 +123,7 @@ const HistoryItem = ({
         style={[styles.bookAuthor, { color: currentTheme.placeholderColor }]}
         numberOfLines={1}
       >
-        by {item.book_author || 'Unknown Author'}
+        by {item.book_author || t('general_unknown_author')}
       </Text>
 
       {hasChapter ? (

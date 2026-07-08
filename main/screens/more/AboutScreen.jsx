@@ -11,29 +11,39 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { co3Version } from '../../constant';
 import DebugScreen from './DebugScreen';
+import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
 
-export default function AboutScreen({ setScreens, currentTheme, db }) {
+export default function AboutScreen({ route }) {
+  const {setScreens, currentTheme, db} = route.params;
+  const navigation = useNavigation();
+
   function onBack() {
-    setScreens(prev => {
-      const newScreens = [...prev];
-      newScreens.pop();
-      return newScreens;
-    });
+    navigation.goBack();
   }
 
+  const { t } = useTranslation();
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[{backgroundColor: currentTheme.backgroundColor}, styles.container]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack}>
           <Icon name="arrow-back" size={24} color={currentTheme.textColor} />
         </TouchableOpacity>
         <Text style={[styles.title, { color: currentTheme.textColor }]}>
-          About CO3
+          {t('screen_about_title')}
         </Text>
       </View>
-      <ScrollView style={{height: "100%"}}>
+      <ScrollView style={{ height: '100%' }}>
         <View style={styles.mainContent}>
-          <TouchableOpacity onPress={() => setScreens(p => [...p, <DebugScreen setScreens={setScreens} db={db} />])}>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.push("Debug", {
+                setScreens: setScreens,
+                db: db
+              })
+            }
+          >
             <Image style={styles.image} source={require('../../res/CO3.png')} />
           </TouchableOpacity>
           <View
@@ -43,44 +53,50 @@ export default function AboutScreen({ setScreens, currentTheme, db }) {
             ]}
           />
           <Text style={[styles.title, { color: currentTheme.textColor }]}>
-            Client Of Our Own
+            {t('general_app_name')}
           </Text>
           <Text style={[{ paddingTop: 20, color: currentTheme.textColor }]}>
-            The Open Source AO3 Mobile Reader
+            {t('screen_about_sub')}
           </Text>
         </View>
         <View style={[{ margin: 16 }]}>
           <Text style={[{ color: currentTheme.textColor }]}>
-            CO3 is an open source project which aims at making reading on AO3
-            with a mobile device a lot easier.
+            {t('screen_about_text_1')}
           </Text>
           <Text style={[{ paddingTop: 5, color: currentTheme.textColor }]}>
-            It follows the GPL V3 licence, and will be free of ads, of
-            subscription and of any paid features, forever.
+            {t('screen_about_text_2')}
           </Text>
           <LinkButton
             url="https://github.com/tbvns/CO3/releases"
-            label="What's new ?"
+            label={t('screen_about_news')}
             theme={currentTheme}
           />
           <LinkButton
             url="https://github.com/tbvns/CO3"
-            label="Source code"
+            label={t('screen_about_source')}
             theme={currentTheme}
           />
           <LinkButton
-            url="https://discord.gg/3wMGWu2xMF"
-            label="Discord"
+            url="https://tbvns.xyz/discord"
+            label={t('screen_about_discord')}
             theme={currentTheme}
           />
           <LinkButton
             url="https://ko-fi.com/tbvns"
-            label="Support me"
+            label={t('screen_about_support')}
             theme={currentTheme}
           />
         </View>
-        <Text style={[{color: currentTheme.secondaryTextColor, width: "100%", textAlign: "center" }]}>
-          Version {co3Version}
+        <Text
+          style={[
+            {
+              color: currentTheme.secondaryTextColor,
+              width: '100%',
+              textAlign: 'center',
+            },
+          ]}
+        >
+          {t('screen_about_version', { co3Version: co3Version })}
         </Text>
       </ScrollView>
     </SafeAreaView>

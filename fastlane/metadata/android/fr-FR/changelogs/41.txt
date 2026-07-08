@@ -1,0 +1,2 @@
+Ce qui a changé
+- Polissage et corrections (+ solution de secours pour la Webview) par @tbvns

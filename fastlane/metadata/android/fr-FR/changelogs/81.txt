@@ -1,0 +1,3 @@
+Corrections
+- Ajout d'un défilement dans les profils utilisateur #41 (par @tbvns)
+- Remplacement des "." par "*d*" #42 (par @tbvns)

@@ -1,0 +1,11 @@
+Ajouts
+- Écran de statistique basique
+- Ajout de la possibilité de cliquer sur l'auteur dans les écrans de statistiques #45
+- POC de l'application de bureau, peut-être dans les versions futures
+
+Changements
+- Changement de l'action au double click sur le bouton de l'Historique
+- Augmentation du rayon de la bordure des cartes des œuvres
+
+Corrections
+- Correction de l'impossibilité de supprimer les balises canoniques

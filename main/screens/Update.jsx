@@ -13,6 +13,8 @@ import UpdateBookCard from '../components/Update/UpdateBookCard';
 import ChapterInfoScreen from './workScreen';
 import { run } from '../web/updater';
 import Toast from 'react-native-toast-message';
+import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
 
 const UpdateScreen = ({
   currentTheme,
@@ -34,24 +36,30 @@ const UpdateScreen = ({
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(null);
 
+  const navigation = useNavigation();
+
+  const { t } = useTranslation();
+
   useEffect(() => {
     loadUpdates();
   }, [updateDAO]);
 
   useEffect(() => {
-    const subscription = DeviceEventEmitter.addListener('doubleTap', (id) => {
-      console.log("Should open the download manager screen but not implemented rn");
+    const subscription = DeviceEventEmitter.addListener('doubleTap', id => {
+      console.log(
+        'Should open the download manager screen but not implemented rn',
+      );
       Toast.show({
         type: 'error',
-        text1: "Not implemented yet !",
-        text2: "Future download manager screen will be here.",
+        text1: 'Not implemented yet !',
+        text2: 'Future download manager screen will be here.',
       });
-    })
+    });
 
     return () => {
-      subscription.remove()
-    }
-  }, [])
+      subscription.remove();
+    };
+  }, []);
 
   const loadUpdates = async () => {
     try {
@@ -92,12 +100,18 @@ const UpdateScreen = ({
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return 'just now';
+    if (diffMins < 1) return t('screen_update_time_now');
     if (diffMins < 60)
-      return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+      return diffMins > 1
+        ? t('screen_update_time_minute_plural', { count: diffMins })
+        : t('screen_update_time_minute', { count: diffMins });
     if (diffHours < 24)
-      return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+      return diffMins > 1
+        ? t('screen_update_time_hour_plural', { count: diffHours })
+        : t('screen_update_time_hour', { count: diffHours });
+    return diffDays > 1
+      ? t('screen_update_time_day_plural', { count: diffDays })
+      : t('screen_update_time_day', { count: diffDays });
   };
 
   const groupUpdatesByDate = updatesList => {
@@ -152,24 +166,21 @@ const UpdateScreen = ({
       }
     }
 
-    setScreens(prev => [
-      ...prev,
-      <ChapterInfoScreen
-        key={`update_${update.id}`}
-        workId={update.workId}
-        currentTheme={currentTheme}
-        libraryDAO={libraryDAO}
-        workDAO={workDAO}
-        setScreens={setScreens}
-        settingsDAO={settingsDAO}
-        historyDAO={historyDAO}
-        progressDAO={progressDAO}
-        kudoHistoryDAO={kudoHistoryDAO}
-        openTagSearch={openTagSearch}
-        loadChapter={loadChapterIndex}
-        chapterDAO={chapterDAO}
-      />,
-    ]);
+    navigation.push("Work", {
+      key: `update_$update.id}`,
+      workId: update.workId,
+      currentTheme: currentTheme,
+      libraryDAO: libraryDAO,
+      workDAO: workDAO,
+      setScreens: setScreens,
+      settingsDAO: settingsDAO,
+      historyDAO: historyDAO,
+      progressDAO: progressDAO,
+      kudoHistoryDAO: kudoHistoryDAO,
+      openTagSearch: openTagSearch,
+      loadChapter: loadChapterIndex,
+      chapterDAO: chapterDAO,
+    })
   };
 
   if (loading) {
@@ -181,7 +192,7 @@ const UpdateScreen = ({
         ]}
       >
         <Text style={[styles.loadingText, { color: currentTheme.textColor }]}>
-          Loading updates...
+          {t('screen_update_loading')}
         </Text>
       </View>
     );
@@ -214,7 +225,7 @@ const UpdateScreen = ({
                 { color: currentTheme.secondaryTextColor },
               ]}
             >
-              Library last updated: {lastUpdate}
+              {t('screen_update_last_updated', { last_update: lastUpdate })}
             </Text>
           )}
         </View>
@@ -258,7 +269,7 @@ const UpdateScreen = ({
               color={currentTheme.placeholderColor}
             />
             <Text style={[styles.emptyText, { color: currentTheme.textColor }]}>
-              No updates yet
+              {t('screen_update_no_update')}
             </Text>
             <Text
               style={[
@@ -266,7 +277,7 @@ const UpdateScreen = ({
                 { color: currentTheme.secondaryTextColor },
               ]}
             >
-              Pull down or tap the refresh button to check for updates
+              {t('screen_update_no_update_sub')}
             </Text>
           </View>
         ) : (
@@ -279,7 +290,7 @@ const UpdateScreen = ({
                     { color: currentTheme.textColor },
                   ]}
                 >
-                  Today
+                  {t('screen_update_today')}
                 </Text>
                 {groupedUpdates.today.map(update => (
                   <UpdateBookCard
@@ -302,7 +313,7 @@ const UpdateScreen = ({
                     { color: currentTheme.textColor },
                   ]}
                 >
-                  Yesterday
+                  {t('screen_update_yesterday')}
                 </Text>
                 {groupedUpdates.yesterday.map(update => (
                   <UpdateBookCard
@@ -324,7 +335,7 @@ const UpdateScreen = ({
                     { color: currentTheme.textColor },
                   ]}
                 >
-                  Earlier
+                  {t('screen_update_earlier')}
                 </Text>
                 {groupedUpdates.older.map(update => (
                   <UpdateBookCard

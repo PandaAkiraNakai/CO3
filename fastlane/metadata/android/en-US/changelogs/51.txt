@@ -1,0 +1,5 @@
+What's Changed
+- Made notifee compile locally and modified updater.js by @tbvns in #11
+- Fdroid compliant by @tbvns in #12
+
+This doesn't change anything for the user experience. Mostly internal changes for F-Droid

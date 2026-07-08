@@ -4,9 +4,10 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import BookDetailsModal from './BookDetailsModal';
 import ChapterInfoScreen from '../../screens/workScreen';
 import QuickActionsModal from './QuickActionsModal';
-import { getJsonSettings } from '../../storage/jsonSettings';
 import HtmlTextRenderer from '../common/HtmlTextRenderer';
 import UserInfoScreen from '../../screens/UserInfo';
+import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
 
 const imageMappings = {
   rating: {
@@ -43,6 +44,8 @@ const imageMappings = {
 };
 
 const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, workDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, openTagSearch, showDate = true, jsonSettings, chapterDAO }) => {
+  const navigation = useNavigation();
+
   const [isMainModalOpen, setIsMainModalOpen] = useState(false);
   const [isAllTagsModalOpen, setIsAllTagsModalOpen] = useState(false);
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
@@ -55,9 +58,11 @@ const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, wor
   const showTagsWarningsButton = !isSmall;
   const showMetadataInCard = !isSmall;
 
-  let buttonText = "Show Tags & Warnings";
+  const { t } = useTranslation();
+
+  let buttonText = t("component_book_card_show_more_button");
   if (isMed) {
-    buttonText = "Show Tags, Warnings & Description";
+    buttonText = t("component_book_card_show_more_button_med");
   }
 
   const ratingImage = imageMappings.rating[book.rating] || imageMappings.rating.default;
@@ -88,22 +93,19 @@ const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, wor
 
   return (
       <TouchableOpacity
-          onPress={() => {setScreens(p => [...p,
-            <ChapterInfoScreen
-              workId={book.id}
-              currentTheme={theme}
-              libraryDAO={libraryDAO}
-              workDAO={workDAO}
-              setScreens={setScreens}
-              settingsDAO={settingsDAO}
-              historyDAO={historyDAO}
-              progressDAO={progressDAO}
-              kudoHistoryDAO={kudoHistoryDAO}
-              openTagSearch={openTagSearch}
-              chapterDAO={chapterDAO}
-            />
-          ])}}
-          onLongPress={() => {
+        onPress={() => navigation.push('Work', {
+          workId: book.id,
+          currentTheme: theme,
+          libraryDAO,
+          workDAO,
+          settingsDAO,
+          historyDAO,
+          progressDAO,
+          kudoHistoryDAO,
+          openTagSearch,
+          chapterDAO,
+        })}
+        onLongPress={() => {
             setIsQuickActionsOpen(!isQuickActionsOpen);
           }}
           activeOpacity={0.7}
@@ -180,26 +182,26 @@ const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, wor
               {book.title}
             </Text>
             <TouchableOpacity onPress={() => {
-              setScreens(p => [...p, <UserInfoScreen
-                currentTheme={theme}
-                username={book.author}
-                onBack={() => setScreens(prev => prev.slice(0, -1))}
-                setScreens={setScreens}
-                workDAO={workDAO}
-                libraryDAO={libraryDAO}
-                historyDAO={historyDAO}
-                settingsDAO={settingsDAO}
-                progressDAO={progressDAO}
-                kudoHistoryDAO={kudoHistoryDAO}
-                chapterDAO={chapterDAO}
-              />])
+              navigation.push('User', {
+                currentTheme: theme,
+                username: book.author,
+                onBack: () => navigation.goBack(),
+                setScreens: setScreens,
+                workDAO: workDAO,
+                libraryDAO: libraryDAO,
+                historyDAO: historyDAO,
+                settingsDAO: settingsDAO,
+                progressDAO: progressDAO,
+                kudoHistoryDAO: kudoHistoryDAO,
+                chapterDAO: chapterDAO,
+              })
             }}>
                 <Text style={[
                     styles.author,
                     { color: theme.secondaryTextColor },
                     isSmall && styles.smallAuthor
                 ]}>
-                    by {book.author}
+                  {t("screen_work_by_author", {author: book.author})}
                 </Text>
             </TouchableOpacity>
           </View>
@@ -260,44 +262,44 @@ const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, wor
                       <View style={styles.metadataRow}>
                         <Icon name="schedule" size={14} color={theme.iconColor} />
                         <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
-                          Updated: {book.lastUpdated}
+                          {t("component_generic_updated", {date: book.lastUpdated})}
                         </Text>
                       </View> : null}
 
                     <View style={styles.metadataRow}>
                       <Icon name="favorite" size={14} color="#ef4444" />
                       <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
-                        {book.likes?.toLocaleString() || "?"} Likes
+                        {t("component_generic_kudos", {count: book.likes?.toLocaleString() || "?"})}
                       </Text>
                     </View>
                     <View style={styles.metadataRow}>
                       <Icon name="book" size={14} color="#f97316" />
                       <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
-                        {book.currentChapter + "/" + (book.chapterCount || "?")} Chapters
+                        {t("component_generic_chapter", {chapters: book.currentChapter + "/" + (book.chapterCount || "?")})}
                       </Text>
                     </View>
                     <View style={styles.metadataRow}>
                       <Icon name="bookmark" size={14} color="#eab308" />
                       <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
-                        {book.bookmarks?.toLocaleString() || 0} Bookmarks
+                        {t("component_generic_bookmarks", {bookmarks: book.bookmarks?.toLocaleString() || 0})}
                       </Text>
                     </View>
                     <View style={styles.metadataRow}>
                       <Icon name="visibility" size={14} color="#8b5cf6" />
                       <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
-                        {book.views?.toLocaleString() || 0} Views
+                        {t("component_generic_views", {views: book.views?.toLocaleString() || 0})}
                       </Text>
                     </View>
                     <View style={styles.metadataRow}>
                       <Icon name="text-snippet" size={14} color="#6e6e6e" />
                       <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
-                        {book.words?.toLocaleString() || 0} Words
+                        {t("component_generic_words", {words: book.words?.toLocaleString() || 0})}
                       </Text>
                     </View>
                     <View style={styles.metadataRow}>
                       <Icon name="language" size={14} color="#22c55e" />
                       <Text style={[styles.metadataText, { color: theme.secondaryTextColor }]}>
-                        {book.language || 'English'}
+                        {t("component_generic_language", {language: book.language || t("general_unknown")})}
                       </Text>
                     </View>
                   </View>

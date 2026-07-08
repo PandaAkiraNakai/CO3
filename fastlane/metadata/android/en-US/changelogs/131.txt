@@ -1,0 +1,7 @@
+Changes
+- Added the ability to individually update works. fixes #54
+- Add words to the meta sections, fixes #56
+- Add native download options, closes #60
+- Fixed exclude support (From my tests at least), fixes #62
+
+All changes by @tbvns.

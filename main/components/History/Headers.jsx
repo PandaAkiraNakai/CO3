@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 const HistoryHeader = ({
   currentTheme,
@@ -10,20 +11,29 @@ const HistoryHeader = ({
   onClearFilter,
   isKudosHistory = false,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.header}>
       <View>
         {isKudosHistory ? null : (
           <Text style={[styles.title, { color: currentTheme.textColor }]}>
-            Reading History
+            {t('screen_history_title')}
           </Text>
         )}
         <Text
           style={[styles.subtitle, { color: currentTheme.placeholderColor }]}
         >
           {isFilterActive
-            ? `${totalCount} entries in selected date range`
-            : `${totalCount} total entries`}
+            ? (
+              totalCount > 1 ? t('component_history_header_count_filtered_plural', { totalCount: totalCount })
+              : t('component_history_header_count_filtered', { totalCount: totalCount })
+            )
+            : (
+              totalCount > 1 ? t('component_history_header_count_plural', { totalCount: totalCount })
+              : t('component_history_header_count', { totalCount: totalCount })
+            )
+          }
         </Text>
       </View>
 
@@ -37,7 +47,7 @@ const HistoryHeader = ({
             onPress={onClearFilter}
           >
             <Text style={[styles.clearFilterText, { color: 'white' }]}>
-              Clear Filter
+              {t('component_history_header_clear_filter')}
             </Text>
           </TouchableOpacity>
         )}
@@ -56,7 +66,7 @@ const HistoryHeader = ({
                 { color: currentTheme.primaryColor },
               ]}
             >
-              Clear
+              {t('component_history_header_clear_history')}
             </Text>
           </TouchableOpacity>
         )}

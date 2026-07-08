@@ -27,28 +27,15 @@ The goal is to give you a better reading experience on your phone with features 
 - **Category management** - Organize your stories however you want (without paying for it)
 - **History with filters** - Find works you've read by date
 - **Completely free** - No subscriptions, no ads, ever
-
-## Planned features:
-- ~~Update notifications when new chapters come out~~ (Done !)
-- ~~Bookmarks~~ (Done !)
-- ~~View and read comments~~ (Done !)
-- ~~User profile pages~~ (Done !)
-- ~~Statistics screen~~ (Done !)
-- ~~Download works to read offline~~ (Done !)
+- **Auto Updates** - Automatically fetch and notify you of update on your saved works
+- **Statistics** - See what are you favorite tags and authors, how many works you started and how many chapter you've read
+- **Enhanced downloads** - Enable full work-style download support, with multiple auto-download features
 
 > [!NOTE]
 > Need help or want to chat? Join our [Discord](https://discord.gg/3wMGWu2xMF).
 
 # Download
 We recommend you use F-Droid to install the client, this will allow for auto-updates and alert you if any vulnerabilities are found.
-
-You can get releases [here](https://github.com/tbvns/CO3/releases). </br>
-You can get android dev builds [here](https://github.com/tbvns/CO3/actions/workflows/android-build.yml). </br>
-You can get IOS dev builds [here](https://github.com/tbvns/CO3/actions/workflows/ios-build.yml).
-
-> [!CAUTION]
-> ~~iOS builds are currently untested since none of the contributors have iOS devices. If you’re on iOS, we’d really appreciate any bug reports you can share.
-> It is possible that they don't even launch, we really have no idea.~~ Some user reported the app working, athough we don't know how true that is and what remains to be fixed.
 
 <p align="center">
   <a href="https://f-droid.org/packages/com.co3/">
@@ -58,6 +45,13 @@ You can get IOS dev builds [here](https://github.com/tbvns/CO3/actions/workflows
     <img src="https://user-images.githubusercontent.com/663460/26973090-f8fdc986-4d14-11e7-995a-e7c5e79ed925.png" alt="Get CO3 APK from GitHub" width="220" />
   </a>
 </p>
+
+> [!CAUTION]
+> Since the dev team doesn't own any Apple device, we are not able to provide proper testing to the platform. Hence, we would really appreciate any feedback for this platform. Some unexpected bug and crashes can appear on this platform, but multiple users reported it working properly.
+
+You can get releases [here](https://github.com/tbvns/CO3/releases). </br>
+You can get android dev builds [here](https://github.com/tbvns/CO3/actions/workflows/android-build.yml). </br>
+You can get IOS dev builds [here](https://github.com/tbvns/CO3/actions/workflows/ios-build.yml).
 
 # Logo and name usage
 The name "CO3" or "Client Of Our Own" and the project logo are copyright © Tbvns and are not covered by the GPL license. You may not publish this application or any derivative under the same name or logo on the Google Play Store, Apple App Store, or any other proprietary app store. Redistribution via F-Droid or direct APK sideloading is permitted.

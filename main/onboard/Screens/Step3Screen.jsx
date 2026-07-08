@@ -1,28 +1,44 @@
-import { View, Text, StyleSheet, TouchableOpacity, Linking, ScrollView } from 'react-native';
+// Step3Screen.jsx – Theme selection (moved from step3)
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTranslation } from 'react-i18next';
 
-const SUPPORT_ITEMS = [
+const THEMES = [
   {
-    key: 'ao3',
-    label: 'Archive of Our Own',
-    description: 'AO3 is a non-profit run by fans, for fans. Donations keep the servers running for everyone.',
-    url: 'https://archiveofourown.org/donate',
-    color: '#22c55e',
-    icon: 'favorite',
-    cta: 'Donate to AO3',
+    key: 'light',
+    label: 'light',
+    icon: 'wb-sunny',
+    bg: '#ffffff',
+    text: '#111827',
+    preview: ['#ffffff', '#f3f4f6', '#e5e7eb'],
   },
   {
-    key: 'co3',
-    label: 'CO3 Development',
-    description: 'CO3 is built and maintained in spare time. Any support helps keep new features coming.',
-    url: 'https://ko-fi.com/tbvns',
-    color: '#6366f1',
-    icon: 'coffee',
-    cta: 'Buy me a coffee',
+    key: 'dark',
+    label: 'dark',
+    icon: 'brightness-3',
+    bg: '#1f2937',
+    text: '#f3f4f6',
+    preview: ['#1f2937', '#374151', '#4b5563'],
+  },
+  {
+    key: 'black',
+    label: 'black',
+    icon: 'brightness-1',
+    bg: '#000000',
+    text: '#f9fafb',
+    preview: ['#000000', '#111111', '#1a1a1a'],
   },
 ];
 
-export default function Step3({ currentTheme, setScreen, onFinish }) {
+export default function Step3({ currentTheme, setScreen, theme, setTheme }) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -30,44 +46,59 @@ export default function Step3({ currentTheme, setScreen, onFinish }) {
         showsVerticalScrollIndicator={false}
         bounces={true}
       >
-        <View style={[styles.iconCircle, { backgroundColor: currentTheme.inputBackground }]}>
-          <Icon name="volunteer-activism" size={36} color={currentTheme.primaryColor} />
-        </View>
-
         <Text style={[styles.heading, { color: currentTheme.textColor }]}>
-          Support the ecosystem
+          {t('onboard_step3_title')}
         </Text>
         <Text style={[styles.subheading, { color: currentTheme.secondaryTextColor }]}>
-          CO3 will always be 100% free. But if you'd like to give back, here's how:
+          {t('onboard_step3_sub')}
         </Text>
 
-        <View style={styles.cardList}>
-          {SUPPORT_ITEMS.map(item => (
-            <View
-              key={item.key}
-              style={[styles.card, { backgroundColor: currentTheme.cardBackground, borderColor: currentTheme.borderColor }]}
-            >
-              <View style={[styles.cardIconWrap, { backgroundColor: item.color + '22' }]}>
-                <Icon name={item.icon} size={22} color={item.color} />
-              </View>
-              <View style={styles.cardBody}>
-                <Text style={[styles.cardTitle, { color: currentTheme.textColor }]}>
-                  {item.label}
-                </Text>
-                <Text style={[styles.cardDesc, { color: currentTheme.secondaryTextColor }]}>
-                  {item.description}
-                </Text>
-                <TouchableOpacity
-                  style={[styles.ctaButton, { backgroundColor: item.color }]}
-                  onPress={() => Linking.openURL(item.url)}
-                  activeOpacity={0.85}
-                >
-                  <Icon name="open-in-new" size={14} color="#fff" />
-                  <Text style={styles.ctaText}>{item.cta}</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
+        <View style={styles.themeList}>
+          {THEMES.map(themeItem => {
+            const isActive = theme === themeItem.key;
+            return (
+              <TouchableOpacity
+                key={themeItem.key}
+                style={[
+                  styles.themeCard,
+                  {
+                    backgroundColor: themeItem.bg,
+                    borderColor: isActive ? currentTheme.primaryColor : currentTheme.borderColor,
+                    borderWidth: isActive ? 2 : 1,
+                  },
+                ]}
+                onPress={() => setTheme(themeItem.key)}
+                activeOpacity={0.85}
+              >
+                <View style={styles.previewStrips}>
+                  {themeItem.preview.map((color, i) => (
+                    <View
+                      key={i}
+                      style={[styles.strip, { backgroundColor: color, opacity: 1 - i * 0.15 }]}
+                    />
+                  ))}
+                </View>
+                <View style={styles.themeCardBottom}>
+                  <Icon name={themeItem.icon} size={18} color={themeItem.text} />
+                  <Text style={[styles.themeLabel, { color: themeItem.text }]}>
+                    {t('screen_preferences_label_theme_' + themeItem.label)}
+                  </Text>
+                  {isActive && (
+                    <View style={[styles.activeBadge, { backgroundColor: currentTheme.primaryColor }]}>
+                      <Icon name="check" size={12} color="#fff" />
+                    </View>
+                  )}
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <View style={[styles.infoBox, { backgroundColor: currentTheme.inputBackground, borderColor: currentTheme.borderColor }]}>
+          <Icon name="tune" size={16} color={currentTheme.secondaryTextColor} />
+          <Text style={[styles.infoText, { color: currentTheme.secondaryTextColor }]}>
+            {t('onboard_step3_info_text')}
+          </Text>
         </View>
       </ScrollView>
 
@@ -82,11 +113,10 @@ export default function Step3({ currentTheme, setScreen, onFinish }) {
 
         <TouchableOpacity
           style={[styles.nextButton, { backgroundColor: currentTheme.primaryColor }]}
-          onPress={onFinish}
+          onPress={() => setScreen(prev => prev + 1)}
           activeOpacity={0.85}
         >
-          <Text style={styles.nextButtonText}>Start reading</Text>
-          <Icon name="arrow-forward" size={18} color="#fff" />
+          <Text style={styles.nextButtonText}>{t('onboard_step3_button')}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -94,22 +124,12 @@ export default function Step3({ currentTheme, setScreen, onFinish }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   scrollContent: {
     paddingHorizontal: 32,
     paddingTop: 48,
     paddingBottom: 24,
     flexGrow: 1,
-  },
-  iconCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 24,
   },
   heading: {
     fontSize: 28,
@@ -120,52 +140,60 @@ const styles = StyleSheet.create({
   subheading: {
     fontSize: 15,
     lineHeight: 22,
-    marginBottom: 28,
+    marginBottom: 32,
   },
-  cardList: {
-    gap: 14,
-  },
-  card: {
-    borderRadius: 16,
-    borderWidth: 1,
-    padding: 16,
+  themeList: {
     flexDirection: 'row',
-    gap: 14,
+    gap: 12,
+    marginBottom: 20,
   },
-  cardIconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  cardBody: {
+  themeCard: {
     flex: 1,
-    gap: 6,
+    borderRadius: 14,
+    overflow: 'hidden',
+    height: 120,
+    justifyContent: 'space-between',
   },
-  cardTitle: {
-    fontSize: 15,
-    fontWeight: '700',
+  previewStrips: {
+    flex: 1,
+    padding: 10,
+    gap: 5,
   },
-  cardDesc: {
-    fontSize: 13,
-    lineHeight: 19,
+  strip: {
+    height: 8,
+    borderRadius: 4,
   },
-  ctaButton: {
+  themeCardBottom: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingBottom: 10,
     gap: 6,
-    alignSelf: 'flex-start',
-    paddingVertical: 7,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    marginTop: 4,
   },
-  ctaText: {
-    color: '#fff',
+  themeLabel: {
     fontSize: 13,
     fontWeight: '600',
+    flex: 1,
+  },
+  activeBadge: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  infoBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  infoText: {
+    fontSize: 13,
+    lineHeight: 20,
+    flex: 1,
   },
   navRow: {
     flexDirection: 'row',
@@ -187,10 +215,8 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 52,
     borderRadius: 14,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
   },
   nextButtonText: {
     color: '#ffffff',

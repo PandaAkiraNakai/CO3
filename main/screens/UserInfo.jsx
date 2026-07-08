@@ -10,27 +10,34 @@ import {
 } from 'react-native';
 import { getUserInfo, getUserInfoByPseud } from '../web/user/getUserInfo';
 import { useEffect, useState } from 'react';
-
-import RenderHtml from 'react-native-render-html';
 import HtmlTextRenderer from '../components/common/HtmlTextRenderer';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import BookmarksScreen from './more/BookmarksScreen';
 import UserWorkScreen from './more/UserWorkScreen';
 import LoadingSpinner from '../components/History/Spinner';
+import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
 
 export default function UserInfoScreen({
-                                         currentTheme,
-                                         username,
-                                         onBack,
-                                         setScreens,
-                                         workDAO,
-                                         libraryDAO,
-                                         historyDAO,
-                                         settingsDAO,
-                                         progressDAO,
-                                         kudoHistoryDAO,
-                                         chapterDAO,
-                                       }) {
+  route
+}) {
+  const {
+    currentTheme,
+    username,
+    onBack,
+    setScreens,
+    workDAO,
+    libraryDAO,
+    historyDAO,
+    settingsDAO,
+    progressDAO,
+    kudoHistoryDAO,
+    chapterDAO,
+  } = route.params;
+
+  const navigation = useNavigation();
+
+  const { t } = useTranslation();
   const [userInfo, setUserInfo] = useState();
   const [error, setError] = useState(false);
   const [properUsername, setProperUsername] = useState();
@@ -61,11 +68,11 @@ export default function UserInfoScreen({
       ? getUserInfoByPseud(parsedUsername, parsedPseud)
       : getUserInfo(parsedUsername);
     fetch
-      .then((data) => {
+      .then(data => {
         const bioHtml = data.bio ? data.bio.toString() : undefined;
         setUserInfo({ ...data, bio: bioHtml });
       })
-      .catch((err) => {
+      .catch(err => {
         console.error(err);
         setError(true);
       });
@@ -87,7 +94,7 @@ export default function UserInfoScreen({
               color={currentTheme.iconColor}
             />
             <Text style={[styles.errorText, { color: currentTheme.textColor }]}>
-              Failed to load user data
+              {t('screen_user_profile_error_load')}
             </Text>
             <TouchableOpacity
               style={[
@@ -96,19 +103,20 @@ export default function UserInfoScreen({
               ]}
               onPress={loadUserInfo}
             >
-              <Text style={styles.retryButtonText}>Retry</Text>
+              <Text style={styles.retryButtonText}>{t('general_retry')}</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
       );
     }
 
-    if (!userInfo) return (
-      <LoadingSpinner
-        currentTheme={currentTheme}
-        message="Loading profile..."
-      />
-    );
+    if (!userInfo)
+      return (
+        <LoadingSpinner
+          currentTheme={currentTheme}
+          message={t('screen_user_profile_loading')}
+        />
+      );
 
     return (
       <SafeAreaView>
@@ -117,7 +125,7 @@ export default function UserInfoScreen({
             <Icon name="arrow-back" size={24} color={currentTheme.textColor} />
           </TouchableOpacity>
           <Text style={[styles.title, { color: currentTheme.textColor }]}>
-            User profile
+            {t('screen_user_profile_title')}
           </Text>
         </View>
         <ScrollView>
@@ -127,94 +135,156 @@ export default function UserInfoScreen({
                 <View style={styles.profileHeader}>
                   <Image
                     source={{ uri: userInfo.avatarUrl }}
-                    style={[styles.icon, { borderColor: currentTheme.borderColor, marginBottom: 0 }]}
+                    style={[
+                      styles.icon,
+                      {
+                        borderColor: currentTheme.borderColor,
+                        marginBottom: 0,
+                      },
+                    ]}
                   />
                   <View style={styles.userDetails}>
-                    <Text style={[styles.username, { color: currentTheme.textColor }]}>
+                    <Text
+                      style={[
+                        styles.username,
+                        { color: currentTheme.textColor },
+                      ]}
+                    >
                       {properPseud ? properPseud : properUsername}
                     </Text>
-                    {userInfo.joinDate &&
-                      <Text style={[styles.joinDate, { color: currentTheme.secondaryTextColor }]}>
-                        Joined: {userInfo.joinDate}
+                    {userInfo.joinDate && (
+                      <Text
+                        style={[
+                          styles.joinDate,
+                          { color: currentTheme.secondaryTextColor },
+                        ]}
+                      >
+                        {t('screen_user_profile_joined', {
+                          date: userInfo.joinDate,
+                        })}
                       </Text>
-                    }
-                    {properPseud &&
-                      <TouchableOpacity onPress={() => {
-                        setScreens(p => [...p, <UserInfoScreen
-                          username={properUsername}
-                          currentTheme={currentTheme}
-                          onBack={onBack}
-                          setScreens={setScreens}
-                          workDAO={workDAO}
-                          libraryDAO={libraryDAO}
-                          historyDAO={historyDAO}
-                          chapterDAO={chapterDAO}
-                          progressDAO={progressDAO}
-                          kudoHistoryDAO={kudoHistoryDAO}
-                        />])
-                      }}>
-                        <Text style={[styles.joinDate, { color: currentTheme.secondaryTextColor }]}>
-                          Pseud of {properUsername}
+                    )}
+                    {properPseud && (
+                      <TouchableOpacity
+                        onPress={() => {
+                          navigation.push("User", {
+                            username: properUsername,
+                            currentTheme: currentTheme,
+                            onBack: onBack,
+                            setScreens: setScreens,
+                            workDAO: workDAO,
+                            libraryDAO: libraryDAO,
+                            historyDAO: historyDAO,
+                            chapterDAO: chapterDAO,
+                            progressDAO: progressDAO,
+                            kudoHistoryDAO: kudoHistoryDAO,
+                          })
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.joinDate,
+                            { color: currentTheme.secondaryTextColor },
+                          ]}
+                        >
+                          {t('screen_user_profile_pseud_of', {
+                            username: properUsername,
+                          })}
                         </Text>
                       </TouchableOpacity>
-                    }
+                    )}
                   </View>
                 </View>
 
-                {userInfo.bio &&
+                {userInfo.bio && (
                   <>
-                    <Text style={[styles.subTitle, { color: currentTheme.textColor }]}>
-                      Bio
+                    <Text
+                      style={[
+                        styles.subTitle,
+                        { color: currentTheme.textColor },
+                      ]}
+                    >
+                      {t('screen_user_profile_bio')}
                     </Text>
                     <HtmlTextRenderer
                       html={userInfo.bio}
                       currentTheme={currentTheme}
                     />
                   </>
-                }
+                )}
               </View>
 
-              <TouchableOpacity style={[styles.bookMarkButton, {borderColor: currentTheme.borderColor }]}
-                                onPress={() => {
-                                  setScreens(p => [...p, <BookmarksScreen
-                                      setScreens={setScreens}
-                                      historyDAO={historyDAO}
-                                      settingsDAO={settingsDAO}
-                                      progressDAO={progressDAO}
-                                      workDAO={workDAO}
-                                      libraryDAO={libraryDAO}
-                                      kudoHistoryDAO={kudoHistoryDAO}
-                                      currentTheme={currentTheme}
-                                      username={properUsername}
-                                      chapterDAO={chapterDAO}
-                                      pseud={properPseud}
-                                  />])
-                                }}>
-                <Text style={[styles.bookMarkButtonText, { color: currentTheme.textColor, }]}>
-                  {"Bookmark"}
+              <TouchableOpacity
+                style={[
+                  styles.bookMarkButton,
+                  { borderColor: currentTheme.borderColor },
+                ]}
+                onPress={() => {
+                  navigation.push("Bookmarks", {
+                    setScreens: setScreens,
+                    historyDAO: historyDAO,
+                    settingsDAO: settingsDAO,
+                    progressDAO: progressDAO,
+                    workDAO: workDAO,
+                    libraryDAO: libraryDAO,
+                    kudoHistoryDAO: kudoHistoryDAO,
+                    currentTheme: currentTheme,
+                    username: properUsername,
+                    chapterDAO: chapterDAO,
+                    pseud: properPseud,
+                  });
+                }}
+              >
+                <Text
+                  style={[
+                    styles.bookMarkButtonText,
+                    { color: currentTheme.textColor },
+                  ]}
+                >
+                  {t('screen_user_profile_bookmark_button')}
                 </Text>
-                <Icon name={"chevron-right"} size={24} color={currentTheme.iconColor} style={[{}]} />
+                <Icon
+                  name={'chevron-right'}
+                  size={24}
+                  color={currentTheme.iconColor}
+                  style={[{}]}
+                />
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.workButton, {borderColor: currentTheme.borderColor }]}
-                                onPress={() => {
-                                  setScreens(p => [...p, <UserWorkScreen
-                                    setScreens={setScreens}
-                                    historyDAO={historyDAO}
-                                    settingsDAO={settingsDAO}
-                                    progressDAO={progressDAO}
-                                    workDAO={workDAO}
-                                    libraryDAO={libraryDAO}
-                                    kudoHistoryDAO={kudoHistoryDAO}
-                                    currentTheme={currentTheme}
-                                    username={properUsername}
-                                    chapterDAO={chapterDAO}
-                                    pseud={properPseud}
-                                  />])
-                                }}>
-                <Text style={[styles.bookMarkButtonText, { color: currentTheme.textColor, }]}>
-                  {"Works"}
+              <TouchableOpacity
+                style={[
+                  styles.workButton,
+                  { borderColor: currentTheme.borderColor },
+                ]}
+                onPress={() => {
+                  navigation.push("UserWork", {
+                    setScreens: setScreens,
+                    historyDAO: historyDAO,
+                    settingsDAO: settingsDAO,
+                    progressDAO: progressDAO,
+                    workDAO: workDAO,
+                    libraryDAO: libraryDAO,
+                    kudoHistoryDAO: kudoHistoryDAO,
+                    currentTheme: currentTheme,
+                    username: properUsername,
+                    chapterDAO: chapterDAO,
+                    pseud: properPseud,
+                  })
+                }}
+              >
+                <Text
+                  style={[
+                    styles.bookMarkButtonText,
+                    { color: currentTheme.textColor },
+                  ]}
+                >
+                  {t('screen_user_profile_works_button')}
                 </Text>
-                <Icon name={"chevron-right"} size={24} color={currentTheme.iconColor} style={[{}]} />
+                <Icon
+                  name={'chevron-right'}
+                  size={24}
+                  color={currentTheme.iconColor}
+                  style={[{}]}
+                />
               </TouchableOpacity>
             </>
           ) : (
@@ -226,7 +296,12 @@ export default function UserInfoScreen({
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: currentTheme.backgroundColor },
+      ]}
+    >
       {userHeader()}
     </View>
   );
