@@ -17,19 +17,7 @@ import { fetchUserWorks } from '../../web/user/userWorks';
 import EmptyState from '../../components/History/Empty';
 import { useNavigation } from '@react-navigation/native';
 
-export default function UserWorkScreen({
-  setScreens,
-  currentTheme,
-  workDAO,
-  libraryDAO,
-  historyDAO,
-  settingsDAO,
-  progressDAO,
-  kudoHistoryDAO,
-  username,
-  chapterDAO,
-  pseud,
-}) {
+export default function UserWorkScreen({ route }) {
   const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -39,6 +27,20 @@ export default function UserWorkScreen({
   const [viewMode, setViewMode] = useState('med');
 
   const PAGE_SIZE = 20;
+
+  const {
+    setScreens,
+    currentTheme,
+    workDAO,
+    libraryDAO,
+    historyDAO,
+    settingsDAO,
+    progressDAO,
+    kudoHistoryDAO,
+    username,
+    chapterDAO,
+    pseud,
+  } = route.params;
 
   useEffect(() => {
     loadInitialUserWork();
