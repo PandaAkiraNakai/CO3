@@ -86,8 +86,7 @@ export default function ReadLaterScreen({
     const username = await getUsername();
     if (!username) {
       setError({
-        message:
-          'Please log in to see works marked as Read Later on your account.',
+        message: t('screen_bookmarks_error_not_logged_in'),
       });
       setLoading(false);
       return;
@@ -208,7 +207,7 @@ export default function ReadLaterScreen({
     );
   };
 
-  const rennderError = () => {
+  const renderError = () => {
     return (
       <View
         style={[
@@ -269,7 +268,7 @@ export default function ReadLaterScreen({
       {renderHeader()}
 
       {error ? (
-        rennderError()
+        renderError()
       ) : entries.length === 0 ? (
         <EmptyState
           currentTheme={currentTheme}
@@ -361,6 +360,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
+    textAlign: 'center',
   },
   errorMessage: {
     fontSize: 14,

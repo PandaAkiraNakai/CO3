@@ -271,7 +271,7 @@ const MoreScreen = ({
         <Text
           style={[styles.subtitle, { color: currentTheme.placeholderColor }]}
         >
-          {t('Additional settings and features')}
+          {t('screen_more_subtitle')}
         </Text>
 
         <View style={styles.menuContainer}>

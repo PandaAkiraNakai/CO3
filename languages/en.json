@@ -95,6 +95,7 @@
   "screen_browse_error": "Failed to Load Works",
 
 
+  "screen_history_title": "Reading History",
   "screen_history_clear_title": "Clear History",
   "screen_history_clear_text": "Are you sure you want to clear all reading history?",
   "screen_history_clear_button": "Clear",
@@ -171,6 +172,8 @@
   "screen_account_text": "Login with your AO3 account",
   "screen_account_username": "Username",
   "screen_account_password": "Password",
+  "screen_account_forgot_password": "Forgot password?",
+  "screen_account_get_invited": "Get invited",
   "screen_account_remember_password": "Remember my password",
   "screen_account_remember_password_modal_title": "Remember Password",
   "screen_account_remember_password_modal_text": "When enabled, we securely store your username and password using your device's biometric authentication or passcode. This allows us to automatically re-login in the background if your session expires, without interrupting your reading experience. Your login information is encrypted and never sent to external servers, only stored securely on your device.",
@@ -193,10 +196,10 @@
   "screen_kudos_history_clear_title": "Clear Kudos History",
   "screen_kudos_history_clear_message": "Are you sure you want to clear all kudos history?",
   "screen_kudos_history_loading": "Loading kudos history...",
-  "screen_kudos_history_no_entries_filter": "No entries found.",
-  "screen_kudos_history_no_entries_filter_sub": "There are no entries matching the filter.",
-  "screen_kudos_history_no_entries": "No kudos history yet.",
-  "screen_kudos_history_no_entries_sub": "Kudoed work will appear here.",
+  "screen_kudos_history_no_entries_filter": "No entries found",
+  "screen_kudos_history_no_entries_filter_sub": "There are no entries matching the filter",
+  "screen_kudos_history_no_entries": "No kudos history yet",
+  "screen_kudos_history_no_entries_sub": "Kudoed work will appear here",
 
 
   "screen_bookmarks_title": "Bookmarks",
@@ -466,11 +469,15 @@
   "component_calendar_apply": "Apply Filter",
   "component_calendar_show_all": "Show All",
 
-  "component_empty_title": "No reading history for selected dates",
-  "component_empty_sub": "Try selecting different dates",
+  "component_empty_title": "No reading history yet",
+  "component_empty_sub": "Start reading to see your progress here",
+  "component_empty_for_range_title": "No reading history for selected dates",
+  "component_empty_for_range_sub": "Try selecting different dates",
 
-  "component_history_header_count_filtered": "{{totalCount}} entries in selected date range",
-  "component_history_header_count": "{{totalCount}} total entries",
+  "component_history_header_count_filtered": "{{totalCount}} entry in selected date range",
+  "component_history_header_count": "{{totalCount}} total entry",
+  "component_history_header_count_filtered_plural": "{{totalCount}} entries in selected date range",
+  "component_history_header_count_plural": "{{totalCount}} total entries",
   "component_history_header_clear_filter": "Clear Filter",
   "component_history_header_clear_history": "Clear",
 

@@ -319,7 +319,7 @@ export default function CategoryScreen({
       <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
         <TouchableOpacity style={styles.addButton} onPress={addCategories}>
           <Icon name="add" size={24} color="white" />
-          <Text style={styles.addButtonText}>Add Category</Text>
+          <Text style={styles.addButtonText}>{t('screen_category_new_category')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

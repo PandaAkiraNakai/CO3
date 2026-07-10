@@ -495,7 +495,7 @@ const LoginScreen = ({ route }) => {
                     { color: currentTheme.primaryColor },
                   ]}
                 >
-                  Forgot password?
+                  {t('screen_account_forgot_password')}
                 </Text>
               </TouchableOpacity>
 
@@ -509,7 +509,7 @@ const LoginScreen = ({ route }) => {
                     { color: currentTheme.primaryColor },
                   ]}
                 >
-                  Get invited
+                  {t('screen_account_get_invited')}
                 </Text>
               </TouchableOpacity>
             </View>
