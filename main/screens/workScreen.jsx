@@ -1044,7 +1044,7 @@ const ChapterInfoScreen = ({ route }) => {
       </Text>
       <TouchableOpacity
         onPress={() => {
-          navigation.push("Work", {
+          navigation.push("User", {
             username: work?.author,
             currentTheme: currentTheme,
             setScreens: setScreens,
@@ -1098,6 +1098,13 @@ const ChapterInfoScreen = ({ route }) => {
   if (error) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
+        <View style={[styles.header, { borderBottomColor: currentTheme.borderColor }]}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Icon name="arrow-back" size={24} color={currentTheme.textColor} />
+          </TouchableOpacity>
+          <Text style={[styles.title, { color: currentTheme.textColor }]}>{t("general_error")}</Text>
+        </View>
+
         <View style={styles.errorContainer}>
           <Icon name="error-outline" size={48} color={currentTheme.iconColor} />
           <Text style={[styles.errorText, { color: currentTheme.textColor }]}>
@@ -1680,6 +1687,11 @@ const styles = StyleSheet.create({
   nativeCancelText: {
     fontSize: 15,
     fontWeight: '500',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginLeft: 16,
   },
 });
 

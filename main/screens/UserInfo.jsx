@@ -87,6 +87,13 @@ export default function UserInfoScreen({
             { backgroundColor: currentTheme.backgroundColor },
           ]}
         >
+          <View style={[styles.header, { borderBottomColor: currentTheme.borderColor }]}>
+            <TouchableOpacity onPress={onBack} style={styles.backButton}>
+              <Icon name="arrow-back" size={24} color={currentTheme.textColor} />
+            </TouchableOpacity>
+            <Text style={[styles.title, { color: currentTheme.textColor }]}>{t("general_error")}</Text>
+          </View>
+
           <View style={styles.errorContainer}>
             <Icon
               name="error-outline"
@@ -337,6 +344,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     paddingBottom: 10,
+    borderBottomWidth: 1,
   },
   title: {
     fontSize: 24,
