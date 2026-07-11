@@ -17,6 +17,7 @@ import { getUsername } from '../../storage/Credentials';
 import EmptyState from '../../components/History/Empty';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function BookmarksScreen({
   route
@@ -273,7 +274,7 @@ export default function BookmarksScreen({
   }
 
   return (
-    <View
+    <SafeAreaView
       style={[
         styles.container,
         { backgroundColor: currentTheme.backgroundColor },
@@ -312,7 +313,7 @@ export default function BookmarksScreen({
           updateCellsBatchingPeriod={50}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 

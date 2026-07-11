@@ -17,6 +17,7 @@ import LoadingSpinner from '../../components/History/Spinner';
 import KudoHistoryList from '../../components/History/KudoList';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const KudoHistoryScreen = ({
   route
@@ -314,7 +315,7 @@ const KudoHistoryScreen = ({
   }
 
   return (
-    <View
+    <SafeAreaView
       style={[
         styles.container,
         { backgroundColor: currentTheme.backgroundColor },
@@ -407,7 +408,7 @@ const KudoHistoryScreen = ({
         onDateRangeChange={setDateRange}
         onApplyFilter={applyDateFilter}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -445,6 +446,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     paddingBottom: 10,
+    paddingTop: 10,
   },
   title: {
     fontSize: 24,

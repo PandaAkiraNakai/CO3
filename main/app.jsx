@@ -605,8 +605,10 @@ const App = () => {
 
   const openTagSearch = (tag) => {
     setSelectedTag(tag);
-    setActiveScreen("browse")
-    navigation.reset()
+    if (navigation.canGoBack()) {
+      navigation.popToTop();
+    }
+    setActiveScreen("browse");
   }
 
   const renderScreen = () => {

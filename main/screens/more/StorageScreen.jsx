@@ -1,5 +1,4 @@
 import {
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,6 +11,7 @@ import { exportDb } from '../../storage/DatabaseManager';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import CustomToast from '../../components/common/CustomToast';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function StorageScreen({
   route

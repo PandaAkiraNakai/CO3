@@ -11,7 +11,7 @@ class LibraryHeadlessService : HeadlessJsTaskService() {
         return HeadlessJsTaskConfig(
             "LibraryUpdate",
             Arguments.createMap(),
-            0,
+            120000,
             false
         )
     }

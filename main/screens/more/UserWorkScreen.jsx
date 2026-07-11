@@ -16,20 +16,9 @@ import { getUsername } from '../../storage/Credentials';
 import { fetchUserWorks } from '../../web/user/userWorks';
 import EmptyState from '../../components/History/Empty';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function UserWorkScreen({
-  setScreens,
-  currentTheme,
-  workDAO,
-  libraryDAO,
-  historyDAO,
-  settingsDAO,
-  progressDAO,
-  kudoHistoryDAO,
-  username,
-  chapterDAO,
-  pseud,
-}) {
+export default function UserWorkScreen({ route }) {
   const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -39,6 +28,20 @@ export default function UserWorkScreen({
   const [viewMode, setViewMode] = useState('med');
 
   const PAGE_SIZE = 20;
+
+  const {
+    setScreens,
+    currentTheme,
+    workDAO,
+    libraryDAO,
+    historyDAO,
+    settingsDAO,
+    progressDAO,
+    kudoHistoryDAO,
+    username,
+    chapterDAO,
+    pseud,
+  } = route.params;
 
   useEffect(() => {
     loadInitialUserWork();
@@ -207,44 +210,46 @@ export default function UserWorkScreen({
   }
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: currentTheme.backgroundColor },
-      ]}
-    >
-      {renderHeader()}
+    <SafeAreaView>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: currentTheme.backgroundColor },
+        ]}
+      >
+        {renderHeader()}
 
-      {bookmarks.length === 0 ? (
-        <EmptyState
-          currentTheme={currentTheme}
-          textLine1={'No works.'}
-          textLine2={"It seems like this user doesn't have any works."}
-        />
-      ) : (
-        <FlatList
-          data={bookmarks}
-          renderItem={renderWork}
-          keyExtractor={(item, index) => `${item.id || index}`}
-          onEndReached={loadMoreWorks}
-          onEndReachedThreshold={0.1}
-          ListFooterComponent={renderFooter}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={[currentTheme.primaryColor]}
-              tintColor={currentTheme.primaryColor}
-            />
-          }
-          contentContainerStyle={styles.contentContainer}
-          scrollEventThrottle={16}
-          removeClippedSubviews={true}
-          maxToRenderPerBatch={10}
-          updateCellsBatchingPeriod={50}
-        />
-      )}
-    </View>
+        {bookmarks.length === 0 ? (
+          <EmptyState
+            currentTheme={currentTheme}
+            textLine1={'No works.'}
+            textLine2={"It seems like this user doesn't have any works."}
+          />
+        ) : (
+          <FlatList
+            data={bookmarks}
+            renderItem={renderWork}
+            keyExtractor={(item, index) => `${item.id || index}`}
+            onEndReached={loadMoreWorks}
+            onEndReachedThreshold={0.1}
+            ListFooterComponent={renderFooter}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[currentTheme.primaryColor]}
+                tintColor={currentTheme.primaryColor}
+              />
+            }
+            contentContainerStyle={styles.contentContainer}
+            scrollEventThrottle={16}
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={10}
+            updateCellsBatchingPeriod={50}
+          />
+        )}
+      </View>
+    </SafeAreaView>
   );
 }
 

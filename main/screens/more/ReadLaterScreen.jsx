@@ -17,6 +17,7 @@ import { fetchMarkedLater } from '../../web/other/markedLater';
 import EmptyState from '../../components/History/Empty';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ReadLaterScreen({
   route
@@ -259,7 +260,7 @@ export default function ReadLaterScreen({
   }
 
   return (
-    <View
+    <SafeAreaView
       style={[
         styles.container,
         { backgroundColor: currentTheme.backgroundColor },
@@ -298,7 +299,7 @@ export default function ReadLaterScreen({
           updateCellsBatchingPeriod={50}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
