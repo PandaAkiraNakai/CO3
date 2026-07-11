@@ -7,6 +7,7 @@ import { Update } from '../storage/models/update';
 import notifee, {
   AndroidImportance,
   AndroidStyle,
+  AndroidForegroundServiceType,
   EventType,
 } from 'react-native-notify-kit';
 import { getJsonSettings } from '../storage/jsonSettings';
@@ -18,6 +19,10 @@ if (Platform.OS === 'android') {
   AppRegistry.registerHeadlessTask('LibraryUpdate', () => async () => {
     await run();
   });
+  notifee.registerForegroundService(
+    () =>
+      new Promise(() => {/*Never actually resolve*/}),
+  );
 }
 
 const getMergedIconName = work => {
@@ -128,6 +133,18 @@ export const run = async () => {
   const useCompactNotification = settings.compactNotifications;
 
   try {
+    await runUpdate(useCompactNotification);
+  } finally {
+    try {
+      await notifee.stopForegroundService();
+    } catch (stopError) {
+      console.log('[LibraryScheduler] Failed to stop foreground service:', stopError);
+    }
+  }
+};
+
+const runUpdate = async useCompactNotification => {
+  try {
     const channelId = await notifee.createChannel({
       id: 'updateWorks',
       name: 'Library Updates',
@@ -158,6 +175,10 @@ export const run = async () => {
         progress: { max: toUpdate.length, current: 0, indeterminate: false },
         onlyAlertOnce: true,
         ongoing: true,
+        asForegroundService: true,
+        foregroundServiceTypes: [
+          AndroidForegroundServiceType.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
+        ],
       },
     });
 
@@ -180,6 +201,10 @@ export const run = async () => {
           progress: { max: toUpdate.length, current: i },
           onlyAlertOnce: true,
           ongoing: true,
+          asForegroundService: true,
+          foregroundServiceTypes: [
+            AndroidForegroundServiceType.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
+          ],
         },
       });
 

@@ -1,4 +1,3 @@
-// UpdateWorker.kt
 package com.co3
 
 import android.content.Context

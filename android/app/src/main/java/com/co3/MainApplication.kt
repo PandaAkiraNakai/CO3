@@ -1,6 +1,7 @@
 package com.co3
 
 import android.app.Application
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
@@ -33,6 +34,7 @@ class MainApplication : Application(), ReactApplication {
 
   override fun onCreate() {
     super.onCreate()
+    ProcessLifecycleOwner.get().lifecycle.addObserver(AppForegroundTracker)
     loadReactNative(this)
   }
 }
