@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   Linking,
   Modal,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -26,6 +25,7 @@ import {
 import CustomAlert from '../../components/CustomAlert';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const LoginScreen = ({ route }) => {
   const { currentTheme, setScreens } = route.params;
@@ -695,6 +695,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 20,
+    paddingTop: 10,
     paddingBottom: 10,
   },
   title_top: {

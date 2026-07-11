@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Switch,
@@ -28,6 +27,7 @@ import {
   changeLanguage,
 } from '../../storage/LanguageManager';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PreferencesScreen = ({
   route
@@ -979,6 +979,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     paddingBottom: 10,
+    paddingTop: 10,
     borderBottomWidth: 1,
   },
   title: {

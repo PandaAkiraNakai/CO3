@@ -13,7 +13,6 @@ import {
   Modal,
   Pressable,
   RefreshControl,
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
@@ -48,6 +47,7 @@ import { WorkDescription } from '../components/WorkScreen/DescriptionComponent';
 import RNFS from 'react-native-fs';
 import { useTranslation } from 'react-i18next';
 import { StackActions, useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const NATIVE_DOWNLOAD_FORMATS = ['azw3', 'epub', 'mobi', 'pdf', 'html'];
 

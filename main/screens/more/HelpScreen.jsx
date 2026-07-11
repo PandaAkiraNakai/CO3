@@ -1,7 +1,6 @@
 import {
   Image,
   Linking,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +10,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HelpScreen({ route }) {
   const {setScreens, currentTheme} = route.params;
@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     paddingBottom: 10,
+    paddingTop: 10,
   },
   title: {
     fontSize: 24,

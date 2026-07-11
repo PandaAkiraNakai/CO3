@@ -1,6 +1,5 @@
 import {
   ActivityIndicator,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,6 +12,7 @@ import * as Stats from '../../storage/Stats';
 import UserInfoScreen from '../UserInfo';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 function StatCard({ icon, label, value, currentTheme, accent }) {
   const isLoading = value === undefined || value === null;

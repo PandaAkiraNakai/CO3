@@ -1,7 +1,6 @@
 import {
   Image,
   Linking,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,6 +12,7 @@ import { co3Version } from '../../constant';
 import DebugScreen from './DebugScreen';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AboutScreen({ route }) {
   const {setScreens, currentTheme, db} = route.params;
@@ -138,6 +138,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     paddingBottom: 10,
+    paddingTop: 10,
   },
   title: {
     fontSize: 24,

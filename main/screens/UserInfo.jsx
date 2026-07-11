@@ -1,7 +1,6 @@
 import {
   ActivityIndicator,
   Image,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,6 +16,7 @@ import UserWorkScreen from './more/UserWorkScreen';
 import LoadingSpinner from '../components/History/Spinner';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function UserInfoScreen({
   route
