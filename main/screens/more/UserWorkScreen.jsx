@@ -210,13 +210,8 @@ export default function UserWorkScreen({ route }) {
   }
 
   return (
-    <SafeAreaView>
-      <View
-        style={[
-          styles.container,
-          { backgroundColor: currentTheme.backgroundColor },
-        ]}
-      >
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={[styles.container, { flex: 1, backgroundColor: currentTheme.backgroundColor }]}>
         {renderHeader()}
 
         {bookmarks.length === 0 ? (
