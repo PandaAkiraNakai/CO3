@@ -225,7 +225,7 @@ export function extractWorkContent(doc) {
   return result;
 }
 
-export async function fetchWorkFromWorkID(workId, workDAO, chapterDAO, force = false, downloadOnUpdate = false) {
+export async function fetchWorkFromWorkID(workId, workDAO, chapterDAO, force = false, downloadOnUpdate = false, noWebview = false) {
   try {
     if (!force) {
       const cachedWork = await workDAO.get(workId);
@@ -250,7 +250,7 @@ export async function fetchWorkFromWorkID(workId, workDAO, chapterDAO, force = f
     const url = `https://archiveofourown.org/works/${workId}?view_adult=true`;
     console.log(`[Web] Fetching work from: ${url}`);
 
-    const response = await getUrl(url);
+    const response = await getUrl(url, noWebview);
     const doc = new DomParser().parseFromString(response, 'text/html');
 
     if (!doc) {

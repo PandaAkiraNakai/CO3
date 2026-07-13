@@ -30,7 +30,7 @@ async function downloadTask(item) {
 
     console.log(`Starting download for: ${item.chapterId}`);
 
-    await downloadChapter(item.workId, item.chapterId);
+    await downloadChapter(item.workId, item.chapterId, true);
 
     DeviceEventEmitter.emit('download_completed', {
       chapterId: String(item.chapterId),

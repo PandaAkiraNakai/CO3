@@ -3,7 +3,7 @@ import getUrl from '../requestManager';
 
 let DomParser = require('react-native-html-parser').DOMParser;
 
-export async function fetchChapter(workId, chapterId) {
+export async function fetchChapter(workId, chapterId, noWebview = false) {
   let url;
   if (!chapterId || String(chapterId) === String(workId)) {
     url = `https://archiveofourown.org/works/${workId}?view_adult=true`;
@@ -12,7 +12,7 @@ export async function fetchChapter(workId, chapterId) {
   }
 
   console.log(`Fetching chapter from: ${url}`);
-  const response = await getUrl(url);
+  const response = await getUrl(url, noWebview);
   const doc = new DomParser().parseFromString(response, 'text/html');
 
   let chapterDiv = doc.getElementById('workskin');

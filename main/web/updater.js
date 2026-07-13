@@ -361,6 +361,7 @@ export async function updateWork(workId, workDAO, chapterDAO, settings) {
     chapterDAO,
     true,
     settings.downloadOnUpdate,
+    true
   );
   if (work) {
     await workDAO.update(work);
