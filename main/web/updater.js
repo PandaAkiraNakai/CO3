@@ -12,6 +12,10 @@ import notifee, {
 } from 'react-native-notify-kit';
 import { getJsonSettings } from '../storage/jsonSettings';
 import { ChapterDAO } from '../storage/dao/ChapterDAO';
+import { fetchBookmarks } from './other/bookmarks';
+import { LibraryDAO } from '../storage/dao/LibraryDAO';
+import { getUsername } from '../storage/Credentials';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { LibraryScheduler } = NativeModules;
 
@@ -81,6 +85,19 @@ const getEmojiStatus = work => {
   return text;
 };
 
+async function loadCategories() {
+  try {
+    const res = await AsyncStorage.getItem('Categories');
+    if (res) {
+      return JSON.parse(res);
+    } else {
+      return ['default'];
+    }
+  } catch (error) {
+    console.error('Error loading categories:', error);
+  }
+}
+
 export const setup = async intervalMinutes => {
   if (!LibraryScheduler) {
     console.warn(
@@ -133,7 +150,7 @@ export const run = async () => {
   const useCompactNotification = settings.compactNotifications;
 
   try {
-    await runUpdate(useCompactNotification);
+    await runUpdate(useCompactNotification, settings);
   } finally {
     try {
       await notifee.stopForegroundService();
@@ -143,7 +160,7 @@ export const run = async () => {
   }
 };
 
-const runUpdate = async useCompactNotification => {
+const runUpdate = async (useCompactNotification, settings) => {
   try {
     const channelId = await notifee.createChannel({
       id: 'updateWorks',
@@ -161,6 +178,21 @@ const runUpdate = async useCompactNotification => {
     const workDAO = new WorkDAO(db);
     const updateDAO = new UpdateDAO(db);
     const chapterDAO = new ChapterDAO(db);
+    const libraryDAO = new LibraryDAO(db);
+
+    if (await getUsername() !== undefined && settings.addBookmarksToCategory) {
+      const bookmarks = await fetchBookmarks(1, undefined, undefined, true);
+
+      const category = await loadCategories();
+
+      for (let i = 0; i < bookmarks.length; i++) {
+        const bookmark = bookmarks[i];
+        if (await libraryDAO.isInLibrary(bookmark.workId)) continue;
+
+        await workDAO.add({ ...bookmark, currentChapter: 0 })
+        await libraryDAO.add(bookmark.id, category.includes(settings.bookmarksCategory) ? settings.bookmarksCategory : category[0]);
+      }
+    }
 
     const toUpdate = (await workDAO.getAll()).filter(work => {
       return work.chapterCount !== work.currentChapter;
@@ -210,7 +242,7 @@ const runUpdate = async useCompactNotification => {
 
       try {
         await randomDelay(500, 1500);
-        const updatedWork = await updateWork(uwork.id, workDAO, chapterDAO);
+        const updatedWork = await updateWork(uwork.id, workDAO, chapterDAO, settings);
 
         if (updatedWork && updatedWork.currentChapter > uwork.currentChapter) {
           const newChapterNumbers = [];
@@ -322,13 +354,13 @@ const runUpdate = async useCompactNotification => {
   }
 };
 
-export async function updateWork(workId, workDAO, chapterDAO) {
+export async function updateWork(workId, workDAO, chapterDAO, settings) {
   const work = await fetchWorkFromWorkID(
     workId,
     workDAO,
     chapterDAO,
     true,
-    true,
+    settings.downloadOnUpdate,
   );
   if (work) {
     await workDAO.update(work);

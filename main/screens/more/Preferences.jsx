@@ -28,6 +28,7 @@ import {
 } from '../../storage/LanguageManager';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PreferencesScreen = ({
   route
@@ -58,10 +59,13 @@ const PreferencesScreen = ({
   const [downloadOnUpdate, setDownloadOnUpdate] = useState(false);
   const [downloadWhileReading, setDownloadWhileReading] = useState(0);
   const [preferHtml, setPreferHtml] = useState(false);
+  const [syncBookmarksToLibrary, setSyncBookmarksToLibrary] = useState(false);
+  const [syncBookmarksToLibraryCategory, setSyncBookmarksToLibraryCategory] = useState("default");
   const [showChapterDate, setShowChapterDate] = useState(false);
   const [compactNotifications, setCompactNotifications] = useState(false);
   const [updateTime, setUpdateTime] = useState(1440);
   const [updateRestriction, setUpdateRestriction] = useState(3);
+  const [categories, setCategories] = useState();
 
   const activeTheme = themes[theme] || currentTheme;
 
@@ -69,6 +73,7 @@ const PreferencesScreen = ({
 
   useEffect(() => {
     loadSettings();
+    loadCategories();
   }, []);
 
   const loadSettings = async () => {
@@ -104,11 +109,27 @@ const PreferencesScreen = ({
           ? jsonSettings.updateRestriction[0]
           : jsonSettings.updateRestriction;
         setUpdateRestriction(restriction !== undefined ? restriction : 3);
+
+        setSyncBookmarksToLibrary(jsonSettings.addBookmarksToCategory)
+        setSyncBookmarksToLibraryCategory(jsonSettings.bookmarksCategory)
       }
     } catch (error) {
       console.error('Error loading settings:', error);
     }
   };
+
+  async function loadCategories() {
+    try {
+      const res = await AsyncStorage.getItem('Categories');
+      if (res) {
+        setCategories(JSON.parse(res));
+      } else {
+        setCategories(['default']);
+      }
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
+  }
 
   const saveDbSettings = async newSettings => {
     try {
@@ -210,6 +231,17 @@ const PreferencesScreen = ({
     const newValue = !preferHtml;
     setPreferHtml(newValue);
     saveJsonSettingsData({ preferHtml: newValue });
+  };
+
+  const handleSyncBookmarksToLibrary = () => {
+    const newValue = !syncBookmarksToLibrary;
+    setSyncBookmarksToLibrary(newValue);
+    saveJsonSettingsData({ addBookmarksToCategory: newValue });
+  };
+
+  const handleUpdateBookmarkCategoryChange = value => {
+    setSyncBookmarksToLibraryCategory(value);
+    saveJsonSettingsData({ bookmarksCategory: value });
   };
 
   const handleUpdateTimeChange = value => {
@@ -844,6 +876,54 @@ const PreferencesScreen = ({
                 />
               ))}
             </CustomDropdown>
+          </View>
+
+          <View
+            style={[
+              styles.settingItem,
+              { borderBottomColor: activeTheme.borderColor },
+            ]}
+          >
+            <View style={styles.switchContainer}>
+              <Text
+                style={[{ color: activeTheme.textColor }, styles.settingText]}
+              >
+                {t('screen_preferences_setting_sync_bookmarks')}
+              </Text>
+              <Switch
+                value={syncBookmarksToLibrary}
+                onValueChange={handleSyncBookmarksToLibrary}
+                thumbColor={syncBookmarksToLibrary ? activeTheme.primaryColor : '#f4f3f4'}
+                trackColor={{
+                  false: '#767577',
+                  true: `${activeTheme.primaryColor}40`,
+                }}
+              />
+            </View>
+            {
+              syncBookmarksToLibrary &&
+              <View style={[styles.settingItem, { borderBottomWidth: 0 }]} >
+                <Text
+                  style={[{ color: activeTheme.textColor }, styles.settingText]}
+                >
+                  {t('screen_preferences_label_bookmarks_category')}
+                </Text>
+                <CustomDropdown
+                  selectedValue={syncBookmarksToLibraryCategory}
+                  onValueChange={handleUpdateBookmarkCategoryChange}
+                  theme={activeTheme}
+                  style={{ marginTop: 8 }}
+                >
+                  {categories.map(category => (
+                    <CustomDropdown.Item
+                      key={category}
+                      label={category}
+                      value={category}
+                    />
+                  ))}
+                </CustomDropdown>
+              </View>
+            }
           </View>
 
           <View style={[styles.settingItem, { borderBottomWidth: 0 }]}>

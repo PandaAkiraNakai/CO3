@@ -41,10 +41,9 @@ const cloudflareErrorCodes = [
   503, //Used for CF challenges
 ]
 
-export default async function getUrl(url) {
+export default async function getUrl(url, noWebview = false) {
   const { hostname } = new URL(url);
 
-  let noWebview = false;
   if (!(Platform.OS === 'ios' || Platform.OS === 'android')) {
     noWebview = true;
   }

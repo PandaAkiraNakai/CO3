@@ -162,6 +162,8 @@
   "screen_preferences_selector_download_while_reading_next_3": "Next 3 Chapters",
   "screen_preferences_selector_download_while_reading_next_5": "Next 5 Chapters",
   "screen_preferences_selector_download_while_reading_next_10": "Next 10 Chapters",
+  "screen_preferences_setting_sync_bookmarks": "Sync Bookmarks to Library",
+  "screen_preferences_label_bookmarks_category": "Bookmarks Category",
   "screen_preferences_onboarding_button_title": "Restart Onboarding",
   "screen_preferences_onboarding_button_text": "Go through the setup screens again",
   "screen_preferences_onboarding_title": "Restart Onboarding",
