@@ -150,7 +150,7 @@
   "screen_preferences_selector_check_frequency_every_2_days": "Every 2 Days",
   "screen_preferences_selector_check_frequency_every_3_days": "Every 3 Days",
   "screen_preferences_selector_check_frequency_weekly": "Weekly",
-  "screen_preferences_selector_check_f`Chapters ${start + 1} - ${end + 1}`requency_never": "Never",
+  "screen_preferences_selector_check_frequency_never": "Never",
   "screen_preferences_label_network_restriction": "Network Restriction",
   "screen_preferences_selector_network_restriction_none": "No Restriction",
   "screen_preferences_selector_network_restriction_wifi": "WiFi Only",
