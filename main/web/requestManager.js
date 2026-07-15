@@ -2,6 +2,13 @@ import ky, { TimeoutError } from 'ky';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchViaWebView } from './WebviewFetcher';
 import { Platform } from 'react-native';
+import { getLastLogin } from '../storage/Credentials';
+import Toast from 'react-native-toast-message';
+import {
+  createNavigationContainerRef,
+  useNavigation,
+} from '@react-navigation/native';
+import { navigationRef } from '../app';
 
 const CF_STORAGE_KEY = 'cf_domains';
 const CF_MODE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
@@ -43,6 +50,32 @@ const cloudflareErrorCodes = [
 
 export default async function getUrl(url, noWebview = false) {
   const { hostname } = new URL(url);
+
+  getLastLogin().then((time) => {
+    if (Date.now() - time > 14 * 24 * 60 * 60 * 1000) {
+      Toast.show(
+        {
+          type: 'error',
+          text1: "You have been logged out !",
+          text2: "It's been two week since you last logged in.",
+          onPress: () => {
+            navigationRef.navigate("Account", {});
+          }
+        }
+      )
+    }
+
+    Toast.show(
+      {
+        type: 'error',
+        text1: "You have been logged out !",
+        text2: "It's been two week since you last logged in.",
+        onPress: () => {
+          navigationRef.navigate("Account", {});
+        }
+      }
+    )
+  })
 
   if (!(Platform.OS === 'ios' || Platform.OS === 'android')) {
     noWebview = true;

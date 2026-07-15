@@ -20,6 +20,7 @@ import {
   getUsername,
   setCredsPasswd,
   setCredsToken,
+  setLastLogin,
   setUsernameOnly,
 } from '../../storage/Credentials';
 import CustomAlert from '../../components/CustomAlert';
@@ -150,6 +151,7 @@ const LoginScreen = ({ route }) => {
         }
 
         setIsLoggedIn(true);
+        await setLastLogin();
         showAlert(t('general_success'), t('screen_account_login_success'));
       } else {
         showAlert(

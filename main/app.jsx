@@ -60,7 +60,11 @@ import {
 import { runOnJS, useSharedValue } from 'react-native-reanimated';
 import './storage/LanguageManager';
 import { useTranslation } from 'react-i18next';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import {
+  createNavigationContainerRef,
+  NavigationContainer,
+  useNavigation,
+} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import UserInfoScreen from './screens/UserInfo';
 import UserWorkScreen from './screens/more/UserWorkScreen';
@@ -78,6 +82,8 @@ import AboutScreen from './screens/more/AboutScreen';
 
 const Stack = createNativeStackNavigator();
 
+export const navigationRef = createNavigationContainerRef();
+
 const AppWrapper = () => {
   const wrapperStyle = Platform.OS === 'web'
     ? { flex: 1, width: '100%', height: '100%' }
@@ -88,7 +94,7 @@ const AppWrapper = () => {
       <Host>
         <GestureHandlerRootView>
           <SafeAreaProvider style={{ flex: 1 }}>
-            <NavigationContainer>
+            <NavigationContainer ref={navigationRef}>
               <Stack.Navigator
                 screenOptions={{ headerShown: false }}
                 initialRouteName={'Home'}
@@ -455,27 +461,6 @@ const App = () => {
 
     return () => backHandler.remove();
   }, [screens]);
-
-  const exitApp = () => BackHandler.exitApp();
-
-  const popScreen = () => navigation.goBack();
-
-  const swipeBack = Platform.OS === 'ios' || Platform.OS === 'android' ? ( Gesture.Pan()
-    .enabled(Platform.OS === 'ios')
-    .activeOffsetX([-20, 20])
-    .failOffsetY([-10, 10])
-    .onEnd((e) => {
-      'worklet';
-      if (Math.abs(e.translationX) > 50 && e.velocityX > 200) {
-        if (screensCount.value > 0) {
-          runOnJS(popScreen)();
-        } else if (activeScreenShared.value === 'search') {
-          runOnJS(setActiveScreen)('library');
-        } else {
-          runOnJS(exitApp)();
-        }
-      }
-    }) ) : () => console.log("gesture is ignored in windows");
 
   const initializeApp = async () => {
     const jsonSettings = await getJsonSettings();
