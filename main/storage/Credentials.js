@@ -175,3 +175,13 @@ export async function setUsernameOnly(username) {
     throw error;
   }
 }
+
+export async function hasStoredPassword() {
+  try {
+    const creds = await Keychain.getGenericPassword({ service: 'username_only' });
+    return creds !== false && creds !== null;
+  } catch (error) {
+    console.error('Failed to check for stored password:', error);
+    return false;
+  }
+}

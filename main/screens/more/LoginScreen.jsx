@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Linking,
@@ -27,9 +27,10 @@ import CustomAlert from '../../components/CustomAlert';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AppContext } from '../../app';
 
 const LoginScreen = ({ route }) => {
-  const { currentTheme, setScreens } = route.params;
+  const { currentTheme } = useContext(AppContext);
   const navigation = useNavigation();
 
   const [username, setUsername] = useState('');

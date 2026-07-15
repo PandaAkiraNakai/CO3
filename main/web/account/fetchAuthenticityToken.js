@@ -7,11 +7,16 @@ export async function fetchLoginAuthenticityToken() {
   try {
     let html = await ky.get("https://archiveofourown.org/users/login").text();
     html = html.replace("<br \\>", ''); //Before you ask, no. I don't know. I don't need them anyway. /shrug
+    if (html.includes("You are already logged in to an account. Please log out and try again.")) {
+      throw "already logged in.";
+    }
+    console.log(html);
     return new DomParser().parseFromString(html, "text/html")
       .getElementById("new_user") //Get the form
       .childNodes[0].getAttribute('value') //Get the hidden element and it's value
   } catch (e) {
     console.error("An error occurred while running fetchLoginAuthenticityToken", e);
+    throw e;
   }
 }
 

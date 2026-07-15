@@ -97,6 +97,8 @@ const AppWrapper = () => {
     : { flex: 1 };
 
   // Props
+  const { t } = useTranslation();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [theme, setTheme] = useState('light');
@@ -217,6 +219,7 @@ const AppWrapper = () => {
         isIncognitoMode, setIsIncognitoMode,
         linkingUrl, setLinkingUrl,
         setBooks,
+        t
       }}>
         <Host>
           <GestureHandlerRootView>

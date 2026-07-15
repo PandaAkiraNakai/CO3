@@ -1,4 +1,50 @@
 import { fetchLoginAuthenticityToken } from './fetchAuthenticityToken';
+import Toast from 'react-native-toast-message';
+import {
+  deleteCredsPasswd, hasStoredPassword,
+  setCredsPasswd,
+  setCredsToken,
+  setLastLogin,
+  setUsernameOnly,
+} from '../../storage/Credentials';
+import { navigationRef } from '../../app';
+import i18n from 'i18next';
+
+export const handleLogin = async (username, password) => {
+  const t = i18n.t;
+
+  if (!username || !password) {
+    throw 'Please enter both username and password';
+  }
+
+  try {
+    const sessionToken = await login(username, password);
+
+    if (sessionToken) {
+      await setCredsToken(sessionToken);
+
+      if (await hasStoredPassword()) {
+        await setCredsToken(sessionToken);
+      } else {
+        await deleteCredsPasswd();
+        await setUsernameOnly(username);
+      }
+
+      await setLastLogin();
+      Toast.show({
+        type: 'success',
+        text1: t('general_success'),
+        text2: t('screen_account_login_success'),
+      })
+    } else {
+      throw t('screen_account_login_failed_invalid_server_error');
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    throw t('screen_account_login_failed_generic');
+  }
+};
+
 
 export default async function login(username, password) {
   try {
