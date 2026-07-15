@@ -1,4 +1,11 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -80,8 +87,8 @@ import CategoryScreen from './screens/more/CategoryScreen';
 import BookmarksScreen from './screens/more/BookmarksScreen';
 import AboutScreen from './screens/more/AboutScreen';
 
+export const AppContext = createContext();
 const Stack = createNativeStackNavigator();
-
 export const navigationRef = createNavigationContainerRef();
 
 const AppWrapper = () => {
@@ -89,38 +96,159 @@ const AppWrapper = () => {
     ? { flex: 1, width: '100%', height: '100%' }
     : { flex: 1 };
 
+  // Props
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
+  const [theme, setTheme] = useState('light');
+  const [isIncognitoMode, setIsIncognitoMode] = useState(false);
+  const [viewMode, setViewMode] = useState('full');
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeScreen, setActiveScreen] = useState('library');
+
+  const [linkingUrl, setLinkingUrl] = useState();
+
+  const [databaseObj, setDatabaseObj] = useState(null);
+  const [workDAO, setWorkDAO] = useState(null);
+  const [historyDAO, setHistoryDAO] = useState(null);
+  const [settingsDAO, setSettingsDAO] = useState(null);
+  const [libraryDAO, setLibraryDAO] = useState(null);
+  const [progressDAO, setProgressDAO] = useState(null);
+  const [kudoDAO, setKudoDAO] = useState(null);
+  const [kudoHistoryDAO, setKudoHistoryDAO] = useState(null);
+  const [updateDAO, setupdateDAO] = useState(null);
+  const [chapterDAO, setChapterDAO] = useState(null);
+  const [jsonSettings, setJsonSettings] = useState();
+
+  const [screens, setScreens] = useState([]);
+
+  const [selectedTag, setSelectedTag] = useState();
+  const [selectedPreset, setSelectedPreset] = useState();
+  const [selectedCollection, setSelectedCollection] = useState();
+
+  const contextRef = useRef({
+    workDAO, libraryDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, currentTheme
+  });
+
+  const loadBooks = async () => {
+    try {
+      if (workDAO) {
+        const booksData = await workDAO.getAll();
+        setBooks(booksData);
+      }
+    } catch (error) {
+      console.error('Error loading books:', error);
+    }
+  };
+
+  const openTagSearch = (tag) => {
+    setSelectedTag(tag);
+    if (navigationRef.canGoBack()) {
+      navigationRef.popToTop();
+    }
+    setActiveScreen("browse");
+  }
+
+  const currentTheme = useMemo(() => {
+    return (themes && themes[theme]) ? themes[theme] : (themes?.light || {
+      backgroundColor: 'white',
+      textColor: 'black',
+      headerBackground: '#f8f8f8',
+      iconColor: '#333',
+      inputBackground: '#eee',
+      borderColor: '#e0e0e0',
+      primaryColor: '#8b5cf6',
+      buttonBackground: '#eee',
+      placeholderColor: '#999',
+      cardBackground: '#fff',
+      secondaryTextColor: '#666',
+    });
+  }, [theme]);
+
   return (
     <View style={wrapperStyle}>
-      <Host>
-        <GestureHandlerRootView>
-          <SafeAreaProvider style={{ flex: 1 }}>
-            <NavigationContainer ref={navigationRef}>
-              <Stack.Navigator
-                screenOptions={{ headerShown: false }}
-                initialRouteName={'Home'}
-              >
-                <Stack.Screen name={'Home'} component={App} />
-                <Stack.Screen name={'Work'} component={ChapterInfoScreen} />
-                <Stack.Screen name={'Reader'} component={ReaderWrapper} />
-                <Stack.Screen name={'User'} component={UserInfoScreen} />
-                <Stack.Screen name={'UserWork'} component={UserWorkScreen} />
-                <Stack.Screen name={'Storage'} component={StorageScreen} />
-                <Stack.Screen name={'Statistics'} component={StatsScreen} />
-                <Stack.Screen name={'ReadLater'} component={ReadLaterScreen} />
-                <Stack.Screen name={'Preferences'} component={PreferencesScreen} />
-                <Stack.Screen name={'Account'} component={LoginScreen} />
-                <Stack.Screen name={'KudosHistory'} component={KudoHistoryScreen} />
-                <Stack.Screen name={'Help'} component={HelpScreen} />
-                <Stack.Screen name={'Debug'} component={DebugScreen} />
-                <Stack.Screen name={'Categories'} component={CategoryScreen} />
-                <Stack.Screen name={'Bookmarks'} component={BookmarksScreen} />
-                <Stack.Screen name={'About'} component={AboutScreen} />
-              </Stack.Navigator>
-            </NavigationContainer>
-          </SafeAreaProvider>
-        </GestureHandlerRootView>
-        <WebviewFetcher />
-      </Host>
+      <AppContext.Provider value={{
+        currentTheme,
+        searchTerm,
+        setSearchTerm,
+        books,
+        viewMode,
+        loadBooks,
+        workDAO,
+        historyDAO,
+        progressDAO,
+        settingsDAO,
+        screens,
+        setScreens,
+        libraryDAO,
+        setActiveScreen,
+        setTheme,
+        theme,
+        setViewMode,
+        kudoDAO,
+        kudoHistoryDAO,
+        openTagSearch,
+        selectedTag,
+        setSelectedTag,
+        updateDAO,
+        databaseObj,
+        chapterDAO,
+        selectedPreset,
+        setSelectedPreset,
+        setSelectedCollection,
+        selectedCollection,
+        setJsonSettings,
+
+        activeScreen,
+        loading, setLoading,
+        setDatabaseObj,
+        setWorkDAO,
+        setHistoryDAO,
+        setSettingsDAO,
+        setLibraryDAO,
+        setProgressDAO,
+        setKudoDAO,
+        setKudoHistoryDAO,
+        setupdateDAO,
+        setChapterDAO,
+        jsonSettings,
+        contextRef,
+        isSideMenuOpen, setIsSideMenuOpen,
+        isIncognitoMode, setIsIncognitoMode,
+        linkingUrl, setLinkingUrl,
+        setBooks,
+      }}>
+        <Host>
+          <GestureHandlerRootView>
+            <SafeAreaProvider style={{ flex: 1 }}>
+              <NavigationContainer ref={navigationRef}>
+                <Stack.Navigator
+                  screenOptions={{ headerShown: false }}
+                  initialRouteName={'Home'}
+                >
+                  <Stack.Screen name={'Home'} component={App} />
+                  <Stack.Screen name={'Work'} component={ChapterInfoScreen} />
+                  <Stack.Screen name={'Reader'} component={ReaderWrapper} />
+                  <Stack.Screen name={'User'} component={UserInfoScreen} />
+                  <Stack.Screen name={'UserWork'} component={UserWorkScreen} />
+                  <Stack.Screen name={'Storage'} component={StorageScreen} />
+                  <Stack.Screen name={'Statistics'} component={StatsScreen} />
+                  <Stack.Screen name={'ReadLater'} component={ReadLaterScreen} />
+                  <Stack.Screen name={'Preferences'} component={PreferencesScreen} />
+                  <Stack.Screen name={'Account'} component={LoginScreen} />
+                  <Stack.Screen name={'KudosHistory'} component={KudoHistoryScreen} />
+                  <Stack.Screen name={'Help'} component={HelpScreen} />
+                  <Stack.Screen name={'Debug'} component={DebugScreen} />
+                  <Stack.Screen name={'Categories'} component={CategoryScreen} />
+                  <Stack.Screen name={'Bookmarks'} component={BookmarksScreen} />
+                  <Stack.Screen name={'About'} component={AboutScreen} />
+                </Stack.Navigator>
+              </NavigationContainer>
+            </SafeAreaProvider>
+          </GestureHandlerRootView>
+          <WebviewFetcher />
+        </Host>
+      </AppContext.Provider>
     </View>
   );
 };
@@ -236,61 +364,60 @@ const BottomNavigation = ({ activeScreen, setActiveScreen, currentTheme, onDoubl
 
 
 const App = () => {
+
+  const {
+    currentTheme,
+    searchTerm,
+    setSearchTerm,
+    books,
+    viewMode,
+    loadBooks,
+    workDAO,
+    historyDAO,
+    progressDAO,
+    settingsDAO,
+    screens,
+    setScreens,
+    libraryDAO,
+    setActiveScreen,
+    setTheme,
+    theme,
+    setViewMode,
+    kudoDAO,
+    kudoHistoryDAO,
+    openTagSearch,
+    selectedTag,
+    setSelectedTag,
+    updateDAO,
+    databaseObj,
+    chapterDAO,
+    selectedPreset,
+    setSelectedPreset,
+    setSelectedCollection,
+    selectedCollection,
+    setJsonSettings,
+    activeScreen,
+    loading, setLoading,
+    setDatabaseObj,
+    setWorkDAO,
+    setHistoryDAO,
+    setSettingsDAO,
+    setLibraryDAO,
+    setProgressDAO,
+    setKudoDAO,
+    setKudoHistoryDAO,
+    setupdateDAO,
+    setChapterDAO,
+    jsonSettings,
+    contextRef,
+    isSideMenuOpen, setIsSideMenuOpen,
+    isIncognitoMode, setIsIncognitoMode,
+    linkingUrl, setLinkingUrl,
+    setBooks
+  } = useContext(AppContext);
+
   const insets = useSafeAreaInsets();
-
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
-  const [theme, setTheme] = useState('light');
-  const [isIncognitoMode, setIsIncognitoMode] = useState(false);
-  const [viewMode, setViewMode] = useState('full');
-  const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [activeScreen, setActiveScreen] = useState('library');
-
-  const [linkingUrl, setLinkingUrl] = useState();
-
-  const [databaseObj, setDatabaseObj] = useState(null);
-  const [workDAO, setWorkDAO] = useState(null);
-  const [historyDAO, setHistoryDAO] = useState(null);
-  const [settingsDAO, setSettingsDAO] = useState(null);
-  const [libraryDAO, setLibraryDAO] = useState(null);
-  const [progressDAO, setProgressDAO] = useState(null);
-  const [kudoDAO, setKudoDAO] = useState(null);
-  const [kudoHistoryDAO, setKudoHistoryDAO] = useState(null);
-  const [updateDAO, setupdateDAO] = useState(null);
-  const [chapterDAO, setChapterDAO] = useState(null);
-  const [jsonSettings, setJsonSettings] = useState();
-
-  const [screens, setScreens] = useState([]);
-  const screensCount = useSharedValue(0);
-  const activeScreenShared = useSharedValue('library');
-
-  const [selectedTag, setSelectedTag] = useState();
-  const [selectedPreset, setSelectedPreset] = useState();
-  const [selectedCollection, setSelectedCollection] = useState();
-
   const { t } = useTranslation();
-
-  const currentTheme = useMemo(() => {
-    return (themes && themes[theme]) ? themes[theme] : (themes?.light || {
-      backgroundColor: 'white',
-      textColor: 'black',
-      headerBackground: '#f8f8f8',
-      iconColor: '#333',
-      inputBackground: '#eee',
-      borderColor: '#e0e0e0',
-      primaryColor: '#8b5cf6',
-      buttonBackground: '#eee',
-      placeholderColor: '#999',
-      cardBackground: '#fff',
-      secondaryTextColor: '#666',
-    });
-  }, [theme]);
-
-  const contextRef = useRef({
-    workDAO, libraryDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, currentTheme
-  });
-
   const hasAddedInitialScreen = useRef(false);
 
   const navigation = useNavigation();
@@ -337,14 +464,6 @@ const App = () => {
 
     return () => subscription.remove();
   }, [loading, libraryDAO, progressDAO, settingsDAO, workDAO]);
-
-  useEffect(() => {
-    screensCount.value = screens.length;
-  }, [screens]);
-
-  useEffect(() => {
-    activeScreenShared.value = activeScreen;
-  }, [activeScreen]);
 
   useEffect(() => {
     contextRef.current = {
@@ -526,17 +645,6 @@ const App = () => {
     SystemNavigationBar.setNavigationColor(navBarColor, isDark ? "dark" : "light");
   }, [currentTheme, theme, screens]);
 
-  const loadBooks = async () => {
-    try {
-      if (workDAO) {
-        const booksData = await workDAO.getAll();
-        setBooks(booksData);
-      }
-    } catch (error) {
-      console.error('Error loading books:', error);
-    }
-  };
-
   const saveTheme = async (newTheme) => {
     try {
       if (settingsDAO) {
@@ -588,48 +696,40 @@ const App = () => {
     }
   };
 
-  const openTagSearch = (tag) => {
-    setSelectedTag(tag);
-    if (navigation.canGoBack()) {
-      navigation.popToTop();
-    }
-    setActiveScreen("browse");
-  }
+  const screenProps = {
+    currentTheme: currentTheme,
+    searchTerm,
+    setSearchTerm,
+    books,
+    viewMode,
+    loadBooks,
+    workDAO,
+    historyDAO,
+    progressDAO,
+    settingsDAO,
+    screens,
+    setScreens,
+    libraryDAO,
+    setActiveScreen,
+    setTheme,
+    theme,
+    setViewMode,
+    kudoDAO,
+    kudoHistoryDAO,
+    openTagSearch,
+    selectedTag,
+    setSelectedTag,
+    updateDAO,
+    databaseObj,
+    chapterDAO,
+    selectedPreset,
+    setSelectedPreset,
+    setSelectedCollection,
+    selectedCollection,
+    setJsonSettings
+  };
 
   const renderScreen = () => {
-    const screenProps = {
-      currentTheme: currentTheme,
-      searchTerm,
-      setSearchTerm,
-      books,
-      viewMode,
-      loadBooks,
-      workDAO,
-      historyDAO,
-      progressDAO,
-      settingsDAO,
-      screens,
-      setScreens,
-      libraryDAO,
-      setActiveScreen,
-      setTheme,
-      theme,
-      setViewMode,
-      kudoDAO,
-      kudoHistoryDAO,
-      openTagSearch,
-      selectedTag,
-      setSelectedTag,
-      updateDAO,
-      databaseObj,
-      chapterDAO,
-      selectedPreset,
-      setSelectedPreset,
-      setSelectedCollection,
-      selectedCollection,
-      setJsonSettings
-    };
-
     switch (activeScreen) {
       case 'library':
         return <LibraryScreen {...screenProps} />;
@@ -699,75 +799,71 @@ const App = () => {
   if (screens.length !== 0) {
     return (
       <>
-        <GestureDetector gesture={swipeBack}>
-          <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
-            <StatusBar
-              barStyle={theme === 'light' ? 'dark-content' : 'light-content'}
-              backgroundColor={currentTheme.backgroundColor}
-            />
-            <View style={[
-              styles.screenWrapper,
-              {
-                flex: 1,
-                paddingTop: insets.top,
-                paddingBottom: insets.bottom,
-              }
-            ]}>
-              {screens[screens.length - 1]}
-            </View>
+        <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
+          <StatusBar
+            barStyle={theme === 'light' ? 'dark-content' : 'light-content'}
+            backgroundColor={currentTheme.backgroundColor}
+          />
+          <View style={[
+            styles.screenWrapper,
+            {
+              flex: 1,
+              paddingTop: insets.top,
+              paddingBottom: insets.bottom,
+            }
+          ]}>
+            {screens[screens.length - 1]}
           </View>
-        </GestureDetector>
+        </View>
         <CustomToast currentTheme={currentTheme} />
       </>
     )
   }
 
   return (
-    <GestureDetector gesture={swipeBack} >
-      <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
-        <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
-          <StatusBar
-            barStyle={theme === 'light' ? 'dark-content' : 'light-content'}
-            backgroundColor={currentTheme.headerBackground}
-          />
+    <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
+        <StatusBar
+          barStyle={theme === 'light' ? 'dark-content' : 'light-content'}
+          backgroundColor={currentTheme.headerBackground}
+        />
 
-          <TopBar
-            currentTheme={currentTheme}
-            activeScreen={activeScreen}
-            setIsSideMenuOpen={setIsSideMenuOpen}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            setActiveScreen={setActiveScreen}
-          />
+        <TopBar
+          currentTheme={currentTheme}
+          activeScreen={activeScreen}
+          setIsSideMenuOpen={setIsSideMenuOpen}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          setActiveScreen={setActiveScreen}
+        />
 
-          {renderScreen()}
+        {renderScreen()}
 
-          <BottomNavigation
-            activeScreen={activeScreen}
-            setActiveScreen={setActiveScreen}
-            currentTheme={currentTheme}
-            onDoubleTap={handleDoubleTap}
-          />
+        <BottomNavigation
+          activeScreen={activeScreen}
+          setActiveScreen={setActiveScreen}
+          currentTheme={currentTheme}
+          onDoubleTap={handleDoubleTap}
+        />
 
-          <SideMenu
-            isOpen={isSideMenuOpen}
-            onClose={() => setIsSideMenuOpen(false)}
-            theme={theme}
-            setTheme={saveTheme}
-            isIncognitoMode={isIncognitoMode}
-            toggleIncognitoMode={() => saveIncognitoMode(!isIncognitoMode)}
-            viewMode={viewMode}
-            setViewMode={saveViewMode}
-            currentTheme={currentTheme}
-            historyDAO={historyDAO}
-            workDAO={workDAO}
-            settingsDAO={settingsDAO}
-          />
-        </SafeAreaView>
+        <SideMenu
+          isOpen={isSideMenuOpen}
+          onClose={() => setIsSideMenuOpen(false)}
+          theme={theme}
+          setTheme={saveTheme}
+          isIncognitoMode={isIncognitoMode}
+          toggleIncognitoMode={() => saveIncognitoMode(!isIncognitoMode)}
+          viewMode={viewMode}
+          setViewMode={saveViewMode}
+          currentTheme={currentTheme}
+          historyDAO={historyDAO}
+          workDAO={workDAO}
+          settingsDAO={settingsDAO}
+        />
+      </SafeAreaView>
 
-        <CustomToast currentTheme={currentTheme} />
-      </View>
-    </GestureDetector>
+      <CustomToast currentTheme={currentTheme} />
+    </View>
   );
 };
 
