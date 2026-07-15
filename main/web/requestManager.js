@@ -2,13 +2,22 @@ import ky, { TimeoutError } from 'ky';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchViaWebView } from './WebviewFetcher';
 import { Platform } from 'react-native';
-import { getLastLogin } from '../storage/Credentials';
+import {
+  deleteCredsPasswd,
+  deleteCredsToken,
+  deleteLastLogin,
+  getCredsPasswd,
+  getLastLogin,
+  getUsername,
+  hasStoredPassword,
+} from '../storage/Credentials';
 import Toast from 'react-native-toast-message';
 import {
   createNavigationContainerRef,
   useNavigation,
 } from '@react-navigation/native';
 import { navigationRef } from '../app';
+import { handleLogin } from './account/login';
 
 const CF_STORAGE_KEY = 'cf_domains';
 const CF_MODE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
@@ -51,31 +60,51 @@ const cloudflareErrorCodes = [
 export default async function getUrl(url, noWebview = false) {
   const { hostname } = new URL(url);
 
-  getLastLogin().then((time) => {
-    if (Date.now() - time > 14 * 24 * 60 * 60 * 1000) {
-      Toast.show(
-        {
-          type: 'error',
-          text1: "You have been logged out !",
-          text2: "It's been two week since you last logged in.",
-          onPress: () => {
-            navigationRef.navigate("Account", {});
+  if (noWebview) {
+    getLastLogin().then(async (time) => {
+      try {
+        if (Date.now() - time > 14 * 24 * 60 * 60 * 1000) {
+          Toast.show(
+            {
+              type: 'error',
+              text1: "You have been logged out !",
+              text2: "It's been two week since you last logged in.",
+              onPress: async () => {
+                if (await hasStoredPassword()) {
+                  try {
+                    await handleLogin(await getUsername(), await getCredsPasswd());
+                  } catch (e) {
+                    Toast.show({
+                      type: 'error',
+                      text1: "Login failed.",
+                      text2: e,
+                      onPress: () => {
+                        navigationRef.navigate("Account", {});
+                      }
+                    })
+
+                    deleteLastLogin();
+                    deleteCredsPasswd();
+                    deleteCredsToken();
+                  }
+                } else {
+                  navigationRef.navigate("Account", {});
+                }
+              }
+            }
+          )
+
+          if (!await hasStoredPassword()) {
+            deleteLastLogin();
+            deleteCredsPasswd();
+            deleteCredsToken();
           }
         }
-      )
-    }
-
-    Toast.show(
-      {
-        type: 'error',
-        text1: "You have been logged out !",
-        text2: "It's been two week since you last logged in.",
-        onPress: () => {
-          navigationRef.navigate("Account", {});
-        }
+      } catch (error) {
+        console.error(error);
       }
-    )
-  })
+    })
+  }
 
   if (!(Platform.OS === 'ios' || Platform.OS === 'android')) {
     noWebview = true;
