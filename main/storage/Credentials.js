@@ -1,6 +1,38 @@
 import * as Keychain from 'react-native-keychain';
 import CookieManager from '@react-native-cookies/cookies';
 
+const TIMESTAMP_SERVICE = 'creds_timestamp';
+
+export async function setLastLogin() {
+  try {
+    await Keychain.setGenericPassword('last_login', new Date().toISOString(), {
+      service: TIMESTAMP_SERVICE,
+    });
+  } catch (error) {
+    console.error('Failed to update last login timestamp:', error);
+  }
+}
+
+export async function getLastLogin() {
+  try {
+    const creds = await Keychain.getGenericPassword({ service: TIMESTAMP_SERVICE });
+    return creds ? creds.password : null;
+  } catch (error) {
+    console.error('Failed to retrieve last login timestamp:', error);
+    return null;
+  }
+}
+
+export async function deleteLastLogin() {
+  try {
+    await Keychain.resetGenericPassword({ service: TIMESTAMP_SERVICE });
+    console.log('Last login timestamp deleted.');
+  } catch (error) {
+    console.error('Failed to delete last login timestamp:', error);
+    throw error;
+  }
+}
+
 export async function getCredsPasswd() {
   try {
     const creds = await Keychain.getGenericPassword({
@@ -15,6 +47,7 @@ export async function getCredsPasswd() {
 
     if (creds) {
       console.log('Credentials successfully loaded for user ' + creds.username);
+      await setLastLogin();
       return creds; // Return credentials
     } else {
       console.log('No credentials stored for password service');
@@ -55,6 +88,7 @@ export async function getCredsToken() {
 
     if (creds) {
       console.log('Token successfully loaded for user ' + creds.username);
+      await setLastLogin();
       return creds.password; // Return the token value (which is stored as password)
     } else {
       console.log('No token stored');
@@ -103,7 +137,7 @@ export async function deleteCredsToken() {
   try {
     await Keychain.resetGenericPassword({ service: 'creds_token' });
     await CookieManager.clearAll(); //Why the hell do I need that and why the hell does it remember cookie on its own ???
-    //Is it sentient ? I'm scarred. I never told him to remember cookies so why does it do ?
+    //Is it sentient ? I'm scarred. I never told it to remember cookies so why does it do ?
     console.log('Token credentials deleted.');
   } catch (error) {
     console.error('Failed to delete token credentials:', error);
@@ -139,5 +173,15 @@ export async function setUsernameOnly(username) {
   } catch (error) {
     console.error('Failed to store username:', error);
     throw error;
+  }
+}
+
+export async function hasStoredPassword() {
+  try {
+    const creds = await Keychain.getGenericPassword({ service: 'username_only' });
+    return creds !== false && creds !== null;
+  } catch (error) {
+    console.error('Failed to check for stored password:', error);
+    return false;
   }
 }

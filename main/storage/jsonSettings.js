@@ -22,6 +22,9 @@ const DEFAULT_SETTINGS = {
   downloadOnUpdate: false,
 
   finishedOnboarding: false,
+
+  addBookmarksToCategory: false,
+  bookmarksCategory: "default",
 };
 
 export async function getJsonSettings() {

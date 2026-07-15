@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Linking,
@@ -20,15 +20,17 @@ import {
   getUsername,
   setCredsPasswd,
   setCredsToken,
+  setLastLogin,
   setUsernameOnly,
 } from '../../storage/Credentials';
 import CustomAlert from '../../components/CustomAlert';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AppContext } from '../../app';
 
 const LoginScreen = ({ route }) => {
-  const { currentTheme, setScreens } = route.params;
+  const { currentTheme } = useContext(AppContext);
   const navigation = useNavigation();
 
   const [username, setUsername] = useState('');
@@ -150,6 +152,7 @@ const LoginScreen = ({ route }) => {
         }
 
         setIsLoggedIn(true);
+        await setLastLogin();
         showAlert(t('general_success'), t('screen_account_login_success'));
       } else {
         showAlert(

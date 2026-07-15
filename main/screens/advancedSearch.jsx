@@ -465,8 +465,9 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
   const [restoredCanonicalTag, setRestoredCanonicalTag] = useState(
     tagMode.active ? tagMode.tagName : null
   );
+  const [canonicalTagDismissed, setCanonicalTagDismissed] = useState(false);
 
-  const activeCanonicalTag = restoredCanonicalTag ?? (tagMode.active ? tagMode.tagName : null);
+  const activeCanonicalTag = canonicalTagDismissed ? null : restoredCanonicalTag;
 
   const [presets, setPresets] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -653,7 +654,18 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
   }
 
   async function loadTempPreset() {
-    const presetToLoad = await getTempPreset();
+    let presetToLoad;
+    try {
+      presetToLoad = await getTempPreset();
+    } catch (error) {
+      console.error('Error loading temporary preset:', error);
+      return;
+    }
+
+    if (!presetToLoad || !presetToLoad.preset) {
+      return;
+    }
+
     setAnyField(presetToLoad.preset.anyField);
     setTitle(presetToLoad.preset.title);
     setCreator(presetToLoad.preset.creator);
@@ -678,6 +690,7 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
     setExcludedRatings(presetToLoad.preset.excludedRatings || []);
     setExcludedWarnings(presetToLoad.preset.excludedWarnings || []);
     setRestoredCanonicalTag(presetToLoad.preset.canonicalTagName || null);
+    setCanonicalTagDismissed(false);
 
     setHits(presetToLoad.preset.hits);
     setKudos(presetToLoad.preset.kudos);
@@ -714,6 +727,7 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
     setExcludedRatings(presetToLoad.preset.excludedRatings || []);
     setExcludedWarnings(presetToLoad.preset.excludedWarnings || []);
     setRestoredCanonicalTag(presetToLoad.preset.canonicalTagName || null);
+    setCanonicalTagDismissed(false);
 
     setHits(presetToLoad.preset.hits);
     setKudos(presetToLoad.preset.kudos);
@@ -831,7 +845,7 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
             <Text style={[styles.canonicalTagBannerText, { color: currentTheme.primaryColor, flex: 1 }]}>
               {t('screen_advancedSearch_canonical_tag_banner', { tag: activeCanonicalTag })}
             </Text>
-            <TouchableOpacity onPress={() => setRestoredCanonicalTag(null)} style={styles.canonicalTagDismiss}>
+            <TouchableOpacity onPress={() => setCanonicalTagDismissed(true)} style={styles.canonicalTagDismiss}>
               <Icon name="close" size={14} style={{ color: currentTheme.primaryColor }} />
             </TouchableOpacity>
           </View>

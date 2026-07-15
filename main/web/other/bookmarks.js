@@ -4,7 +4,7 @@ import getUrl from '../requestManager';
 
 let DomParser = require('react-native-html-parser').DOMParser;
 
-export async function fetchBookmarks(page, username, pseud) {
+export async function fetchBookmarks(page, username, pseud, noWebview = false) {
   let url;
   try {
     const resolvedUsername = username || await getUsername();
@@ -15,7 +15,7 @@ export async function fetchBookmarks(page, username, pseud) {
     }
 
     console.log(`Fetching bookmarks from: ${url}`);
-    const response = await getUrl(url);
+    const response = await getUrl(url, noWebview);
     const doc = new DomParser().parseFromString(response, "text/html");
 
     const mainDiv = doc.getElementById("main");

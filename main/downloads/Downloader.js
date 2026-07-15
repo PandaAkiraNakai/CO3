@@ -7,7 +7,7 @@ export function buildPath(workId, chapterId) {
 }
 
 export async function downloadChapter(workId, chapterId) {
-  const [html, css] = await fetchChapter(workId, chapterId);
+  const [html, css] = await fetchChapter(workId, chapterId, true);
   await saveFile(html, css, workId, chapterId);
 }
 
