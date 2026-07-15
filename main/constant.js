@@ -1,1 +1,1 @@
-export const co3Version = "B0.0.16"
+export const co3Version = "B0.0.17"
