@@ -13,13 +13,14 @@ updates:
     schedule:
       interval: "weekly"
 
-  # iOS (CocoaPods)
+  # iOS
   - package-ecosystem: "bundler"
     directory: "/ios"
     schedule:
       interval: "weekly"
 
-  - package-ecosystem: "cocoapods"
+  # iOS 2 maybe
+  - package-ecosystem: "swift"
     directory: "/ios"
     schedule:
       interval: "weekly"
