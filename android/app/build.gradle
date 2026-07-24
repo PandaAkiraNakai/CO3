@@ -28,8 +28,8 @@ android {
         applicationId "com.co3"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 17
-        versionName "B0.0.17"
+        versionCode 18
+        versionName "B0.0.18"
     }
 
     splits {
