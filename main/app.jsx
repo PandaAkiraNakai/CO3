@@ -287,7 +287,7 @@ const TopBar = ({ currentTheme, activeScreen, setIsSideMenuOpen, searchTerm, set
             placeholder={t('general_global_search_placeholder')}
             placeholderTextColor={currentTheme.placeholderColor}
             value={searchTerm}
-            onPress={() => {
+            onFocus={() => {
               setActiveScreen('search');
             }}
             onChangeText={setSearchTerm}
