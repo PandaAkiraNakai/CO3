@@ -92,9 +92,10 @@ const Stack = createNativeStackNavigator();
 export const navigationRef = createNavigationContainerRef();
 
 const AppWrapper = () => {
-  const wrapperStyle = Platform.OS === 'web'
-    ? { flex: 1, width: '100%', height: '100%' }
-    : { flex: 1 };
+  const wrapperStyle =
+    Platform.OS === 'web'
+      ? { flex: 1, width: '100%', height: '100%' }
+      : { flex: 1 };
 
   // Props
   const { t } = useTranslation();
@@ -129,7 +130,13 @@ const AppWrapper = () => {
   const [selectedCollection, setSelectedCollection] = useState();
 
   const contextRef = useRef({
-    workDAO, libraryDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, currentTheme
+    workDAO,
+    libraryDAO,
+    settingsDAO,
+    historyDAO,
+    progressDAO,
+    kudoHistoryDAO,
+    currentTheme,
   });
 
   const loadBooks = async () => {
@@ -143,84 +150,92 @@ const AppWrapper = () => {
     }
   };
 
-  const openTagSearch = (tag) => {
+  const openTagSearch = tag => {
     setSelectedTag(tag);
     if (navigationRef.canGoBack()) {
       navigationRef.popToTop();
     }
-    setActiveScreen("browse");
-  }
+    setActiveScreen('browse');
+  };
 
   const currentTheme = useMemo(() => {
-    return (themes && themes[theme]) ? themes[theme] : (themes?.light || {
-      backgroundColor: 'white',
-      textColor: 'black',
-      headerBackground: '#f8f8f8',
-      iconColor: '#333',
-      inputBackground: '#eee',
-      borderColor: '#e0e0e0',
-      primaryColor: '#8b5cf6',
-      buttonBackground: '#eee',
-      placeholderColor: '#999',
-      cardBackground: '#fff',
-      secondaryTextColor: '#666',
-    });
+    return themes && themes[theme]
+      ? themes[theme]
+      : themes?.light || {
+          backgroundColor: 'white',
+          textColor: 'black',
+          headerBackground: '#f8f8f8',
+          iconColor: '#333',
+          inputBackground: '#eee',
+          borderColor: '#e0e0e0',
+          primaryColor: '#8b5cf6',
+          buttonBackground: '#eee',
+          placeholderColor: '#999',
+          cardBackground: '#fff',
+          secondaryTextColor: '#666',
+        };
   }, [theme]);
 
   return (
     <View style={wrapperStyle}>
-      <AppContext.Provider value={{
-        currentTheme,
-        searchTerm,
-        setSearchTerm,
-        books,
-        viewMode,
-        loadBooks,
-        workDAO,
-        historyDAO,
-        progressDAO,
-        settingsDAO,
-        screens,
-        setScreens,
-        libraryDAO,
-        setActiveScreen,
-        setTheme,
-        theme,
-        setViewMode,
-        kudoDAO,
-        kudoHistoryDAO,
-        openTagSearch,
-        selectedTag,
-        setSelectedTag,
-        updateDAO,
-        databaseObj,
-        chapterDAO,
-        selectedPreset,
-        setSelectedPreset,
-        setSelectedCollection,
-        selectedCollection,
-        setJsonSettings,
+      <AppContext.Provider
+        value={{
+          currentTheme,
+          searchTerm,
+          setSearchTerm,
+          books,
+          viewMode,
+          loadBooks,
+          workDAO,
+          historyDAO,
+          progressDAO,
+          settingsDAO,
+          screens,
+          setScreens,
+          libraryDAO,
+          setActiveScreen,
+          setTheme,
+          theme,
+          setViewMode,
+          kudoDAO,
+          kudoHistoryDAO,
+          openTagSearch,
+          selectedTag,
+          setSelectedTag,
+          updateDAO,
+          databaseObj,
+          chapterDAO,
+          selectedPreset,
+          setSelectedPreset,
+          setSelectedCollection,
+          selectedCollection,
+          setJsonSettings,
 
-        activeScreen,
-        loading, setLoading,
-        setDatabaseObj,
-        setWorkDAO,
-        setHistoryDAO,
-        setSettingsDAO,
-        setLibraryDAO,
-        setProgressDAO,
-        setKudoDAO,
-        setKudoHistoryDAO,
-        setupdateDAO,
-        setChapterDAO,
-        jsonSettings,
-        contextRef,
-        isSideMenuOpen, setIsSideMenuOpen,
-        isIncognitoMode, setIsIncognitoMode,
-        linkingUrl, setLinkingUrl,
-        setBooks,
-        t
-      }}>
+          activeScreen,
+          loading,
+          setLoading,
+          setDatabaseObj,
+          setWorkDAO,
+          setHistoryDAO,
+          setSettingsDAO,
+          setLibraryDAO,
+          setProgressDAO,
+          setKudoDAO,
+          setKudoHistoryDAO,
+          setupdateDAO,
+          setChapterDAO,
+          jsonSettings,
+          contextRef,
+          isSideMenuOpen,
+          setIsSideMenuOpen,
+          isIncognitoMode,
+          setIsIncognitoMode,
+          linkingUrl,
+          setLinkingUrl,
+          setBooks,
+          t,
+        }}
+      >
         <Host>
           <GestureHandlerRootView>
             <SafeAreaProvider style={{ flex: 1 }}>
@@ -236,14 +251,29 @@ const AppWrapper = () => {
                   <Stack.Screen name={'UserWork'} component={UserWorkScreen} />
                   <Stack.Screen name={'Storage'} component={StorageScreen} />
                   <Stack.Screen name={'Statistics'} component={StatsScreen} />
-                  <Stack.Screen name={'ReadLater'} component={ReadLaterScreen} />
-                  <Stack.Screen name={'Preferences'} component={PreferencesScreen} />
+                  <Stack.Screen
+                    name={'ReadLater'}
+                    component={ReadLaterScreen}
+                  />
+                  <Stack.Screen
+                    name={'Preferences'}
+                    component={PreferencesScreen}
+                  />
                   <Stack.Screen name={'Account'} component={LoginScreen} />
-                  <Stack.Screen name={'KudosHistory'} component={KudoHistoryScreen} />
+                  <Stack.Screen
+                    name={'KudosHistory'}
+                    component={KudoHistoryScreen}
+                  />
                   <Stack.Screen name={'Help'} component={HelpScreen} />
                   <Stack.Screen name={'Debug'} component={DebugScreen} />
-                  <Stack.Screen name={'Categories'} component={CategoryScreen} />
-                  <Stack.Screen name={'Bookmarks'} component={BookmarksScreen} />
+                  <Stack.Screen
+                    name={'Categories'}
+                    component={CategoryScreen}
+                  />
+                  <Stack.Screen
+                    name={'Bookmarks'}
+                    component={BookmarksScreen}
+                  />
                   <Stack.Screen name={'About'} component={AboutScreen} />
                 </Stack.Navigator>
               </NavigationContainer>
@@ -251,14 +281,25 @@ const AppWrapper = () => {
           </GestureHandlerRootView>
           <WebviewFetcher />
         </Host>
+        <CustomToast currentTheme={currentTheme} />
       </AppContext.Provider>
     </View>
   );
 };
 
-const TopBar = ({ currentTheme, activeScreen, setIsSideMenuOpen, searchTerm, setSearchTerm, setActiveScreen }) => {
+const TopBar = ({
+  currentTheme,
+  activeScreen,
+  setIsSideMenuOpen,
+  searchTerm,
+  setSearchTerm,
+  setActiveScreen,
+}) => {
   const insets = useSafeAreaInsets();
-  const showSearch = activeScreen === 'library' || activeScreen === 'search' || activeScreen === 'browse';
+  const showSearch =
+    activeScreen === 'library' ||
+    activeScreen === 'search' ||
+    activeScreen === 'browse';
 
   const { t } = useTranslation();
 
@@ -287,7 +328,7 @@ const TopBar = ({ currentTheme, activeScreen, setIsSideMenuOpen, searchTerm, set
             placeholder={t('general_global_search_placeholder')}
             placeholderTextColor={currentTheme.placeholderColor}
             value={searchTerm}
-            onPress={() => {
+            onFocus={() => {
               setActiveScreen('search');
             }}
             onChangeText={setSearchTerm}
@@ -296,7 +337,7 @@ const TopBar = ({ currentTheme, activeScreen, setIsSideMenuOpen, searchTerm, set
       ) : (
         <View style={styles.titleHeader}>
           <Text style={[styles.headerTitle, { color: currentTheme.textColor }]}>
-            {t("navigation_" + activeScreen)}
+            {t('navigation_' + activeScreen)}
           </Text>
         </View>
       )}
@@ -314,7 +355,12 @@ const TopBar = ({ currentTheme, activeScreen, setIsSideMenuOpen, searchTerm, set
   );
 };
 
-const BottomNavigation = ({ activeScreen, setActiveScreen, currentTheme, onDoubleTap }) => {
+const BottomNavigation = ({
+  activeScreen,
+  setActiveScreen,
+  currentTheme,
+  onDoubleTap,
+}) => {
   const { t } = useTranslation();
 
   const navItems = [
@@ -328,8 +374,16 @@ const BottomNavigation = ({ activeScreen, setActiveScreen, currentTheme, onDoubl
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.bottomNav, { backgroundColor: currentTheme.headerBackground, paddingBottom: insets.bottom, }]}>
-      {navItems.map((item) => (
+    <View
+      style={[
+        styles.bottomNav,
+        {
+          backgroundColor: currentTheme.headerBackground,
+          paddingBottom: insets.bottom,
+        },
+      ]}
+    >
+      {navItems.map(item => (
         <TouchableOpacity
           key={item.key}
           style={styles.navItemContainer}
@@ -346,16 +400,25 @@ const BottomNavigation = ({ activeScreen, setActiveScreen, currentTheme, onDoubl
             <Icon
               name={item.icon}
               size={24}
-              color={activeScreen === item.key ? currentTheme.primaryColor : currentTheme.iconColor}
-            />
-            <Text style={[
-              styles.navItemLabel,
-              {
-                color: activeScreen === item.key ? currentTheme.primaryColor : currentTheme.iconColor,
-                fontSize: 12,
-                marginTop: 4,
+              color={
+                activeScreen === item.key
+                  ? currentTheme.primaryColor
+                  : currentTheme.iconColor
               }
-            ]}>
+            />
+            <Text
+              style={[
+                styles.navItemLabel,
+                {
+                  color:
+                    activeScreen === item.key
+                      ? currentTheme.primaryColor
+                      : currentTheme.iconColor,
+                  fontSize: 12,
+                  marginTop: 4,
+                },
+              ]}
+            >
               {item.label}
             </Text>
           </View>
@@ -365,9 +428,7 @@ const BottomNavigation = ({ activeScreen, setActiveScreen, currentTheme, onDoubl
   );
 };
 
-
 const App = () => {
-
   const {
     currentTheme,
     searchTerm,
@@ -400,7 +461,8 @@ const App = () => {
     selectedCollection,
     setJsonSettings,
     activeScreen,
-    loading, setLoading,
+    loading,
+    setLoading,
     setDatabaseObj,
     setWorkDAO,
     setHistoryDAO,
@@ -413,10 +475,13 @@ const App = () => {
     setChapterDAO,
     jsonSettings,
     contextRef,
-    isSideMenuOpen, setIsSideMenuOpen,
-    isIncognitoMode, setIsIncognitoMode,
-    linkingUrl, setLinkingUrl,
-    setBooks
+    isSideMenuOpen,
+    setIsSideMenuOpen,
+    isIncognitoMode,
+    setIsIncognitoMode,
+    linkingUrl,
+    setLinkingUrl,
+    setBooks,
   } = useContext(AppContext);
 
   const insets = useSafeAreaInsets();
@@ -426,7 +491,14 @@ const App = () => {
   const navigation = useNavigation();
 
   useEffect(() => {
-    if (loading || !libraryDAO || !progressDAO || !settingsDAO || !workDAO || hasAddedInitialScreen.current) {
+    if (
+      loading ||
+      !libraryDAO ||
+      !progressDAO ||
+      !settingsDAO ||
+      !workDAO ||
+      hasAddedInitialScreen.current
+    ) {
       return;
     }
 
@@ -434,11 +506,11 @@ const App = () => {
       return;
     }
 
-    const handleUrl = async (url) => {
+    const handleUrl = async url => {
       hasAddedInitialScreen.current = true;
       const workId = url.split('/')[4];
 
-      navigation.push("Work", {
+      navigation.push('Work', {
         key: `url_work_${workId}`,
         workId: workId,
         currentTheme: currentTheme,
@@ -451,11 +523,11 @@ const App = () => {
         kudoHistoryDAO: kudoHistoryDAO,
         openTagSearch: openTagSearch,
         url: url,
-        chapterDAO: chapterDAO
-      })
+        chapterDAO: chapterDAO,
+      });
     };
 
-    Linking.getInitialURL().then((url) => {
+    Linking.getInitialURL().then(url => {
       if (url != null) {
         handleUrl(url);
       }
@@ -470,10 +542,23 @@ const App = () => {
 
   useEffect(() => {
     contextRef.current = {
-      workDAO, libraryDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, currentTheme
+      workDAO,
+      libraryDAO,
+      settingsDAO,
+      historyDAO,
+      progressDAO,
+      kudoHistoryDAO,
+      currentTheme,
     };
-  }, [workDAO, libraryDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, currentTheme]);
-
+  }, [
+    workDAO,
+    libraryDAO,
+    settingsDAO,
+    historyDAO,
+    progressDAO,
+    kudoHistoryDAO,
+    currentTheme,
+  ]);
 
   useEffect(() => {
     initializeApp();
@@ -482,8 +567,8 @@ const App = () => {
       setupNotificationListeners(
         setActiveScreen,
         setScreens,
-        (workId, chapterId) => handleNotificationOpen(workId, chapterId)
-      )
+        (workId, chapterId) => handleNotificationOpen(workId, chapterId),
+      );
     }
 
     const checkInitialNotification = async () => {
@@ -492,7 +577,9 @@ const App = () => {
       if (initialNotification) {
         if (initialNotification.notification.id === 'updateComplete') {
           setActiveScreen('update');
-        } else if (initialNotification.notification.data?.action === 'OPEN_WORK') {
+        } else if (
+          initialNotification.notification.data?.action === 'OPEN_WORK'
+        ) {
           const { workId, chapterId } = initialNotification.notification.data;
           setTimeout(() => handleNotificationOpen(workId, chapterId), 1000);
         }
@@ -509,9 +596,9 @@ const App = () => {
     };
   }, []);
 
-  const handleDoubleTap = (screenId) => {
+  const handleDoubleTap = screenId => {
     DeviceEventEmitter.emit('doubleTap', screenId);
-  }
+  };
 
   const handleNotificationOpen = async (workId, chapterNumber) => {
     const ctx = contextRef.current;
@@ -533,14 +620,15 @@ const App = () => {
 
         if (foundIndex !== -1) {
           loadChapterIndex = foundIndex;
-        }
-        else if (targetNum <= work.chapters.length && targetNum > 0) {
+        } else if (targetNum <= work.chapters.length && targetNum > 0) {
           loadChapterIndex = targetNum - 1;
         }
       }
 
-      console.log(`[Notification] Opening Work: ${work.title}, Index: ${loadChapterIndex}`);
-      navigation.push("Work", {
+      console.log(
+        `[Notification] Opening Work: ${work.title}, Index: ${loadChapterIndex}`,
+      );
+      navigation.push('Work', {
         key: `notif_${workId}_${Date.now()}`,
         workId: workId,
         currentTheme: ctx.currentTheme,
@@ -554,12 +642,11 @@ const App = () => {
         openTagSearch: openTagSearch,
         loadChapter: loadChapterIndex,
         chapterDAO: ctx.chapterDAO,
-      })
+      });
 
       setActiveScreen('update');
-
     } catch (e) {
-      console.error("Failed to open work from notification", e);
+      console.error('Failed to open work from notification', e);
     }
   };
 
@@ -568,9 +655,9 @@ const App = () => {
       console.log(screens);
       if (screens.length > 0) {
         return true;
-      } else if (activeScreen === "search") {
-        setActiveScreen("library")
-        console.log("Back on search, opening library as fallback"); //For some reason if I remove this, it doesn't work. Might be the first heisenbug of this codebase
+      } else if (activeScreen === 'search') {
+        setActiveScreen('library');
+        console.log('Back on search, opening library as fallback'); //For some reason if I remove this, it doesn't work. Might be the first heisenbug of this codebase
         return true;
       }
       return false;
@@ -578,7 +665,7 @@ const App = () => {
 
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
-      backAction
+      backAction,
     );
 
     return () => backHandler.remove();
@@ -586,13 +673,13 @@ const App = () => {
 
   const initializeApp = async () => {
     const jsonSettings = await getJsonSettings();
-    setJsonSettings(jsonSettings)
-    setup(jsonSettings.time)
+    setJsonSettings(jsonSettings);
+    setup(jsonSettings.time);
 
     if (Platform.OS === 'android') {
       try {
         const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
         );
       } catch (err) {
         console.error(err);
@@ -610,13 +697,13 @@ const App = () => {
       const newUpdateDAO = new UpdateDAO(db);
       const newChapterDAO = new ChapterDAO(db);
 
-      setDatabaseObj(db)
+      setDatabaseObj(db);
       setWorkDAO(newWorkDAO);
       setHistoryDAO(newHistoryDAO);
       setSettingsDAO(newSettingsDAO);
       setLibraryDAO(newLibraryDAO);
       setProgressDAO(newProgressDAO);
-      setKudoHistoryDAO(newKudoHistoryDAO)
+      setKudoHistoryDAO(newKudoHistoryDAO);
       setupdateDAO(newUpdateDAO);
       setChapterDAO(newChapterDAO);
 
@@ -642,13 +729,19 @@ const App = () => {
   }, [workDAO]);
 
   useEffect(() => {
-    const navBarColor = screens.length === 0 ? currentTheme.headerBackground : currentTheme.backgroundColor;
+    const navBarColor =
+      screens.length === 0
+        ? currentTheme.headerBackground
+        : currentTheme.backgroundColor;
     const isDark = theme === 'dark' || theme === 'black';
 
-    SystemNavigationBar.setNavigationColor(navBarColor, isDark ? "dark" : "light");
+    SystemNavigationBar.setNavigationColor(
+      navBarColor,
+      isDark ? 'dark' : 'light',
+    );
   }, [currentTheme, theme, screens]);
 
-  const saveTheme = async (newTheme) => {
+  const saveTheme = async newTheme => {
     try {
       if (settingsDAO) {
         const currentSettings = await settingsDAO.getSettings();
@@ -665,7 +758,7 @@ const App = () => {
     }
   };
 
-  const saveIncognitoMode = async (mode) => {
+  const saveIncognitoMode = async mode => {
     try {
       if (settingsDAO) {
         const currentSettings = await settingsDAO.getSettings();
@@ -673,8 +766,13 @@ const App = () => {
         await settingsDAO.saveSettings(currentSettings);
         setIsIncognitoMode(mode);
       } else {
-        console.warn('SettingsDAO not initialized, cannot save incognito mode.');
-        await AsyncStorage.setItem(STORAGE_KEYS.INCOGNITO_MODE, JSON.stringify(mode));
+        console.warn(
+          'SettingsDAO not initialized, cannot save incognito mode.',
+        );
+        await AsyncStorage.setItem(
+          STORAGE_KEYS.INCOGNITO_MODE,
+          JSON.stringify(mode),
+        );
         setIsIncognitoMode(mode);
       }
     } catch (error) {
@@ -682,7 +780,7 @@ const App = () => {
     }
   };
 
-  const saveViewMode = async (mode) => {
+  const saveViewMode = async mode => {
     try {
       if (settingsDAO) {
         const currentSettings = await settingsDAO.getSettings();
@@ -729,7 +827,7 @@ const App = () => {
     setSelectedPreset,
     setSelectedCollection,
     selectedCollection,
-    setJsonSettings
+    setJsonSettings,
   };
 
   const renderScreen = () => {
@@ -745,7 +843,7 @@ const App = () => {
       case 'more':
         return <MoreScreen {...screenProps} />;
       case 'search':
-        return <GlobalSearchScreen {...screenProps} />
+        return <GlobalSearchScreen {...screenProps} />;
       default:
         return <LibraryScreen {...screenProps} />;
     }
@@ -783,49 +881,71 @@ const App = () => {
           barStyle={theme === 'light' ? 'dark-content' : 'light-content'}
           backgroundColor={currentTheme.backgroundColor}
         />
-        <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
+        <View
+          style={[
+            styles.container,
+            { backgroundColor: currentTheme.backgroundColor },
+          ]}
+        >
           <MainOnboardScreen
             setTheme={saveTheme}
             currentTheme={currentTheme}
             onFinish={() => {
               jsonSettings.finishedOnboarding = true;
               saveJsonSettings(jsonSettings).then(
-                getJsonSettings().then(setJsonSettings)
-              )
+                getJsonSettings().then(setJsonSettings),
+              );
             }}
           />
         </View>
       </>
-    )
+    );
   }
 
   if (screens.length !== 0) {
     return (
       <>
-        <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
+        <View
+          style={[
+            styles.container,
+            { backgroundColor: currentTheme.backgroundColor },
+          ]}
+        >
           <StatusBar
             barStyle={theme === 'light' ? 'dark-content' : 'light-content'}
             backgroundColor={currentTheme.backgroundColor}
           />
-          <View style={[
-            styles.screenWrapper,
-            {
-              flex: 1,
-              paddingTop: insets.top,
-              paddingBottom: insets.bottom,
-            }
-          ]}>
+          <View
+            style={[
+              styles.screenWrapper,
+              {
+                flex: 1,
+                paddingTop: insets.top,
+                paddingBottom: insets.bottom,
+              },
+            ]}
+          >
             {screens[screens.length - 1]}
           </View>
         </View>
         <CustomToast currentTheme={currentTheme} />
       </>
-    )
+    );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
-      <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: currentTheme.backgroundColor },
+      ]}
+    >
+      <SafeAreaView
+        style={[
+          styles.container,
+          { backgroundColor: currentTheme.backgroundColor },
+        ]}
+      >
         <StatusBar
           barStyle={theme === 'light' ? 'dark-content' : 'light-content'}
           backgroundColor={currentTheme.headerBackground}

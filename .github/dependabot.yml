@@ -1,26 +1,12 @@
 version: 2
 
 updates:
-  # JS / React Native
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
 
-  # Android (Gradle)
   - package-ecosystem: "gradle"
     directory: "/android"
-    schedule:
-      interval: "weekly"
-
-  # iOS
-  - package-ecosystem: "bundler"
-    directory: "/ios"
-    schedule:
-      interval: "weekly"
-
-  # iOS 2 maybe
-  - package-ecosystem: "swift"
-    directory: "/ios"
     schedule:
       interval: "weekly"
