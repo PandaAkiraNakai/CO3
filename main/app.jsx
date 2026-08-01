@@ -70,6 +70,7 @@ import { useTranslation } from 'react-i18next';
 import {
   createNavigationContainerRef,
   NavigationContainer,
+  StackActions,
   useNavigation,
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -153,13 +154,13 @@ const AppWrapper = () => {
   const openTagSearch = tag => {
     setSelectedTag(tag);
     if (navigationRef.canGoBack()) {
-      navigationRef.popToTop();
+      navigationRef.dispatch(StackActions.popToTop());
     }
     setActiveScreen('browse');
   };
 
   const currentTheme = useMemo(() => {
-    return themes && themes[theme]
+    return themes && themes[theme] //TODO: Make the app not load till it get that theme to avoid flash bangs
       ? themes[theme]
       : themes?.light || {
           backgroundColor: 'white',
@@ -310,6 +311,7 @@ const TopBar = ({
         {
           backgroundColor: currentTheme.headerBackground,
           paddingTop: insets.top,
+          borderColor: currentTheme.borderColor,
         },
       ]}
     >
@@ -380,6 +382,7 @@ const BottomNavigation = ({
         {
           backgroundColor: currentTheme.headerBackground,
           paddingBottom: insets.bottom,
+          borderColor: currentTheme.borderColor,
         },
       ]}
     >
@@ -1007,7 +1010,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
   },
   searchContainer: {
     flex: 1,
@@ -1078,7 +1080,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
   },
   navItemContainer: {
     flex: 1,
