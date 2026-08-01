@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Dimensions,
   Modal,
@@ -12,6 +12,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
+import { getTempPreset, setTempPreset } from '../../storage/jsonSearches';
+import { AppContext } from '../../app';
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -24,7 +26,7 @@ const BookDetailsModal = ({
   onShowAllTags,
   openTagSearch,
 }) => {
-  if (!book) return null;
+  const { openSearch } = useContext(AppContext);
 
   const MAX_SCROLL_HEIGHT = windowHeight * 0.7;
   const [scrollHeight, setScrollHeight] = useState(MAX_SCROLL_HEIGHT);
@@ -72,6 +74,36 @@ const BookDetailsModal = ({
           : 'include';
       return { ...p, [tag]: next };
     });
+  }
+
+  async function applyTag() {
+    const included = []
+    const excluded = []
+
+    Object.entries(selected).forEach(([tag, state]) => {
+      if (state === 'include') {
+        included.push(tag);
+      } else if (state === 'exclude') {
+        excluded.push(tag);
+      }
+    });
+
+    const current = await getTempPreset() || {};
+
+    await setTempPreset({
+      timestamp: Date.now(),
+      preset: {
+        ...current,
+        additionalTags: [...(current.preset.additionalTags ?? []), ...included],
+        excludedAdditionalTags: [
+          ...(current.preset.excludedAdditionalTags ?? []),
+          ...excluded,
+        ],
+      },
+    });
+
+    onClose()
+    openSearch()
   }
 
   const hasSelectedTags = Object.values(selected).some(
@@ -444,7 +476,7 @@ const BookDetailsModal = ({
                         styles.applyButton,
                         { backgroundColor: theme.primaryColor },
                       ]}
-                      onPress={() => console.log(selected)}
+                      onPress={() => applyTag()}
                     >
                       <Text
                         style={[

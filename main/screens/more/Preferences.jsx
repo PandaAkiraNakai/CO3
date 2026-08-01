@@ -30,9 +30,7 @@ import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const PreferencesScreen = ({
-  route
-}) => {
+const PreferencesScreen = ({ route }) => {
   const {
     currentTheme,
     settingsDAO,
@@ -60,7 +58,8 @@ const PreferencesScreen = ({
   const [downloadWhileReading, setDownloadWhileReading] = useState(0);
   const [preferHtml, setPreferHtml] = useState(false);
   const [syncBookmarksToLibrary, setSyncBookmarksToLibrary] = useState(false);
-  const [syncBookmarksToLibraryCategory, setSyncBookmarksToLibraryCategory] = useState("default");
+  const [syncBookmarksToLibraryCategory, setSyncBookmarksToLibraryCategory] =
+    useState('default');
   const [showChapterDate, setShowChapterDate] = useState(false);
   const [compactNotifications, setCompactNotifications] = useState(false);
   const [updateTime, setUpdateTime] = useState(1440);
@@ -110,8 +109,8 @@ const PreferencesScreen = ({
           : jsonSettings.updateRestriction;
         setUpdateRestriction(restriction !== undefined ? restriction : 3);
 
-        setSyncBookmarksToLibrary(jsonSettings.addBookmarksToCategory)
-        setSyncBookmarksToLibraryCategory(jsonSettings.bookmarksCategory)
+        setSyncBookmarksToLibrary(jsonSettings.addBookmarksToCategory);
+        setSyncBookmarksToLibraryCategory(jsonSettings.bookmarksCategory);
       }
     } catch (error) {
       console.error('Error loading settings:', error);
@@ -696,7 +695,12 @@ const PreferencesScreen = ({
             </Text>
           </View>
 
-          <View style={[styles.settingItem, { borderBottomColor: activeTheme.borderColor }]}>
+          <View
+            style={[
+              styles.settingItem,
+              { borderBottomColor: activeTheme.borderColor },
+            ]}
+          >
             <Text
               style={[{ color: activeTheme.textColor }, styles.settingText]}
             >
@@ -893,16 +897,17 @@ const PreferencesScreen = ({
               <Switch
                 value={syncBookmarksToLibrary}
                 onValueChange={handleSyncBookmarksToLibrary}
-                thumbColor={syncBookmarksToLibrary ? activeTheme.primaryColor : '#f4f3f4'}
+                thumbColor={
+                  syncBookmarksToLibrary ? activeTheme.primaryColor : '#f4f3f4'
+                }
                 trackColor={{
                   false: '#767577',
                   true: `${activeTheme.primaryColor}40`,
                 }}
               />
             </View>
-            {
-              syncBookmarksToLibrary &&
-              <View style={[styles.settingItem, { borderBottomWidth: 0 }]} >
+            {syncBookmarksToLibrary && (
+              <View style={[styles.settingItem, { borderBottomWidth: 0 }]}>
                 <Text
                   style={[{ color: activeTheme.textColor }, styles.settingText]}
                 >
@@ -923,7 +928,7 @@ const PreferencesScreen = ({
                   ))}
                 </CustomDropdown>
               </View>
-            }
+            )}
           </View>
 
           <View style={[styles.settingItem, { borderBottomWidth: 0 }]}>

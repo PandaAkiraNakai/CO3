@@ -25,15 +25,18 @@ const HistoryHeader = ({
           style={[styles.subtitle, { color: currentTheme.placeholderColor }]}
         >
           {isFilterActive
-            ? (
-              totalCount > 1 ? t('component_history_header_count_filtered_plural', { totalCount: totalCount })
-              : t('component_history_header_count_filtered', { totalCount: totalCount })
-            )
-            : (
-              totalCount > 1 ? t('component_history_header_count_plural', { totalCount: totalCount })
-              : t('component_history_header_count', { totalCount: totalCount })
-            )
-          }
+            ? totalCount > 1
+              ? t('component_history_header_count_filtered_plural', {
+                  totalCount: totalCount,
+                })
+              : t('component_history_header_count_filtered', {
+                  totalCount: totalCount,
+                })
+            : totalCount > 1
+            ? t('component_history_header_count_plural', {
+                totalCount: totalCount,
+              })
+            : t('component_history_header_count', { totalCount: totalCount })}
         </Text>
       </View>
 

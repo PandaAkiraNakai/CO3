@@ -36,7 +36,6 @@ import Toast from 'react-native-toast-message';
 import { bookmark } from '../web/other/bookmarks';
 import { normalizeWorkData } from '../storage/dao/WorkDAO';
 import { getJsonSettings } from '../storage/jsonSettings';
-import UserInfoScreen from './UserInfo';
 import { processQueue } from '../downloads/DownloadManager';
 import {
   addToDownloadQueue,

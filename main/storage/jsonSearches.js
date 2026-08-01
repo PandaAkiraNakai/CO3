@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DeviceEventEmitter } from 'react-native';
 
 const STORAGE_KEY = 'SearchPresets';
 const TEMP_STORAGE_KEY = 'tempPreset';
@@ -86,6 +87,8 @@ export async function clearAllPresets() {
 export async function setTempPreset(jsonObject) {
   try {
     await AsyncStorage.setItem(TEMP_STORAGE_KEY, JSON.stringify(jsonObject));
+    DeviceEventEmitter.emit('tempPreset', jsonObject);
+
     return jsonObject;
   } catch (error) {
     console.error('Error setting temp preset:', error);

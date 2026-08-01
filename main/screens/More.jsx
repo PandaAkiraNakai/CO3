@@ -9,16 +9,7 @@ import {
   View,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import PreferencesScreen from './more/Preferences';
-import LoginScreen from './more/LoginScreen';
-import KudoHistoryScreen from './more/KudoHistory';
-import CategoryScreen from './more/CategoryScreen';
-import AboutScreen from './more/AboutScreen';
-import HelpScreen from './more/HelpScreen';
-import BookmarksScreen from './more/BookmarksScreen';
-import ReadLaterScreen from './more/ReadLaterScreen';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import StatsScreen from './more/StatsScreen';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 
@@ -43,7 +34,6 @@ const MoreScreen = ({
   setJsonSettings,
   openTagSearch,
 }) => {
-
   const navigation = useNavigation();
 
   const insets = useSafeAreaInsets();
@@ -72,7 +62,7 @@ const MoreScreen = ({
   const handlePress = screenName => {
     switch (screenName) {
       case 'Preferences':
-        navigation.push("Preferences", {
+        navigation.push('Preferences', {
           currentTheme: currentTheme,
           theme: theme,
           setTheme: setTheme,
@@ -82,17 +72,19 @@ const MoreScreen = ({
           toggleIncognitoMode: toggleIncognitoMode,
           settingsDAO: settingsDAO,
           setScreens: setScreens,
-          onRestartOnboarding: () => {setJsonSettings(prev => ({ ...prev, finishedOnboarding: false }));},
+          onRestartOnboarding: () => {
+            setJsonSettings(prev => ({ ...prev, finishedOnboarding: false }));
+          },
         });
         break;
       case 'Account':
-        navigation.push("Account", {
+        navigation.push('Account', {
           currentTheme: currentTheme,
           setScreens: setScreens,
         });
         break;
       case 'KudosHistory':
-        navigation.push("KudosHistory", {
+        navigation.push('KudosHistory', {
           currentTheme: currentTheme,
           workDAO: workDAO,
           libraryDAO: libraryDAO,
@@ -102,10 +94,10 @@ const MoreScreen = ({
           progressDAO: progressDAO,
           kudoHistoryDAO: kudoHistoryDAO,
           chapterDAO: chapterDAO,
-        })
+        });
         break;
       case 'Bookmarks':
-        navigation.push("Bookmarks", {
+        navigation.push('Bookmarks', {
           currentTheme: currentTheme,
           workDAO: workDAO,
           libraryDAO: libraryDAO,
@@ -116,10 +108,10 @@ const MoreScreen = ({
           progressDAO: progressDAO,
           kudoHistoryDAO: kudoHistoryDAO,
           chapterDAO: chapterDAO,
-        })
+        });
         break;
       case 'ReadLater':
-        navigation.push("ReadLater", {
+        navigation.push('ReadLater', {
           currentTheme: currentTheme,
           workDAO: workDAO,
           libraryDAO: libraryDAO,
@@ -133,7 +125,7 @@ const MoreScreen = ({
         });
         break;
       case 'Categories':
-        navigation.push("Categories", {
+        navigation.push('Categories', {
           currentTheme: currentTheme,
           workDAO: workDAO,
           libraryDAO: libraryDAO,
@@ -142,7 +134,7 @@ const MoreScreen = ({
           settingsDAO: settingsDAO,
           progressDAO: progressDAO,
           kudoHistoryDAO: kudoHistoryDAO,
-        })
+        });
         break;
       case 'Statistics':
         navigation.push('Statistics', {
@@ -160,7 +152,7 @@ const MoreScreen = ({
         });
         break;
       case 'Data and Storage':
-        navigation.push("Storage", {
+        navigation.push('Storage', {
           currentTheme: currentTheme,
           workDAO: workDAO,
           libraryDAO: libraryDAO,
@@ -169,11 +161,11 @@ const MoreScreen = ({
           settingsDAO: settingsDAO,
           progressDAO: progressDAO,
           kudoHistoryDAO: kudoHistoryDAO,
-          databaseObj: databaseObj
-        })
+          databaseObj: databaseObj,
+        });
         break;
       case 'About':
-        navigation.push("About", {
+        navigation.push('About', {
           currentTheme: currentTheme,
           workDAO: workDAO,
           libraryDAO: libraryDAO,
@@ -183,10 +175,10 @@ const MoreScreen = ({
           progressDAO: progressDAO,
           kudoHistoryDAO: kudoHistoryDAO,
           db: databaseObj,
-        })
+        });
         break;
       case 'Help':
-        navigation.push("Help", {
+        navigation.push('Help', {
           currentTheme: currentTheme,
           workDAO: workDAO,
           libraryDAO: libraryDAO,
@@ -195,7 +187,7 @@ const MoreScreen = ({
           settingsDAO: settingsDAO,
           progressDAO: progressDAO,
           kudoHistoryDAO: kudoHistoryDAO,
-        })
+        });
         break;
     }
     console.log(`${screenName} pressed`);

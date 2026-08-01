@@ -15,7 +15,6 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import BookCard from '../components/Library/BookCard';
 import CategorySelectionModal from '../components/WorkScreen/CategorySelectionModal.jsx';
 import { getJsonSettings } from '../storage/jsonSettings';
-import ReadLaterScreen from './more/ReadLaterScreen';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 

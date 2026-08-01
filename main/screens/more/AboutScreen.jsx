@@ -9,13 +9,12 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { co3Version } from '../../constant';
-import DebugScreen from './DebugScreen';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AboutScreen({ route }) {
-  const {setScreens, currentTheme, db} = route.params;
+  const { setScreens, currentTheme, db } = route.params;
   const navigation = useNavigation();
 
   function onBack() {
@@ -25,7 +24,12 @@ export default function AboutScreen({ route }) {
   const { t } = useTranslation();
 
   return (
-    <SafeAreaView style={[{backgroundColor: currentTheme.backgroundColor}, styles.container]}>
+    <SafeAreaView
+      style={[
+        { backgroundColor: currentTheme.backgroundColor },
+        styles.container,
+      ]}
+    >
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack}>
           <Icon name="arrow-back" size={24} color={currentTheme.textColor} />
@@ -38,9 +42,9 @@ export default function AboutScreen({ route }) {
         <View style={styles.mainContent}>
           <TouchableOpacity
             onPress={() =>
-              navigation.push("Debug", {
+              navigation.push('Debug', {
                 setScreens: setScreens,
-                db: db
+                db: db,
               })
             }
           >

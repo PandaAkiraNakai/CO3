@@ -43,7 +43,7 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
-  const [searchMounted, setSearchMounted] = useState(false); // mount once, never unmount
+  const [searchMounted, setSearchMounted] = useState(true); // mount once, never unmount
   const slideAnim = useRef(new Animated.Value(Dimensions.get('window').height)).current;
 
   const openSearch = () => {

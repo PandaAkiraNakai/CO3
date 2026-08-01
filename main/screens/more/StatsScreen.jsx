@@ -9,7 +9,6 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useEffect, useState } from 'react';
 import * as Stats from '../../storage/Stats';
-import UserInfoScreen from '../UserInfo';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';

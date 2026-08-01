@@ -59,12 +59,7 @@ import GlobalSearchScreen from './screens/GlobalSearchScreen';
 import { Host } from 'react-native-portalize';
 import WebviewFetcher from './web/WebviewFetcher';
 import MainOnboardScreen from './onboard/MainOnboardScreen';
-import {
-  Gesture,
-  GestureDetector,
-  GestureHandlerRootView,
-} from 'react-native-gesture-handler';
-import { runOnJS, useSharedValue } from 'react-native-reanimated';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import './storage/LanguageManager';
 import { useTranslation } from 'react-i18next';
 import {
@@ -159,6 +154,14 @@ const AppWrapper = () => {
     setActiveScreen('browse');
   };
 
+  const openSearch = tag => {
+    setSelectedTag(tag);
+    if (navigationRef.canGoBack()) {
+      navigationRef.dispatch(StackActions.popToTop());
+    }
+    setActiveScreen('browse');
+  };
+
   const currentTheme = useMemo(() => {
     return themes && themes[theme] //TODO: Make the app not load till it get that theme to avoid flash bangs
       ? themes[theme]
@@ -201,6 +204,7 @@ const AppWrapper = () => {
           kudoDAO,
           kudoHistoryDAO,
           openTagSearch,
+          openSearch,
           selectedTag,
           setSelectedTag,
           updateDAO,
