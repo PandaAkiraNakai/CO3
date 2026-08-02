@@ -52,6 +52,8 @@ import {
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { setup, setupNotificationListeners } from './web/updater';
 import { getJsonSettings, saveJsonSettings } from './storage/jsonSettings';
+import { getTempPreset, setTempPreset } from './storage/jsonSearches';
+import { checkTagCanonical } from './web/other/tagUtils';
 import { UpdateDAO } from './storage/dao/UpdateDAO';
 import notifee from 'react-native-notify-kit';
 import { ChapterDAO } from './storage/dao/ChapterDAO';
@@ -124,6 +126,7 @@ const AppWrapper = () => {
   const [selectedTag, setSelectedTag] = useState();
   const [selectedPreset, setSelectedPreset] = useState();
   const [selectedCollection, setSelectedCollection] = useState();
+  const [applyTempPreset, setApplyTempPreset] = useState(0);
 
   const contextRef = useRef({
     workDAO,
@@ -146,20 +149,46 @@ const AppWrapper = () => {
     }
   };
 
-  const openTagSearch = tag => {
-    setSelectedTag(tag);
+  const openSearch = () => {
     if (navigationRef.canGoBack()) {
       navigationRef.dispatch(StackActions.popToTop());
     }
+    setApplyTempPreset(Date.now());
     setActiveScreen('browse');
   };
 
-  const openSearch = tag => {
-    setSelectedTag(tag);
-    if (navigationRef.canGoBack()) {
-      navigationRef.dispatch(StackActions.popToTop());
+  const openTagSearch = async tag => {
+    let isCanonical = false;
+    try {
+      const info = await checkTagCanonical(tag);
+      isCanonical = !!info?.isCanonical;
+    } catch (error) {
+      console.warn(
+        'checkTagCanonical failed, treating tag as additional:',
+        error,
+      );
     }
-    setActiveScreen('browse');
+
+    const current = await getTempPreset();
+    const currentPreset = current?.preset || {};
+
+    const preset = { ...currentPreset };
+
+    if (isCanonical && !preset.canonicalTagName) {
+      preset.canonicalTagName = tag;
+    } else {
+      const additionalTags = preset.additionalTags ?? [];
+      const tagExists = additionalTags.some(
+        item => (typeof item === 'string' ? item : item?.name) === tag,
+      );
+      preset.additionalTags = tagExists
+        ? additionalTags
+        : [...additionalTags, { id: `custom-${tag}`, name: tag }];
+    }
+
+    await setTempPreset({ timestamp: Date.now(), preset });
+
+    openSearch();
   };
 
   const currentTheme = useMemo(() => {
@@ -212,6 +241,8 @@ const AppWrapper = () => {
           chapterDAO,
           selectedPreset,
           setSelectedPreset,
+          applyTempPreset,
+          setApplyTempPreset,
           setSelectedCollection,
           selectedCollection,
           setJsonSettings,
@@ -464,6 +495,8 @@ const App = () => {
     chapterDAO,
     selectedPreset,
     setSelectedPreset,
+    applyTempPreset,
+    setApplyTempPreset,
     setSelectedCollection,
     selectedCollection,
     setJsonSettings,
@@ -832,6 +865,8 @@ const App = () => {
     chapterDAO,
     selectedPreset,
     setSelectedPreset,
+    applyTempPreset,
+    setApplyTempPreset,
     setSelectedCollection,
     selectedCollection,
     setJsonSettings,

@@ -76,34 +76,63 @@ const BookDetailsModal = ({
     });
   }
 
-  async function applyTag() {
-    const included = []
-    const excluded = []
+  function tagShortPress(tag) {
+    const tmp = {};
+    tmp[tag] = 'include';
+    applyTag(tmp);
+  }
 
-    Object.entries(selected).forEach(([tag, state]) => {
+  async function applyTag(tags = undefined) {
+    const included = [];
+    const excluded = [];
+
+    Object.entries(tags || selected).forEach(([tag, state]) => {
       if (state === 'include') {
-        included.push(tag);
+        included.push({ id: `custom-${tag}`, name: tag });
       } else if (state === 'exclude') {
-        excluded.push(tag);
+        excluded.push({ id: `custom-${tag}`, name: tag });
       }
     });
 
-    const current = await getTempPreset() || {};
+    const current = await getTempPreset();
+    const currentPreset = current?.preset || {};
+
+    // Normalize strings → objects and merge without duplicates (by name, case-insensitive)
+    const normalizeTag = item => {
+      if (typeof item === 'string') {
+        return { id: `custom-${item}`, name: item };
+      }
+      if (item && typeof item === 'object' && item.name) {
+        return item;
+      }
+      return null;
+    };
+
+    const mergeTagArrays = (existing = [], incoming = []) => {
+      const map = new Map();
+      [...existing, ...incoming].forEach(item => {
+        const normalized = normalizeTag(item);
+        if (normalized) {
+          map.set(normalized.name.toLowerCase(), normalized);
+        }
+      });
+      return Array.from(map.values());
+    };
 
     await setTempPreset({
       timestamp: Date.now(),
       preset: {
-        ...current,
-        additionalTags: [...(current.preset.additionalTags ?? []), ...included],
-        excludedAdditionalTags: [
-          ...(current.preset.excludedAdditionalTags ?? []),
-          ...excluded,
-        ],
+        ...currentPreset,
+        additionalTags: mergeTagArrays(currentPreset.additionalTags, included),
+        excludedAdditionalTags: mergeTagArrays(
+          currentPreset.excludedAdditionalTags,
+          excluded,
+        ),
       },
     });
 
-    onClose()
-    openSearch()
+    onClose();
+    openSearch();
   }
 
   const hasSelectedTags = Object.values(selected).some(
@@ -198,7 +227,7 @@ const BookDetailsModal = ({
                                   if (hasSelectedTags && mode === 'allTags') {
                                     tagLongedPressed(tag);
                                   } else {
-                                    openTagSearch(tag);
+                                    tagShortPress(tag);
                                   }
                                 }}
                                 onLongPress={() => tagLongedPressed(tag)}
