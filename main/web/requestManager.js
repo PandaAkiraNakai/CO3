@@ -12,10 +12,6 @@ import {
   hasStoredPassword,
 } from '../storage/Credentials';
 import Toast from 'react-native-toast-message';
-import {
-  createNavigationContainerRef,
-  useNavigation,
-} from '@react-navigation/native';
 import { navigationRef } from '../app';
 import { handleLogin } from './account/login';
 

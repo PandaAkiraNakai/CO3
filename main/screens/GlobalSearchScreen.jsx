@@ -11,7 +11,6 @@ import autoComplete from '../web/browse/autoComplete';
 import { fetchFilteredWorks } from '../web/browse/fetchWorks';
 import SmallBookCard from '../components/common/SmallBookCard';
 import Toast from 'react-native-toast-message';
-import WorkScreen from './workScreen';
 import { searchJsonPreset } from '../storage/jsonSearches';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';

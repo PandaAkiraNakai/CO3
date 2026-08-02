@@ -14,14 +14,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function CategoryScreen({
-  route
-}) {
-  const {
-    currentTheme,
-    setScreens,
-    libraryDAO,
-  } = route.params;
+export default function CategoryScreen({ route }) {
+  const { currentTheme, setScreens, libraryDAO } = route.params;
 
   const [categories, setCategories] = useState([]);
   const [editingId, setEditingId] = useState(null);
@@ -319,7 +313,9 @@ export default function CategoryScreen({
       <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
         <TouchableOpacity style={styles.addButton} onPress={addCategories}>
           <Icon name="add" size={24} color="white" />
-          <Text style={styles.addButtonText}>{t('screen_category_new_category')}</Text>
+          <Text style={styles.addButtonText}>
+            {t('screen_category_new_category')}
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

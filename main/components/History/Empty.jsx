@@ -2,12 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-const EmptyState = ({
-  currentTheme,
-  isFilterActive,
-  textLine1,
-  textLine2,
-}) => {
+const EmptyState = ({ currentTheme, isFilterActive, textLine1, textLine2 }) => {
   const { t } = useTranslation();
 
   return (
@@ -18,7 +13,9 @@ const EmptyState = ({
           { color: currentTheme.placeholderColor },
         ]}
       >
-        {isFilterActive ? t('component_empty_for_range_title') : textLine1 ?? t('component_empty_title')}
+        {isFilterActive
+          ? t('component_empty_for_range_title')
+          : textLine1 ?? t('component_empty_title')}
       </Text>
       <Text
         style={[
@@ -26,7 +23,9 @@ const EmptyState = ({
           { color: currentTheme.placeholderColor },
         ]}
       >
-        {isFilterActive ? t('component_empty_for_range_sub') : textLine2 ?? t('component_empty_sub')}
+        {isFilterActive
+          ? t('component_empty_for_range_sub')
+          : textLine2 ?? t('component_empty_sub')}
       </Text>
     </View>
   );

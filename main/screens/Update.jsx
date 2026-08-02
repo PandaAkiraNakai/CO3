@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import UpdateBookCard from '../components/Update/UpdateBookCard';
-import ChapterInfoScreen from './workScreen';
 import { run } from '../web/updater';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
@@ -166,7 +165,7 @@ const UpdateScreen = ({
       }
     }
 
-    navigation.push("Work", {
+    navigation.push('Work', {
       key: `update_$update.id}`,
       workId: update.workId,
       currentTheme: currentTheme,
@@ -180,7 +179,7 @@ const UpdateScreen = ({
       openTagSearch: openTagSearch,
       loadChapter: loadChapterIndex,
       chapterDAO: chapterDAO,
-    })
+    });
   };
 
   if (loading) {

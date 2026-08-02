@@ -19,9 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function ReadLaterScreen({
-  route
-}) {
+export default function ReadLaterScreen({ route }) {
   const {
     setScreens,
     currentTheme,

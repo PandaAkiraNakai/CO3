@@ -13,14 +13,8 @@ import { useNavigation } from '@react-navigation/native';
 import CustomToast from '../../components/common/CustomToast';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function StorageScreen({
-  route
-}) {
-  const {
-    setScreens,
-    currentTheme,
-    databaseObj,
-  } = route.params;
+export default function StorageScreen({ route }) {
+  const { setScreens, currentTheme, databaseObj } = route.params;
 
   const navigation = useNavigation();
 
@@ -31,7 +25,12 @@ export default function StorageScreen({
   const { t } = useTranslation();
 
   return (
-    <SafeAreaView style={[{backgroundColor: currentTheme.backgroundColor}, styles.container]}>
+    <SafeAreaView
+      style={[
+        { backgroundColor: currentTheme.backgroundColor },
+        styles.container,
+      ]}
+    >
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack}>
           <Icon name="arrow-back" size={24} color={currentTheme.textColor} />

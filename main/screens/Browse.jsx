@@ -20,7 +20,7 @@ import BookCard from '../components/Library/BookCard';
 import AdvancedSearchScreen from './advancedSearch';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getJsonSettings } from '../storage/jsonSettings';
-import { getAllPresets } from '../storage/jsonSearches';
+import { getAllPresets, getTempPreset } from '../storage/jsonSearches';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
 
@@ -29,10 +29,29 @@ const FilterIcon = ({ color, size }) => (
 );
 
 const ClearIcon = ({ color, size }) => (
-  <Icon name={"close"} style={{color: color}} size={size} />
+  <Icon name={'close'} style={{ color: color }} size={size} />
 );
 
-const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, libraryDAO, workDAO, settingsDAO, historyDAO, progressDAO, kudoHistoryDAO, openTagSearch, selectedTag, setSelectedTag, chapterDAO, selectedPreset, setSelectedPreset }) => {
+const BrowseScreen = ({
+  currentTheme,
+  viewMode = 'med',
+  setScreens,
+  screens,
+  libraryDAO,
+  workDAO,
+  settingsDAO,
+  historyDAO,
+  progressDAO,
+  kudoHistoryDAO,
+  openTagSearch,
+  selectedTag,
+  setSelectedTag,
+  chapterDAO,
+  selectedPreset,
+  setSelectedPreset,
+  applyTempPreset,
+  setApplyTempPreset,
+}) => {
   const insets = useSafeAreaInsets();
 
   const { t } = useTranslation();
@@ -43,8 +62,10 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
-  const [searchMounted, setSearchMounted] = useState(false); // mount once, never unmount
-  const slideAnim = useRef(new Animated.Value(Dimensions.get('window').height)).current;
+  const [searchMounted, setSearchMounted] = useState(true); // mount once, never unmount
+  const slideAnim = useRef(
+    new Animated.Value(Dimensions.get('window').height),
+  ).current;
 
   const openSearch = () => {
     setSearchMounted(true);
@@ -56,13 +77,16 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
   };
 
   useEffect(() => {
-    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (searchMounted && slideAnim._value === 0) {
-        closeSearch();
-        return true;
-      }
-      return false;
-    });
+    const subscription = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        if (searchMounted && slideAnim._value === 0) {
+          closeSearch();
+          return true;
+        }
+        return false;
+      },
+    );
 
     return () => subscription.remove();
   }, [searchMounted, slideAnim, closeSearch]);
@@ -86,86 +110,90 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
   const [jsonSettings, setJsonSettings] = useState();
 
   useEffect(() => {
-    const subscription = DeviceEventEmitter.addListener('doubleTap', (id) => {
-      openSearch()
-    })
+    const subscription = DeviceEventEmitter.addListener('doubleTap', id => {
+      openSearch();
+    });
 
     return () => {
-      subscription.remove()
-    }
-  }, [openSearch])
+      subscription.remove();
+    };
+  }, [openSearch]);
 
-  const loadWorks = useCallback(async (reset = false) => {
-    const isTagMode = tagMode.active && tagMode.tagName;
-    if (!reset && !isTagMode && Object.keys(appliedFilters).length === 0) return;
+  const loadWorks = useCallback(
+    async (reset = false) => {
+      const isTagMode = tagMode.active && tagMode.tagName;
+      if (!reset && !isTagMode && Object.keys(appliedFilters).length === 0)
+        return;
 
-    if (loadingMore && !reset) return;
-    if (!reset && !hasMore) return;
+      if (loadingMore && !reset) return;
+      if (!reset && !hasMore) return;
 
-    try {
-      if (reset) {
-        setLoading(true);
-        setCurrentPage(1);
-        setWorks([]);
-        setHasMore(true);
-      } else {
-        setLoadingMore(true);
+      try {
+        if (reset) {
+          setLoading(true);
+          setCurrentPage(1);
+          setWorks([]);
+          setHasMore(true);
+        } else {
+          setLoadingMore(true);
+        }
+
+        setError(null);
+
+        const pageToLoad = reset ? 1 : currentPage + 1;
+
+        const result = isTagMode
+          ? await fetchTagWorks(tagMode.tagName, appliedFilters, pageToLoad)
+          : await fetchFilteredWorks(appliedFilters, pageToLoad);
+        const newWorks = result.works || [];
+
+        console.log(result);
+
+        const isLastPage = newWorks.length < 20;
+
+        setJsonSettings(await getJsonSettings());
+
+        if (reset) {
+          setWorks(newWorks);
+        } else {
+          setWorks(prevWorks => {
+            const existingIds = new Set(prevWorks.map(w => w.id));
+            const uniqueNewWorks = newWorks.filter(w => !existingIds.has(w.id));
+            return [...prevWorks, ...uniqueNewWorks];
+          });
+        }
+
+        setCurrentPage(pageToLoad);
+
+        if (!isTagMode && Object.keys(appliedFilters).length === 0) {
+          setHasMore(false);
+        } else if (isLastPage) {
+          setHasMore(false);
+        }
+      } catch (err) {
+        console.error('Error loading worksScreen:', err);
+        if (reset) {
+          setError({
+            message: err.message || 'Failed to load worksScreen',
+            status: err.response?.status || 'Unknown',
+            statusText: err.response?.statusText || 'Network Error',
+          });
+        } else {
+          setHasMore(false);
+        }
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+        setRefreshing(false);
       }
-
-      setError(null);
-
-      const pageToLoad = reset ? 1 : currentPage + 1;
-
-      const result = isTagMode
-        ? await fetchTagWorks(tagMode.tagName, appliedFilters, pageToLoad)
-        : await fetchFilteredWorks(appliedFilters, pageToLoad);
-      const newWorks = result.works || [];
-
-      console.log(result);
-
-      const isLastPage = newWorks.length < 20;
-
-      setJsonSettings(await getJsonSettings());
-
-      if (reset) {
-        setWorks(newWorks);
-      } else {
-        setWorks(prevWorks => {
-          const existingIds = new Set(prevWorks.map(w => w.id));
-          const uniqueNewWorks = newWorks.filter(w => !existingIds.has(w.id));
-          return [...prevWorks, ...uniqueNewWorks];
-        });
-      }
-
-      setCurrentPage(pageToLoad);
-
-      if (!isTagMode && Object.keys(appliedFilters).length === 0) {
-        setHasMore(false);
-      } else if (isLastPage) {
-        setHasMore(false);
-      }
-
-    } catch (err) {
-      console.error('Error loading worksScreen:', err);
-      if (reset) {
-        setError({
-          message: err.message || 'Failed to load worksScreen',
-          status: err.response?.status || 'Unknown',
-          statusText: err.response?.statusText || 'Network Error'
-        });
-      } else {
-        setHasMore(false);
-      }
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-      setRefreshing(false);
-    }
-  }, [tagMode, appliedFilters, currentPage, hasMore, loadingMore]);
+    },
+    [tagMode, appliedFilters, currentPage, hasMore, loadingMore],
+  );
 
   useEffect(() => {
+    if (applyTempPreset) return;
     loadWorks(true);
-  }, [tagMode, appliedFilters]);
+  }, [tagMode, appliedFilters, applyTempPreset]);
 
   // Handle preset selection
   useEffect(() => {
@@ -183,26 +211,47 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
         }
 
         const p = found.preset;
-        const itemsToString = (items) =>
-          Array.isArray(items) ? items.map(i => i.name).join(',') : '';
+        const itemsToString = items =>
+          Array.isArray(items)
+            ? items
+                .map(item =>
+                  typeof item === 'string'
+                    ? item.trim()
+                    : (item?.name ?? '').toString().trim(),
+                )
+                .filter(Boolean)
+                .join(',')
+            : '';
 
         const filters = {};
         if (p.anyField) filters['work_search[query]'] = p.anyField;
         if (p.title) filters['work_search[title]'] = p.title;
         if (p.creator) filters['work_search[creators]'] = p.creator;
         if (p.date) filters['work_search[revised_at]'] = p.date;
-        if (p.completionStatus) filters['work_search[complete]'] = p.completionStatus;
-        if (p.crossoverStatus) filters['work_search[crossover]'] = p.crossoverStatus;
+        if (p.completionStatus)
+          filters['work_search[complete]'] = p.completionStatus;
+        if (p.crossoverStatus)
+          filters['work_search[crossover]'] = p.crossoverStatus;
         if (p.singleChapter) filters['work_search[single_chapter]'] = '1';
         if (p.wordCount) filters['work_search[word_count]'] = p.wordCount;
         if (p.language) filters['work_search[language_id]'] = p.language;
-        if (p.fandoms?.length) filters['work_search[fandom_names]'] = itemsToString(p.fandoms);
+        if (p.fandoms?.length)
+          filters['work_search[fandom_names]'] = itemsToString(p.fandoms);
         if (p.rating) filters['work_search[rating_ids]'] = p.rating;
-        if (p.warnings?.length) filters['work_search[archive_warning_ids][]']= p.warnings;
-        if (p.categories?.length) filters['work_search[category_ids][]'] = p.categories;
-        if (p.characters?.length) filters['work_search[character_names]'] = itemsToString(p.characters);
-        if (p.relationships?.length) filters['work_search[relationship_names]'] = itemsToString(p.relationships);
-        if (p.additionalTags?.length)filters['work_search[freeform_names]'] = itemsToString(p.additionalTags);
+        if (p.warnings?.length)
+          filters['work_search[archive_warning_ids][]'] = p.warnings;
+        if (p.categories?.length)
+          filters['work_search[category_ids][]'] = p.categories;
+        if (p.characters?.length)
+          filters['work_search[character_names]'] = itemsToString(p.characters);
+        if (p.relationships?.length)
+          filters['work_search[relationship_names]'] = itemsToString(
+            p.relationships,
+          );
+        if (p.additionalTags?.length)
+          filters['work_search[freeform_names]'] = itemsToString(
+            p.additionalTags,
+          );
         if (p.hits) filters['work_search[hits]'] = p.hits;
         if (p.kudos) filters['work_search[kudos_count]'] = p.kudos;
         if (p.comments) filters['work_search[comments_count]'] = p.comments;
@@ -218,7 +267,7 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
         setError({
           message: `Failed to apply preset: ${err.message}`,
           status: 'Error',
-          statusText: 'Preset Error'
+          statusText: 'Preset Error',
         });
       } finally {
         setTimeout(() => {
@@ -229,6 +278,99 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
 
     applyPreset();
   }, [selectedPreset, setSelectedPreset]);
+
+  useEffect(() => {
+    if (!applyTempPreset) return;
+
+    const runTempSearch = async () => {
+      try {
+        const temp = await getTempPreset();
+        const preset = temp?.preset;
+        if (!preset) {
+          setApplyTempPreset(0);
+          return;
+        }
+
+        const itemsToString = items => items.map(item => item.name).join(',');
+
+        const filters = {};
+
+        if (preset.anyField) filters['work_search[query]'] = preset.anyField;
+        if (preset.title) filters['work_search[title]'] = preset.title;
+        if (preset.creator) filters['work_search[creators]'] = preset.creator;
+        if (preset.date) filters['work_search[revised_at]'] = preset.date;
+        if (preset.completionStatus)
+          filters['work_search[complete]'] = preset.completionStatus;
+        if (preset.crossoverStatus)
+          filters['work_search[crossover]'] = preset.crossoverStatus;
+        if (preset.singleChapter) filters['work_search[single_chapter]'] = '1';
+        if (preset.wordCount)
+          filters['work_search[word_count]'] = preset.wordCount;
+        if (preset.language)
+          filters['work_search[language_id]'] = preset.language;
+
+        if (preset.fandoms?.length)
+          filters['work_search[fandom_names]'] = itemsToString(preset.fandoms);
+        if (preset.rating) filters['work_search[rating_ids]'] = preset.rating;
+        if (preset.warnings?.length)
+          filters['work_search[archive_warning_ids][]'] = preset.warnings;
+        if (preset.categories?.length)
+          filters['work_search[category_ids][]'] = preset.categories;
+        if (preset.characters?.length)
+          filters['work_search[character_names]'] = itemsToString(
+            preset.characters,
+          );
+        if (preset.relationships?.length)
+          filters['work_search[relationship_names]'] = itemsToString(
+            preset.relationships,
+          );
+        if (preset.additionalTags?.length)
+          filters['work_search[freeform_names]'] = itemsToString(
+            preset.additionalTags,
+          );
+
+        const allExcluded = [
+          ...(preset.excludedFandoms || []),
+          ...(preset.excludedCharacters || []),
+          ...(preset.excludedRelationships || []),
+          ...(preset.excludedAdditionalTags || []),
+          ...(preset.excludedRatings || []).map(name => ({ name })),
+          ...(preset.excludedWarnings || []).map(name => ({ name })),
+        ];
+        if (allExcluded.length > 0) {
+          filters['work_search[excluded_tag_names]'] =
+            itemsToString(allExcluded);
+        }
+
+        if (preset.hits) filters['work_search[hits]'] = preset.hits;
+        if (preset.kudos) filters['work_search[kudos_count]'] = preset.kudos;
+        if (preset.comments)
+          filters['work_search[comments_count]'] = preset.comments;
+        if (preset.bookmarks)
+          filters['work_search[bookmarks_count]'] = preset.bookmarks;
+
+        filters['work_search[sort_column]'] = preset.sortBy || 'revised_at';
+        filters['work_search[sort_direction]'] = preset.sortDirection || 'desc';
+
+        if (preset.canonicalTagName) {
+          setTagMode({ active: true, tagName: preset.canonicalTagName });
+        } else {
+          setTagMode({ active: false, tagName: null });
+        }
+
+        setAppliedFilters(filters);
+        setHasFilters(
+          Object.keys(filters).length > 0 || !!preset.canonicalTagName,
+        );
+      } catch (err) {
+        console.error('BrowseScreen temp preset apply failed:', err);
+      } finally {
+        setApplyTempPreset(0);
+      }
+    };
+
+    runTempSearch();
+  }, [applyTempPreset, setApplyTempPreset]);;
 
   useEffect(() => {
     if (selectedTag == null) return;
@@ -243,13 +385,16 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
           setHasFilters(true);
         } else {
           setTagMode({ active: false, tagName: null });
-          setAppliedFilters({ "work_search[freeform_names]": selectedTag });
+          setAppliedFilters({ 'work_search[freeform_names]': selectedTag });
           setHasFilters(true);
         }
       } catch (err) {
-        console.warn('checkTagCanonical failed, falling back to generic search:', err);
+        console.warn(
+          'checkTagCanonical failed, falling back to generic search:',
+          err,
+        );
         setTagMode({ active: false, tagName: null });
-        setAppliedFilters({ "work_search[freeform_names]": selectedTag });
+        setAppliedFilters({ 'work_search[freeform_names]': selectedTag });
         setHasFilters(true);
       } finally {
         setSelectedTag(null);
@@ -270,7 +415,15 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
     if (!loading && !loadingMore && hasMore && works.length > 0) {
       loadWorks(false);
     }
-  }, [tagMode, loading, loadingMore, hasMore, works.length, loadWorks, appliedFilters]);
+  }, [
+    tagMode,
+    loading,
+    loadingMore,
+    hasMore,
+    works.length,
+    loadWorks,
+    appliedFilters,
+  ]);
 
   const handleSearchFilters = (filters, canonicalTagName) => {
     if (canonicalTagName) {
@@ -285,23 +438,23 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
 
   const handleClearFilters = () => {
     Alert.alert(
-      "Clear Filters",
-      "Are you sure you want to clear all filters?",
+      'Clear Filters',
+      'Are you sure you want to clear all filters?',
       [
-        { text: t('general_cancel'), style: "cancel" },
+        { text: t('general_cancel'), style: 'cancel' },
         {
-          text: "Clear",
+          text: 'Clear',
           onPress: () => {
             setTagMode({ active: false, tagName: null });
             setAppliedFilters({});
             setHasFilters(false);
-          }
-        }
-      ]
+          },
+        },
+      ],
     );
   };
 
-  const formatWork = (work) => {
+  const formatWork = work => {
     return {
       id: work.id,
       title: work.title,
@@ -314,7 +467,9 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
       warnings: work.warnings,
       description: work.description,
       descriptionHTML: work.descriptionHTML,
-      lastUpdated: work.updated ? new Date(work.updated).toLocaleDateString() : 'Unknown',
+      lastUpdated: work.updated
+        ? new Date(work.updated).toLocaleDateString()
+        : 'Unknown',
       likes: work.kudos,
       bookmarks: work.bookmarks,
       words: work.words,
@@ -395,24 +550,28 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
     return null;
   };
 
-  const renderItem = useCallback(({ item }) => (    <BookCard
-      book={formatWork(item)}
-      viewMode={viewMode}
-      theme={currentTheme}
-      onUpdate={() => {}}
-      setScreens={setScreens}
-      screens={screens}
-      libraryDAO={libraryDAO}
-      workDAO={workDAO}
-      settingsDAO={settingsDAO}
-      historyDAO={historyDAO}
-      progressDAO={progressDAO}
-      kudoHistoryDAO={kudoHistoryDAO}
-      openTagSearch={openTagSearch}
-      jsonSettings={jsonSettings}
-      chapterDAO={chapterDAO}
-    />
-  ), [viewMode, currentTheme, jsonSettings]);
+  const renderItem = useCallback(
+    ({ item }) => (
+      <BookCard
+        book={formatWork(item)}
+        viewMode={viewMode}
+        theme={currentTheme}
+        onUpdate={() => {}}
+        setScreens={setScreens}
+        screens={screens}
+        libraryDAO={libraryDAO}
+        workDAO={workDAO}
+        settingsDAO={settingsDAO}
+        historyDAO={historyDAO}
+        progressDAO={progressDAO}
+        kudoHistoryDAO={kudoHistoryDAO}
+        openTagSearch={openTagSearch}
+        jsonSettings={jsonSettings}
+        chapterDAO={chapterDAO}
+      />
+    ),
+    [viewMode, currentTheme, jsonSettings],
+  );
 
   const renderLoading = () => {
     return (
@@ -428,7 +587,7 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
         </Text>
       </View>
     );
-  }
+  };
 
   const rennderError = () => {
     return (
@@ -465,48 +624,55 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
             ]}
             onPress={() => loadWorks(true)}
           >
-            " <Text style={styles.retryButtonText}>{t('general_retry')}</Text>"{' '}
+            <Text style={styles.retryButtonText}>{t('general_retry')}</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
-  }
+  };
 
   return (
-    <View style={{flex: 1, backgroundColor: currentTheme.backgroundColor}}>
-      {loading ? renderLoading() : (
-        error ? rennderError() : (
-          <FlatList
-            data={works}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.contentContainer}
-            ListHeaderComponent={renderHeader}
-            ListFooterComponent={renderFooter}
-            onEndReached={handleLoadMore}
-            onEndReachedThreshold={0.5}
-            initialNumToRender={3}
-            maxToRenderPerBatch={5}
-            removeClippedSubviews={true}
-            updateCellsBatchingPeriod={50}
-            windowSize={5}
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={handleRefresh}
-                colors={[currentTheme.primaryColor]}
-                tintColor={currentTheme.primaryColor}
-              />
-            }
-          />
-        )
-      )
-      }
+    <View style={{ flex: 1, backgroundColor: currentTheme.backgroundColor }}>
+      {loading ? (
+        renderLoading()
+      ) : error ? (
+        rennderError()
+      ) : (
+        <FlatList
+          data={works}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.contentContainer}
+          ListHeaderComponent={renderHeader}
+          ListFooterComponent={renderFooter}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          initialNumToRender={3}
+          maxToRenderPerBatch={5}
+          removeClippedSubviews={true}
+          updateCellsBatchingPeriod={50}
+          windowSize={5}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              colors={[currentTheme.primaryColor]}
+              tintColor={currentTheme.primaryColor}
+            />
+          }
+        />
+      )}
 
       {/* Filter FAB */}
       <TouchableOpacity
-        style={[styles.fab, { backgroundColor: currentTheme.primaryColor, bottom: 100 + insets.bottom }]}
+        style={[
+          styles.fab,
+          {
+            backgroundColor: currentTheme.primaryColor,
+            bottom: 100 + insets.bottom,
+          },
+        ]}
         onPress={() => openSearch()}
       >
         <FilterIcon color="white" size={24} />
@@ -515,7 +681,13 @@ const BrowseScreen = ({ currentTheme, viewMode = 'med', setScreens, screens, lib
       {/* Clear Filters FAB */}
       {hasFilters && (
         <TouchableOpacity
-          style={[styles.clearFab, { backgroundColor: currentTheme.secondaryColor || '#ff6b6b', bottom: 170 + insets.bottom }]}
+          style={[
+            styles.clearFab,
+            {
+              backgroundColor: currentTheme.secondaryColor || '#ff6b6b',
+              bottom: 170 + insets.bottom,
+            },
+          ]}
           onPress={handleClearFilters}
         >
           <ClearIcon color="white" size={20} />
