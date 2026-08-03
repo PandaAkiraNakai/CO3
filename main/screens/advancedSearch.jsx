@@ -822,10 +822,10 @@ const AdvancedSearchScreen = ({
   }, []);
 
   useEffect(() => {
+    //TODO: Fix this properly, this is a half backed fix but it works okay ?
     if (!sortDirection) {
       setSortDirection('desc');
     }
-    console.log(sortBy);
     if (!sortBy) {
       setSortBy('_score');
     }
