@@ -821,6 +821,16 @@ const AdvancedSearchScreen = ({
     return () => events.remove();
   }, []);
 
+  useEffect(() => {
+    if (!sortDirection) {
+      setSortDirection('desc');
+    }
+    console.log(sortBy);
+    if (!sortBy) {
+      setSortBy('_score');
+    }
+  }, [sortBy, sortDirection]);
+
   const loadPresetsFromStorage = async () => {
     try {
       const loadedPresets = await getAllPresets();
