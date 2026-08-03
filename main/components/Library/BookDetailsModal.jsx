@@ -77,9 +77,7 @@ const BookDetailsModal = ({
   }
 
   function tagShortPress(tag) {
-    const tmp = {};
-    tmp[tag] = 'include';
-    applyTag(tmp);
+    openTagSearch(tag);
   }
 
   async function applyTag(tags = undefined) {
