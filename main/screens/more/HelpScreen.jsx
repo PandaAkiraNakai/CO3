@@ -13,7 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HelpScreen({ route }) {
-  const {setScreens, currentTheme} = route.params;
+  const { setScreens, currentTheme } = route.params;
   const navigation = useNavigation();
   function onBack() {
     navigation.goBack();
@@ -22,7 +22,12 @@ export default function HelpScreen({ route }) {
   const { t } = useTranslation();
 
   return (
-    <SafeAreaView style={[{backgroundColor: currentTheme.backgroundColor}, styles.container]}>
+    <SafeAreaView
+      style={[
+        { backgroundColor: currentTheme.backgroundColor },
+        styles.container,
+      ]}
+    >
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack}>
           <Icon name="arrow-back" size={24} color={currentTheme.textColor} />

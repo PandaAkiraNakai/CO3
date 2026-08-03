@@ -5,9 +5,9 @@ import { WorkDAO } from '../storage/dao/WorkDAO';
 import { UpdateDAO } from '../storage/dao/UpdateDAO';
 import { Update } from '../storage/models/update';
 import notifee, {
+  AndroidForegroundServiceType,
   AndroidImportance,
   AndroidStyle,
-  AndroidForegroundServiceType,
   EventType,
 } from 'react-native-notify-kit';
 import { getJsonSettings } from '../storage/jsonSettings';

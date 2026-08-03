@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  DeviceEventEmitter,
   Modal,
   ScrollView,
   StyleSheet,
@@ -54,70 +55,95 @@ const fetchAutocompleteSuggestions = async (type, term) => {
     const url = `${AO3_BASE_URL}/${type}?term=${encodeURIComponent(term)}`;
     const response = await fetch(url, {
       method: 'GET',
-      headers: { 'Accept': 'application/json' },
+      headers: { Accept: 'application/json' },
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    return Array.isArray(data) ? data.map(item => ({ id: item.id, name: item.name })) : [];
+    return Array.isArray(data)
+      ? data.map(item => ({ id: item.id, name: item.name }))
+      : [];
   } catch (error) {
     console.error(`Error fetching ${type} autocomplete:`, error);
     return [];
   }
 };
 
-export const fetchFandomSuggestions = (term) => fetchAutocompleteSuggestions('fandom', term);
-export const fetchCharacterSuggestions = (term) => fetchAutocompleteSuggestions('character', term);
-export const fetchRelationshipSuggestions = (term) => fetchAutocompleteSuggestions('relationship', term);
-export const fetchFreeformSuggestions = (term) => fetchAutocompleteSuggestions('freeform', term);
+export const fetchFandomSuggestions = term =>
+  fetchAutocompleteSuggestions('fandom', term);
+export const fetchCharacterSuggestions = term =>
+  fetchAutocompleteSuggestions('character', term);
+export const fetchRelationshipSuggestions = term =>
+  fetchAutocompleteSuggestions('relationship', term);
+export const fetchFreeformSuggestions = term =>
+  fetchAutocompleteSuggestions('freeform', term);
 
 /**
  * A reusable component for text inputs with autocomplete and tag-style multi-selection.
  */
-const AutocompleteInput = ({ label, placeholder, fetchSuggestions, selectedItems, onItemsChange, theme, redText = false }) => {
+const AutocompleteInput = ({
+  label,
+  placeholder,
+  fetchSuggestions,
+  selectedItems,
+  onItemsChange,
+  theme,
+  redText = false,
+}) => {
   const [inputValue, setInputValue] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const { t } = useTranslation();
 
-  const debouncedFetch = useMemo(() => debounce(async (term) => {
-    if (term) {
-      setLoading(true);
-      const result = await fetchSuggestions(term);
-      setSuggestions(result);
-      setLoading(false);
-    } else {
-      setSuggestions([]);
-    }
-  }, 300), [fetchSuggestions]);
+  const debouncedFetch = useMemo(
+    () =>
+      debounce(async term => {
+        if (term) {
+          setLoading(true);
+          const result = await fetchSuggestions(term);
+          setSuggestions(result);
+          setLoading(false);
+        } else {
+          setSuggestions([]);
+        }
+      }, 300),
+    [fetchSuggestions],
+  );
 
-  const handleInputChange = (text) => {
+  const handleInputChange = text => {
     setInputValue(text);
     debouncedFetch(text);
   };
 
-  const addItem = (item) => {
+  const addItem = item => {
     // Avoid adding duplicates
-    if (!selectedItems.find(selected => selected.name.toLowerCase() === item.name.toLowerCase())) {
+    if (
+      !selectedItems.find(
+        selected => selected.name.toLowerCase() === item.name.toLowerCase(),
+      )
+    ) {
       onItemsChange([...selectedItems, item]);
     }
     setInputValue('');
     setSuggestions([]);
-  }
+  };
 
-  const handleSelectSuggestion = (item) => {
+  const handleSelectSuggestion = item => {
     addItem(item);
   };
 
-  const handleRemoveItem = (itemToRemove) => {
+  const handleRemoveItem = itemToRemove => {
     onItemsChange(selectedItems.filter(item => item.id !== itemToRemove.id));
   };
 
   const handleSubmit = () => {
     if (inputValue.trim()) {
-      const newItem = { id: `custom-${inputValue.trim()}`, name: inputValue.trim() };
+      const newItem = {
+        id: `custom-${inputValue.trim()}`,
+        name: inputValue.trim(),
+      };
       addItem(newItem);
     }
   };
@@ -125,13 +151,42 @@ const AutocompleteInput = ({ label, placeholder, fetchSuggestions, selectedItems
   return (
     <View style={styles.inputGroup}>
       <Text style={[styles.label, { color: theme.textColor }]}>{label}</Text>
-      <View style={[styles.autocompleteContainer, { borderColor: theme.borderColor, backgroundColor: theme.inputBackground }, isFocused && { borderColor: theme.primaryColor, borderWidth: 1.5 }]}>
+      <View
+        style={[
+          styles.autocompleteContainer,
+          {
+            borderColor: theme.borderColor,
+            backgroundColor: theme.inputBackground,
+          },
+          isFocused && { borderColor: theme.primaryColor, borderWidth: 1.5 },
+        ]}
+      >
         <View style={styles.tagsContainer}>
           {selectedItems.map(item => (
-            <View key={item.id} style={[styles.tag, { backgroundColor: theme.primaryColor }]}>
-              <Text style={[styles.tagText, redText && {color: theme.secondaryTextColor}]}>{item.name}</Text>
-              <TouchableOpacity onPress={() => handleRemoveItem(item)} style={styles.tagDelete}>
-                <Text style={[styles.tagDeleteText, redText && {color: theme.secondaryTextColor}]}>×</Text>
+            <View
+              key={item.id}
+              style={[styles.tag, { backgroundColor: theme.primaryColor }]}
+            >
+              <Text
+                style={[
+                  styles.tagText,
+                  redText && { color: theme.secondaryTextColor },
+                ]}
+              >
+                {item.name}
+              </Text>
+              <TouchableOpacity
+                onPress={() => handleRemoveItem(item)}
+                style={styles.tagDelete}
+              >
+                <Text
+                  style={[
+                    styles.tagDeleteText,
+                    redText && { color: theme.secondaryTextColor },
+                  ]}
+                >
+                  ×
+                </Text>
               </TouchableOpacity>
             </View>
           ))}
@@ -147,16 +202,30 @@ const AutocompleteInput = ({ label, placeholder, fetchSuggestions, selectedItems
           onBlur={() => setIsFocused(false)}
         />
       </View>
-      {loading && <ActivityIndicator size="small" color={theme.primaryColor} style={{ marginTop: 8 }} />}
+      {loading && (
+        <ActivityIndicator
+          size="small"
+          color={theme.primaryColor}
+          style={{ marginTop: 8 }}
+        />
+      )}
       {isFocused && suggestions.length > 0 && (
-        <View style={[styles.suggestionsContainer, { borderColor: theme.borderColor, backgroundColor: theme.cardBackground }]}>
+        <View
+          style={[
+            styles.suggestionsContainer,
+            {
+              borderColor: theme.borderColor,
+              backgroundColor: theme.cardBackground,
+            },
+          ]}
+        >
           <ScrollView
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
             style={styles.suggestionsScrollView}
             nestedScrollEnabled={true}
           >
-            {suggestions.map((item) => (
+            {suggestions.map(item => (
               <TouchableOpacity
                 key={item.id}
                 style={styles.suggestionItem}
@@ -175,10 +244,30 @@ const AutocompleteInput = ({ label, placeholder, fetchSuggestions, selectedItems
 const FilterSection = ({ title, children, theme, defaultOpen = false }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   return (
-    <View style={[styles.sectionContainer, { borderColor: theme.borderColor, backgroundColor: theme.cardBackground }]}>
-      <TouchableOpacity onPress={() => setIsOpen(!isOpen)} style={[styles.sectionHeader, { backgroundColor: theme.inputBackground }]}>
-        <Text style={[styles.sectionTitle, { color: theme.textColor }]}>{title}</Text>
-        <Text style={[styles.sectionToggle, { color: theme.secondaryTextColor }]}>{isOpen ? '−' : '+'}</Text>
+    <View
+      style={[
+        styles.sectionContainer,
+        {
+          borderColor: theme.borderColor,
+          backgroundColor: theme.cardBackground,
+        },
+      ]}
+    >
+      <TouchableOpacity
+        onPress={() => setIsOpen(!isOpen)}
+        style={[
+          styles.sectionHeader,
+          { backgroundColor: theme.inputBackground },
+        ]}
+      >
+        <Text style={[styles.sectionTitle, { color: theme.textColor }]}>
+          {title}
+        </Text>
+        <Text
+          style={[styles.sectionToggle, { color: theme.secondaryTextColor }]}
+        >
+          {isOpen ? '−' : '+'}
+        </Text>
       </TouchableOpacity>
       {isOpen && <View style={styles.sectionContent}>{children}</View>}
     </View>
@@ -186,22 +275,41 @@ const FilterSection = ({ title, children, theme, defaultOpen = false }) => {
 };
 
 const CheckboxGroup = ({ title, options, selected, onSelect, theme }) => {
-  const handleToggle = (value) => {
+  const handleToggle = value => {
     const newSelected = selected.includes(value)
-      ? selected.filter((item) => item !== value)
+      ? selected.filter(item => item !== value)
       : [...selected, value];
     onSelect(newSelected);
   };
 
   return (
     <View style={styles.groupContainer}>
-      <Text style={[styles.groupTitle, { color: theme.textColor }]}>{title}</Text>
-      {options.map((option) => (
-        <TouchableOpacity key={option.value} style={styles.checkItem} onPress={() => handleToggle(option.value)}>
-          <View style={[styles.checkbox, { borderColor: theme.placeholderColor }, selected.includes(option.value) && { backgroundColor: theme.primaryColor, borderColor: theme.primaryColor }]}>
-            {selected.includes(option.value) && <Text style={styles.checkboxMark}>✓</Text>}
+      <Text style={[styles.groupTitle, { color: theme.textColor }]}>
+        {title}
+      </Text>
+      {options.map(option => (
+        <TouchableOpacity
+          key={option.value}
+          style={styles.checkItem}
+          onPress={() => handleToggle(option.value)}
+        >
+          <View
+            style={[
+              styles.checkbox,
+              { borderColor: theme.placeholderColor },
+              selected.includes(option.value) && {
+                backgroundColor: theme.primaryColor,
+                borderColor: theme.primaryColor,
+              },
+            ]}
+          >
+            {selected.includes(option.value) && (
+              <Text style={styles.checkboxMark}>✓</Text>
+            )}
           </View>
-          <Text style={[styles.checkLabel, { color: theme.textColor }]}>{option.label}</Text>
+          <Text style={[styles.checkLabel, { color: theme.textColor }]}>
+            {option.label}
+          </Text>
         </TouchableOpacity>
       ))}
     </View>
@@ -211,13 +319,34 @@ const CheckboxGroup = ({ title, options, selected, onSelect, theme }) => {
 const RadioGroup = ({ title, options, selected, onSelect, theme }) => {
   return (
     <View style={styles.groupContainer}>
-      <Text style={[styles.groupTitle, { color: theme.textColor }]}>{title}</Text>
+      <Text style={[styles.groupTitle, { color: theme.textColor }]}>
+        {title}
+      </Text>
       {options.map(option => (
-        <TouchableOpacity key={option.value} style={styles.checkItem} onPress={() => onSelect(option.value)}>
-          <View style={[styles.radio, { borderColor: theme.placeholderColor }, selected === option.value && { borderColor: theme.primaryColor }]}>
-            {selected === option.value && <View style={[styles.radioInner, { backgroundColor: theme.primaryColor }]} />}
+        <TouchableOpacity
+          key={option.value}
+          style={styles.checkItem}
+          onPress={() => onSelect(option.value)}
+        >
+          <View
+            style={[
+              styles.radio,
+              { borderColor: theme.placeholderColor },
+              selected === option.value && { borderColor: theme.primaryColor },
+            ]}
+          >
+            {selected === option.value && (
+              <View
+                style={[
+                  styles.radioInner,
+                  { backgroundColor: theme.primaryColor },
+                ]}
+              />
+            )}
           </View>
-          <Text style={[styles.checkLabel, { color: theme.textColor }]}>{option.label}</Text>
+          <Text style={[styles.checkLabel, { color: theme.textColor }]}>
+            {option.label}
+          </Text>
         </TouchableOpacity>
       ))}
     </View>
@@ -227,28 +356,57 @@ const RadioGroup = ({ title, options, selected, onSelect, theme }) => {
 const ToggleCheckbox = ({ label, checked, onToggle, theme }) => {
   return (
     <TouchableOpacity style={styles.checkItem} onPress={onToggle}>
-      <View style={[styles.checkbox, { borderColor: theme.placeholderColor }, checked && { backgroundColor: theme.primaryColor, borderColor: theme.primaryColor }]}>
+      <View
+        style={[
+          styles.checkbox,
+          { borderColor: theme.placeholderColor },
+          checked && {
+            backgroundColor: theme.primaryColor,
+            borderColor: theme.primaryColor,
+          },
+        ]}
+      >
         {checked && <Text style={styles.checkboxMark}>✓</Text>}
       </View>
-      <Text style={[styles.checkLabel, { color: theme.textColor }]}>{label}</Text>
+      <Text style={[styles.checkLabel, { color: theme.textColor }]}>
+        {label}
+      </Text>
     </TouchableOpacity>
   );
 };
 
-const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = {}, tagMode = { active: false, tagName: null } }) => {
+const AdvancedSearchScreen = ({
+  currentTheme,
+  onClose,
+  onSearch,
+  savedFilters = {},
+  tagMode = { active: false, tagName: null },
+}) => {
   const { t } = useTranslation();
 
   const sortOptions = [
     { label: t('screen_advancedSearch_sort_best_match'), value: '_score' },
-    { label: t('screen_advancedSearch_sort_creator'), value: 'authors_to_sort_on' },
+    {
+      label: t('screen_advancedSearch_sort_creator'),
+      value: 'authors_to_sort_on',
+    },
     { label: t('screen_advancedSearch_sort_title'), value: 'title_to_sort_on' },
     { label: t('screen_advancedSearch_sort_date_posted'), value: 'created_at' },
-    { label: t('screen_advancedSearch_sort_date_updated'), value: 'revised_at' },
+    {
+      label: t('screen_advancedSearch_sort_date_updated'),
+      value: 'revised_at',
+    },
     { label: t('screen_advancedSearch_sort_word_count'), value: 'word_count' },
     { label: t('screen_advancedSearch_sort_hits'), value: 'hits' },
     { label: t('screen_advancedSearch_sort_kudos'), value: 'kudos_count' },
-    { label: t('screen_advancedSearch_sort_comments'), value: 'comments_count' },
-    { label: t('screen_advancedSearch_sort_bookmarks'), value: 'bookmarks_count' },
+    {
+      label: t('screen_advancedSearch_sort_comments'),
+      value: 'comments_count',
+    },
+    {
+      label: t('screen_advancedSearch_sort_bookmarks'),
+      value: 'bookmarks_count',
+    },
   ];
   const sortDirectionOptions = [
     { label: t('screen_advancedSearch_sort_ascending'), value: 'asc' },
@@ -262,10 +420,22 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
     { label: t('screen_advancedSearch_rating_explicit'), value: '13' },
   ];
   const warningOptions = [
-    { label: t('screen_advancedSearch_warning_creator_chose_not_to_use'), value: '14' },
-    { label: t('screen_advancedSearch_warning_graphic_depictions'), value: '17' },
-    { label: t('screen_advancedSearch_warning_major_character_death'), value: '18' },
-    { label: t('screen_advancedSearch_warning_no_archive_warnings'), value: '16' },
+    {
+      label: t('screen_advancedSearch_warning_creator_chose_not_to_use'),
+      value: '14',
+    },
+    {
+      label: t('screen_advancedSearch_warning_graphic_depictions'),
+      value: '17',
+    },
+    {
+      label: t('screen_advancedSearch_warning_major_character_death'),
+      value: '18',
+    },
+    {
+      label: t('screen_advancedSearch_warning_no_archive_warnings'),
+      value: '16',
+    },
     { label: t('screen_advancedSearch_warning_rape_noncon'), value: '19' },
     { label: t('screen_advancedSearch_warning_underage_sex'), value: '20' },
   ];
@@ -284,18 +454,42 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
   ];
   const excludeRatingOptions = [
     { label: t('screen_advancedSearch_rating_not_rated'), value: 'Not Rated' },
-    { label: t('screen_advancedSearch_rating_general_audiences'), value: 'General Audiences' },
-    { label: t('screen_advancedSearch_rating_teen_and_up'), value: 'Teen And Up Audiences' },
+    {
+      label: t('screen_advancedSearch_rating_general_audiences'),
+      value: 'General Audiences',
+    },
+    {
+      label: t('screen_advancedSearch_rating_teen_and_up'),
+      value: 'Teen And Up Audiences',
+    },
     { label: t('screen_advancedSearch_rating_mature'), value: 'Mature' },
     { label: t('screen_advancedSearch_rating_explicit'), value: 'Explicit' },
   ];
   const excludeWarningOptions = [
-    { label: t('screen_advancedSearch_warning_creator_chose_not_to_use'), value: 'Creator Chose Not To Use Archive Warnings' },
-    { label: t('screen_advancedSearch_warning_graphic_depictions'), value: 'Graphic Depictions Of Violence' },
-    { label: t('screen_advancedSearch_warning_major_character_death'), value: 'Major Character Death' },
-    { label: t('screen_advancedSearch_warning_no_archive_warnings'), value: 'No Archive Warnings Apply' },
-    { label: t('screen_advancedSearch_warning_rape_noncon'), value: 'Rape/Non-Con' },
-    { label: t('screen_advancedSearch_warning_underage_sex'), value: 'Underage Sex' },
+    {
+      label: t('screen_advancedSearch_warning_creator_chose_not_to_use'),
+      value: 'Creator Chose Not To Use Archive Warnings',
+    },
+    {
+      label: t('screen_advancedSearch_warning_graphic_depictions'),
+      value: 'Graphic Depictions Of Violence',
+    },
+    {
+      label: t('screen_advancedSearch_warning_major_character_death'),
+      value: 'Major Character Death',
+    },
+    {
+      label: t('screen_advancedSearch_warning_no_archive_warnings'),
+      value: 'No Archive Warnings Apply',
+    },
+    {
+      label: t('screen_advancedSearch_warning_rape_noncon'),
+      value: 'Rape/Non-Con',
+    },
+    {
+      label: t('screen_advancedSearch_warning_underage_sex'),
+      value: 'Underage Sex',
+    },
   ];
   const completionOptions = [
     { label: t('screen_advancedSearch_completion_all'), value: '' },
@@ -303,171 +497,196 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
     { label: t('screen_advancedSearch_completion_wip_only'), value: 'F' },
   ];
   const languageOptions = [
-    { label: "Any", value: "" },
-    { label: "English", value: "en" },
-    { label: "Español", value: "es" },
-    { label: "Français", value: "fr" },
-    { label: "Deutsch", value: "de" },
-    { label: "Português brasileiro", value: "ptBR" },
-    { label: "Português europeu", value: "ptPT" },
-    { label: "日本語", value: "ja" },
-    { label: "中文-普通话 國語", value: "zh" },
-    { label: "한국어", value: "ko" },
-    { label: "Русский", value: "ru" },
-    { label: "Italiano", value: "it" },
-    { label: "العربية", value: "ar" },
-    { label: "Nederlands", value: "nl" },
-    { label: "Polski", value: "pl" },
-    { label: "Türkçe", value: "tr" },
-    { label: "Tiếng Việt", value: "vi" },
-    { label: "Bahasa Indonesia", value: "id" },
-    { label: "ไทย", value: "th" },
-    { label: "فارسی", value: "fa" },
-    { label: "עברית", value: "he" },
-    { label: "हिन्दी", value: "hi" },
-    { label: "বাংলা", value: "bn" },
-    { label: "Filipino", value: "fil" },
-    { label: "українська", value: "uk" },
-    { label: "ελληνικά", value: "el" },
-    { label: "Română", value: "ro" },
-    { label: "magyar", value: "hu" },
-    { label: "Svenska", value: "sv" },
-    { label: "Čeština", value: "cs" },
-    { label: "Dansk", value: "da" },
-    { label: "suomi", value: "fi" },
-    { label: "Norsk", value: "no" },
-    { label: "Bahasa Malaysia", value: "ms" },
-    { label: "Hrvatski", value: "hr" },
-    { label: "Català", value: "ca" },
-    { label: "Eesti", value: "et" },
-    { label: "Slovenčina", value: "sk" },
-    { label: "Afrikaans", value: "afr" },
-    { label: "Български", value: "bg" },
-    { label: "Latviešu", value: "lv" },
-    { label: "Lietuvių", value: "lt" },
-    { label: "Slovenščina", value: "slv" },
-    { label: "Srpski", value: "sr" },
-    { label: "Kiswahili", value: "sw" },
-    { label: "Kurdî", value: "ku" },
-    { label: "اردو", value: "urd" },
-    { label: "தமிழ்", value: "ta" },
-    { label: "తెలుగు", value: "tel" },
-    { label: "ਪੰਜਾਬੀ", value: "pa" },
-    { label: "മലയാളം", value: "ml" },
-    { label: "ქართული", value: "kat" },
-    { label: "հայերեն", value: "hy" },
-    { label: "Kreyòl ayisyen", value: "ht" },
-    { label: "Gaeilge", value: "ga" },
-    { label: "Cymraeg", value: "cy" },
-    { label: "Asturianu", value: "ast" },
-    { label: "Euskara", value: "eu" },
-    { label: "Galego", value: "gl" },
-    { label: "Brezhoneg", value: "br" },
-    { label: "Esperanto", value: "eo" },
-    { label: "American Sign Language", value: "ase" },
-    { label: "British Sign Language", value: "bfi" },
-    { label: "Langue des signes québécoise", value: "fcs" },
-    { label: "中文-广东话 粵語", value: "yue" },
-    { label: "中文-闽南话 臺語", value: "nan" },
-    { label: "中文-客家话", value: "hak" },
-    { label: "中文-吴语", value: "wuu" },
-    { label: "ʻŌlelo Hawaiʻi", value: "haw" },
-    { label: "te reo Māori", value: "mri" },
-    { label: "Chinuk Wawa", value: "chn" },
-    { label: "Anishinaabemowin", value: "oji" },
-    { label: "Diné bizaad", value: "nav" },
-    { label: "Lingua latina", value: "la" },
-    { label: "Eald Englisċ", value: "ang" },
-    { label: "tlhIngan-Hol", value: "tlh" },
-    { label: "Quenya", value: "qya" },
-    { label: "Sindarin", value: "sjn" },
-    { label: "toki pona", value: "tok" },
-    { label: "Volapük", value: "vol" },
-    { label: "af Soomaali", value: "so" },
-    { label: "Aynu itak | アイヌ イタㇰ", value: "ain" },
-    { label: "𒀝𒅗𒁺𒌑", value: "akk" },
-    { label: "አማርኛ", value: "amh" },
-    { label: "𓂋𓏺𓈖 𓆎𓅓𓏏𓊖", value: "egy" },
-    { label: "ܐܪܡܝܐ | ארמיא", value: "arc" },
-    { label: "Azərbaycan dili | آذربایجان دیلی", value: "azj" },
-    { label: "Basa Jawa", value: "jv" },
-    { label: "Башҡорт теле", value: "ba" },
-    { label: "беларуская", value: "be" },
-    { label: "Boarisch", value: "bar" },
-    { label: "Bosanski", value: "bos" },
-    { label: "Буряад хэлэн | ᠪᠤᠷᠢᠶᠠᠳ ᠮᠣᠩᠭᠣᠯ ᠬᠡᠯᠡ", value: "bua" },
-    { label: "Cebuano", value: "ceb" },
-    { label: "къырымтатар тили | qırımtatar tili", value: "crh" },
-    { label: "Creolese", value: "gyn" },
-    { label: "Hausa | هَرْشَن هَوْسَ", value: "hau" },
-    { label: "Interlingua", value: "ia" },
-    { label: "isiZulu", value: "zu" },
-    { label: "Íslenska", value: "is" },
-    { label: "Kalaallisut", value: "kal" },
-    { label: "Хальмг Өөрдин келн", value: "xal" },
-    { label: "ಕನ್ನಡ", value: "kan" },
-    { label: "Kernewek", value: "cor" },
-    { label: "ភាសាខ្មែរ", value: "khm" },
-    { label: "Khuzdul", value: "qkz" },
-    { label: "Кыргызча", value: "kir" },
-    { label: "Lëtzebuergesch", value: "lb" },
-    { label: "македонски", value: "mk" },
-    { label: "Malti", value: "mt" },
-    { label: "ᠮᠠᠨᠵᡠ ᡤᡳᠰᡠᠨ", value: "mnc" },
-    { label: "Mando'a", value: "qmd" },
-    { label: "मराठी", value: "mr" },
-    { label: "Mikisúkî", value: "mik" },
-    { label: "ᠮᠣᠩᠭᠣᠯ ᠪᠢᠴᠢᠭ᠌ | Монгол Кирилл үсэг", value: "mon" },
-    { label: "မြန်မာဘာသာ", value: "my" },
-    { label: "Эрзянь кель", value: "myv" },
-    { label: "Nāhuatl", value: "nah" },
-    { label: "Nawat", value: "ppl" },
-    { label: "Нохчийн мотт", value: "ce" },
-    { label: "O’odham Ñiok", value: "ood" },
-    { label: "لسان عثمانى", value: "ota" },
-    { label: "پښتو", value: "ps" },
-    { label: "Plattdüütsch", value: "nds" },
-    { label: "Pulaar", value: "fuc" },
-    { label: "qazaqşa | қазақша", value: "kaz" },
-    { label: "Uncategorized Constructed Languages", value: "qlq" },
-    { label: "RRomani Ćhib", value: "rom" },
-    { label: "Sámi", value: "smi" },
-    { label: "саха тыла", value: "sah" },
-    { label: "Scots", value: "sco" },
-    { label: "Shqip", value: "sq" },
-    { label: "සිංහල", value: "si" },
-    { label: "Slověnьskъ Językъ", value: "sla" },
-    { label: "Sprēkō Þiudiskō", value: "gem" },
-    { label: "татар теле", value: "tat" },
-    { label: "ትግርኛ", value: "tir" },
-    { label: "Thermian", value: "tqx" },
-    { label: "བོད་སྐད་", value: "bod" },
-    { label: "ϯⲙⲉⲧⲣⲉⲙⲛ̀ⲭⲏⲙⲓ", value: "cop" },
-    { label: "Trinidadian Creole", value: "trf" },
-    { label: "τσακώνικα", value: "tsd" },
-    { label: "ᏣᎳᎩ ᎦᏬᏂᎯᏍᏗ", value: "chr" },
-    { label: "Unangam Tunuu", value: "ale" },
-    { label: "ئۇيغۇر تىلى", value: "uig" },
-    { label: "יידיש", value: "yi" },
-    { label: "maayaʼ tʼàan", value: "yua" },
-    { label: "𒅴𒂠", value: "sux" },
-    { label: "𐌲𐌿𐍄𐌹𐍃𐌺𐌰", value: "got" },
-    { label: "Furlan", value: "fur" },
-    { label: "Friisk", value: "frr" },
-    { label: "Frysk", value: "fry" },
-    { label: "Gàidhlig", value: "gd" },
-    { label: "Finuʼ Chamorro", value: "cha" }
+    { label: 'Any', value: '' },
+    { label: 'English', value: 'en' },
+    { label: 'Español', value: 'es' },
+    { label: 'Français', value: 'fr' },
+    { label: 'Deutsch', value: 'de' },
+    { label: 'Português brasileiro', value: 'ptBR' },
+    { label: 'Português europeu', value: 'ptPT' },
+    { label: '日本語', value: 'ja' },
+    { label: '中文-普通话 國語', value: 'zh' },
+    { label: '한국어', value: 'ko' },
+    { label: 'Русский', value: 'ru' },
+    { label: 'Italiano', value: 'it' },
+    { label: 'العربية', value: 'ar' },
+    { label: 'Nederlands', value: 'nl' },
+    { label: 'Polski', value: 'pl' },
+    { label: 'Türkçe', value: 'tr' },
+    { label: 'Tiếng Việt', value: 'vi' },
+    { label: 'Bahasa Indonesia', value: 'id' },
+    { label: 'ไทย', value: 'th' },
+    { label: 'فارسی', value: 'fa' },
+    { label: 'עברית', value: 'he' },
+    { label: 'हिन्दी', value: 'hi' },
+    { label: 'বাংলা', value: 'bn' },
+    { label: 'Filipino', value: 'fil' },
+    { label: 'українська', value: 'uk' },
+    { label: 'ελληνικά', value: 'el' },
+    { label: 'Română', value: 'ro' },
+    { label: 'magyar', value: 'hu' },
+    { label: 'Svenska', value: 'sv' },
+    { label: 'Čeština', value: 'cs' },
+    { label: 'Dansk', value: 'da' },
+    { label: 'suomi', value: 'fi' },
+    { label: 'Norsk', value: 'no' },
+    { label: 'Bahasa Malaysia', value: 'ms' },
+    { label: 'Hrvatski', value: 'hr' },
+    { label: 'Català', value: 'ca' },
+    { label: 'Eesti', value: 'et' },
+    { label: 'Slovenčina', value: 'sk' },
+    { label: 'Afrikaans', value: 'afr' },
+    { label: 'Български', value: 'bg' },
+    { label: 'Latviešu', value: 'lv' },
+    { label: 'Lietuvių', value: 'lt' },
+    { label: 'Slovenščina', value: 'slv' },
+    { label: 'Srpski', value: 'sr' },
+    { label: 'Kiswahili', value: 'sw' },
+    { label: 'Kurdî', value: 'ku' },
+    { label: 'اردو', value: 'urd' },
+    { label: 'தமிழ்', value: 'ta' },
+    { label: 'తెలుగు', value: 'tel' },
+    { label: 'ਪੰਜਾਬੀ', value: 'pa' },
+    { label: 'മലയാളം', value: 'ml' },
+    { label: 'ქართული', value: 'kat' },
+    { label: 'հայերեն', value: 'hy' },
+    { label: 'Kreyòl ayisyen', value: 'ht' },
+    { label: 'Gaeilge', value: 'ga' },
+    { label: 'Cymraeg', value: 'cy' },
+    { label: 'Asturianu', value: 'ast' },
+    { label: 'Euskara', value: 'eu' },
+    { label: 'Galego', value: 'gl' },
+    { label: 'Brezhoneg', value: 'br' },
+    { label: 'Esperanto', value: 'eo' },
+    { label: 'American Sign Language', value: 'ase' },
+    { label: 'British Sign Language', value: 'bfi' },
+    { label: 'Langue des signes québécoise', value: 'fcs' },
+    { label: '中文-广东话 粵語', value: 'yue' },
+    { label: '中文-闽南话 臺語', value: 'nan' },
+    { label: '中文-客家话', value: 'hak' },
+    { label: '中文-吴语', value: 'wuu' },
+    { label: 'ʻŌlelo Hawaiʻi', value: 'haw' },
+    { label: 'te reo Māori', value: 'mri' },
+    { label: 'Chinuk Wawa', value: 'chn' },
+    { label: 'Anishinaabemowin', value: 'oji' },
+    { label: 'Diné bizaad', value: 'nav' },
+    { label: 'Lingua latina', value: 'la' },
+    { label: 'Eald Englisċ', value: 'ang' },
+    { label: 'tlhIngan-Hol', value: 'tlh' },
+    { label: 'Quenya', value: 'qya' },
+    { label: 'Sindarin', value: 'sjn' },
+    { label: 'toki pona', value: 'tok' },
+    { label: 'Volapük', value: 'vol' },
+    { label: 'af Soomaali', value: 'so' },
+    { label: 'Aynu itak | アイヌ イタㇰ', value: 'ain' },
+    { label: '𒀝𒅗𒁺𒌑', value: 'akk' },
+    { label: 'አማርኛ', value: 'amh' },
+    { label: '𓂋𓏺𓈖 𓆎𓅓𓏏𓊖', value: 'egy' },
+    { label: 'ܐܪܡܝܐ | ארמיא', value: 'arc' },
+    { label: 'Azərbaycan dili | آذربایجان دیلی', value: 'azj' },
+    { label: 'Basa Jawa', value: 'jv' },
+    { label: 'Башҡорт теле', value: 'ba' },
+    { label: 'беларуская', value: 'be' },
+    { label: 'Boarisch', value: 'bar' },
+    { label: 'Bosanski', value: 'bos' },
+    { label: 'Буряад хэлэн | ᠪᠤᠷᠢᠶᠠᠳ ᠮᠣᠩᠭᠣᠯ ᠬᠡᠯᠡ', value: 'bua' },
+    { label: 'Cebuano', value: 'ceb' },
+    { label: 'къырымтатар тили | qırımtatar tili', value: 'crh' },
+    { label: 'Creolese', value: 'gyn' },
+    { label: 'Hausa | هَرْشَن هَوْسَ', value: 'hau' },
+    { label: 'Interlingua', value: 'ia' },
+    { label: 'isiZulu', value: 'zu' },
+    { label: 'Íslenska', value: 'is' },
+    { label: 'Kalaallisut', value: 'kal' },
+    { label: 'Хальмг Өөрдин келн', value: 'xal' },
+    { label: 'ಕನ್ನಡ', value: 'kan' },
+    { label: 'Kernewek', value: 'cor' },
+    { label: 'ភាសាខ្មែរ', value: 'khm' },
+    { label: 'Khuzdul', value: 'qkz' },
+    { label: 'Кыргызча', value: 'kir' },
+    { label: 'Lëtzebuergesch', value: 'lb' },
+    { label: 'македонски', value: 'mk' },
+    { label: 'Malti', value: 'mt' },
+    { label: 'ᠮᠠᠨᠵᡠ ᡤᡳᠰᡠᠨ', value: 'mnc' },
+    { label: "Mando'a", value: 'qmd' },
+    { label: 'मराठी', value: 'mr' },
+    { label: 'Mikisúkî', value: 'mik' },
+    { label: 'ᠮᠣᠩᠭᠣᠯ ᠪᠢᠴᠢᠭ᠌ | Монгол Кирилл үсэг', value: 'mon' },
+    { label: 'မြန်မာဘာသာ', value: 'my' },
+    { label: 'Эрзянь кель', value: 'myv' },
+    { label: 'Nāhuatl', value: 'nah' },
+    { label: 'Nawat', value: 'ppl' },
+    { label: 'Нохчийн мотт', value: 'ce' },
+    { label: 'O’odham Ñiok', value: 'ood' },
+    { label: 'لسان عثمانى', value: 'ota' },
+    { label: 'پښتو', value: 'ps' },
+    { label: 'Plattdüütsch', value: 'nds' },
+    { label: 'Pulaar', value: 'fuc' },
+    { label: 'qazaqşa | қазақша', value: 'kaz' },
+    { label: 'Uncategorized Constructed Languages', value: 'qlq' },
+    { label: 'RRomani Ćhib', value: 'rom' },
+    { label: 'Sámi', value: 'smi' },
+    { label: 'саха тыла', value: 'sah' },
+    { label: 'Scots', value: 'sco' },
+    { label: 'Shqip', value: 'sq' },
+    { label: 'සිංහල', value: 'si' },
+    { label: 'Slověnьskъ Językъ', value: 'sla' },
+    { label: 'Sprēkō Þiudiskō', value: 'gem' },
+    { label: 'татар теле', value: 'tat' },
+    { label: 'ትግርኛ', value: 'tir' },
+    { label: 'Thermian', value: 'tqx' },
+    { label: 'བོད་སྐད་', value: 'bod' },
+    { label: 'ϯⲙⲉⲧⲣⲉⲙⲛ̀ⲭⲏⲙⲓ', value: 'cop' },
+    { label: 'Trinidadian Creole', value: 'trf' },
+    { label: 'τσακώνικα', value: 'tsd' },
+    { label: 'ᏣᎳᎩ ᎦᏬᏂᎯᏍᏗ', value: 'chr' },
+    { label: 'Unangam Tunuu', value: 'ale' },
+    { label: 'ئۇيغۇر تىلى', value: 'uig' },
+    { label: 'יידיש', value: 'yi' },
+    { label: 'maayaʼ tʼàan', value: 'yua' },
+    { label: '𒅴𒂠', value: 'sux' },
+    { label: '𐌲𐌿𐍄𐌹𐍃𐌺𐌰', value: 'got' },
+    { label: 'Furlan', value: 'fur' },
+    { label: 'Friisk', value: 'frr' },
+    { label: 'Frysk', value: 'fry' },
+    { label: 'Gàidhlig', value: 'gd' },
+    { label: 'Finuʼ Chamorro', value: 'cha' },
   ];
 
-  const stringToItems = (str) => str ? str.split(',').map((name, index) => ({ id: `${name}-${index}`, name: name.trim() })) : [];
+  const stringToItems = str =>
+    str
+      ? str
+          .split(',')
+          .map((name, index) => ({ id: `${name}-${index}`, name: name.trim() }))
+      : [];
 
+  const normalizeItems = items => {
+    if (!Array.isArray(items)) return [];
+    return items
+      .map((item, index) => {
+        if (typeof item === 'string') {
+          const name = item.trim();
+          return name ? { id: `${name}-${index}`, name } : null;
+        }
+        if (item && typeof item === 'object') {
+          const name = (item.name ?? '').toString().trim();
+          if (!name) return null;
+          const id = item.id ?? `${name}-${index}`;
+          return { id, name };
+        }
+        return null;
+      })
+      .filter(Boolean);
+  };
 
   const [restoredCanonicalTag, setRestoredCanonicalTag] = useState(
-    tagMode.active ? tagMode.tagName : null
+    tagMode.active ? tagMode.tagName : null,
   );
   const [canonicalTagDismissed, setCanonicalTagDismissed] = useState(false);
 
-  const activeCanonicalTag = canonicalTagDismissed ? null : restoredCanonicalTag;
+  const activeCanonicalTag = canonicalTagDismissed
+    ? null
+    : restoredCanonicalTag;
 
   const [presets, setPresets] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -478,43 +697,86 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
 
   useEffect(() => {
     containsPreset(presetName).then(setPresetExists);
-  }, [presetName])
+  }, [presetName]);
 
-  const [anyField, setAnyField] = useState(savedFilters['work_search[query]'] || '');
+  const [anyField, setAnyField] = useState(
+    savedFilters['work_search[query]'] || '',
+  );
   const [title, setTitle] = useState(savedFilters['work_search[title]'] || '');
-  const [creator, setCreator] = useState(savedFilters['work_search[creators]'] || '');
-  const [date, setDate] = useState(savedFilters['work_search[revised_at]'] || '');
-  const [completionStatus, setCompletionStatus] = useState(savedFilters['work_search[complete]'] || '');
-  const [crossoverStatus, setCrossoverStatus] = useState(savedFilters['work_search[crossover]'] || '');
-  const [singleChapter, setSingleChapter] = useState(savedFilters['work_search[single_chapter]'] === '1');
-  const [wordCount, setWordCount] = useState(savedFilters['work_search[word_count]'] || '');
-  const [language, setLanguage] = useState(savedFilters['work_search[language_id]'] || '');
+  const [creator, setCreator] = useState(
+    savedFilters['work_search[creators]'] || '',
+  );
+  const [date, setDate] = useState(
+    savedFilters['work_search[revised_at]'] || '',
+  );
+  const [completionStatus, setCompletionStatus] = useState(
+    savedFilters['work_search[complete]'] || '',
+  );
+  const [crossoverStatus, setCrossoverStatus] = useState(
+    savedFilters['work_search[crossover]'] || '',
+  );
+  const [singleChapter, setSingleChapter] = useState(
+    savedFilters['work_search[single_chapter]'] === '1',
+  );
+  const [wordCount, setWordCount] = useState(
+    savedFilters['work_search[word_count]'] || '',
+  );
+  const [language, setLanguage] = useState(
+    savedFilters['work_search[language_id]'] || '',
+  );
 
-  const [fandoms, setFandoms] = useState(stringToItems(savedFilters['work_search[fandom_names]']));
-  const [rating, setRating] = useState(savedFilters['work_search[rating_ids]'] || '');
-  const [warnings, setWarnings] = useState(savedFilters['work_search[archive_warning_ids][]'] || []);
-  const [categories, setCategories] = useState(savedFilters['work_search[category_ids][]'] || []);
-  const [characters, setCharacters] = useState(stringToItems(savedFilters['work_search[character_names]']));
-  const [relationships, setRelationships] = useState(stringToItems(savedFilters['work_search[relationship_names]']));
-  const [additionalTags, setAdditionalTags] = useState(stringToItems(savedFilters['work_search[freeform_names]']));
+  const [fandoms, setFandoms] = useState(
+    stringToItems(savedFilters['work_search[fandom_names]']),
+  );
+  const [rating, setRating] = useState(
+    savedFilters['work_search[rating_ids]'] || '',
+  );
+  const [warnings, setWarnings] = useState(
+    savedFilters['work_search[archive_warning_ids][]'] || [],
+  );
+  const [categories, setCategories] = useState(
+    savedFilters['work_search[category_ids][]'] || [],
+  );
+  const [characters, setCharacters] = useState(
+    stringToItems(savedFilters['work_search[character_names]']),
+  );
+  const [relationships, setRelationships] = useState(
+    stringToItems(savedFilters['work_search[relationship_names]']),
+  );
+  const [additionalTags, setAdditionalTags] = useState(
+    stringToItems(savedFilters['work_search[freeform_names]']),
+  );
 
   const [excludedFandoms, setExcludedFandoms] = useState([]);
   const [excludedCharacters, setExcludedCharacters] = useState([]);
   const [excludedRelationships, setExcludedRelationships] = useState([]);
-  const [excludedAdditionalTags, setExcludedAdditionalTags] = useState(stringToItems(savedFilters['work_search[excluded_tag_names]']));
+  const [excludedAdditionalTags, setExcludedAdditionalTags] = useState(
+    stringToItems(savedFilters['work_search[excluded_tag_names]']),
+  );
   const [excludedRatings, setExcludedRatings] = useState([]);
   const [excludedWarnings, setExcludedWarnings] = useState([]);
 
   const [hits, setHits] = useState(savedFilters['work_search[hits]'] || '');
-  const [kudos, setKudos] = useState(savedFilters['work_search[kudos_count]'] || '');
-  const [comments, setComments] = useState(savedFilters['work_search[comments_count]'] || '');
-  const [bookmarks, setBookmarks] = useState(savedFilters['work_search[bookmarks_count]'] || '');
+  const [kudos, setKudos] = useState(
+    savedFilters['work_search[kudos_count]'] || '',
+  );
+  const [comments, setComments] = useState(
+    savedFilters['work_search[comments_count]'] || '',
+  );
+  const [bookmarks, setBookmarks] = useState(
+    savedFilters['work_search[bookmarks_count]'] || '',
+  );
 
-  const [sortBy, setSortBy] = useState(savedFilters['work_search[sort_column]'] || 'revised_at');
-  const [sortDirection, setSortDirection] = useState(savedFilters['work_search[sort_direction]'] || 'desc');
+  const [sortBy, setSortBy] = useState(
+    savedFilters['work_search[sort_column]'] || 'revised_at',
+  );
+  const [sortDirection, setSortDirection] = useState(
+    savedFilters['work_search[sort_direction]'] || 'desc',
+  );
 
   useEffect(() => {
-    if ( //This is fucking bad but it works really well so i'm not changing it
+    if (
+      //This is fucking bad but it works really well so i'm not changing it
       anyField !== '' ||
       title !== '' ||
       creator !== '' ||
@@ -544,12 +806,30 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
       sortBy !== 'revised_at' ||
       sortDirection !== 'desc'
     ) {
-      console.log("Filters applied, skipping loading temporary preset");
+      console.log('Filters applied, skipping loading temporary preset');
     } else {
       loadTempPreset();
     }
     loadPresetsFromStorage();
   }, []);
+
+  useEffect(() => {
+     const events = DeviceEventEmitter.addListener('tempPreset', p => {
+       loadTempPreset();
+     });
+
+    return () => events.remove();
+  }, []);
+
+  useEffect(() => {
+    //TODO: Fix this properly, this is a half backed fix but it works okay ?
+    if (!sortDirection) {
+      setSortDirection('desc');
+    }
+    if (!sortBy) {
+      setSortBy('_score');
+    }
+  }, [sortBy, sortDirection]);
 
   const loadPresetsFromStorage = async () => {
     try {
@@ -563,7 +843,7 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
 
   const handleSearch = useCallback(() => {
     const filters = {};
-    const itemsToString = (items) => items.map(item => item.name).join(',');
+    const itemsToString = items => items.map(item => item.name).join(',');
 
     saveTempPreset();
 
@@ -577,13 +857,19 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
     if (wordCount) filters['work_search[word_count]'] = wordCount;
     if (language) filters['work_search[language_id]'] = language;
 
-    if (fandoms.length > 0) filters['work_search[fandom_names]'] = itemsToString(fandoms);
+    if (fandoms.length > 0)
+      filters['work_search[fandom_names]'] = itemsToString(fandoms);
     if (rating) filters['work_search[rating_ids]'] = rating;
-    if (warnings.length > 0) filters['work_search[archive_warning_ids][]'] = warnings;
-    if (categories.length > 0) filters['work_search[category_ids][]'] = categories;
-    if (characters.length > 0) filters['work_search[character_names]'] = itemsToString(characters);
-    if (relationships.length > 0) filters['work_search[relationship_names]'] = itemsToString(relationships);
-    if (additionalTags.length > 0) filters['work_search[freeform_names]'] = itemsToString(additionalTags);
+    if (warnings.length > 0)
+      filters['work_search[archive_warning_ids][]'] = warnings;
+    if (categories.length > 0)
+      filters['work_search[category_ids][]'] = categories;
+    if (characters.length > 0)
+      filters['work_search[character_names]'] = itemsToString(characters);
+    if (relationships.length > 0)
+      filters['work_search[relationship_names]'] = itemsToString(relationships);
+    if (additionalTags.length > 0)
+      filters['work_search[freeform_names]'] = itemsToString(additionalTags);
 
     const allExcluded = [
       ...excludedFandoms,
@@ -593,7 +879,8 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
       ...excludedRatings.map(name => ({ name })),
       ...excludedWarnings.map(name => ({ name })),
     ];
-    if (allExcluded.length > 0) filters['work_search[excluded_tag_names]'] = itemsToString(allExcluded);
+    if (allExcluded.length > 0)
+      filters['work_search[excluded_tag_names]'] = itemsToString(allExcluded);
 
     if (hits) filters['work_search[hits]'] = hits;
     if (kudos) filters['work_search[kudos_count]'] = kudos;
@@ -605,10 +892,37 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
 
     onSearch(filters, activeCanonicalTag);
   }, [
-    anyField, title, creator, date, completionStatus, crossoverStatus, singleChapter, wordCount, language,
-    fandoms, rating, warnings, categories, characters, relationships, additionalTags,
-    excludedFandoms, excludedCharacters, excludedRelationships, excludedAdditionalTags, excludedRatings, excludedWarnings,
-    hits, kudos, comments, bookmarks, sortBy, sortDirection, onSearch, tagMode, activeCanonicalTag
+    anyField,
+    title,
+    creator,
+    date,
+    completionStatus,
+    crossoverStatus,
+    singleChapter,
+    wordCount,
+    language,
+    fandoms,
+    rating,
+    warnings,
+    categories,
+    characters,
+    relationships,
+    additionalTags,
+    excludedFandoms,
+    excludedCharacters,
+    excludedRelationships,
+    excludedAdditionalTags,
+    excludedRatings,
+    excludedWarnings,
+    hits,
+    kudos,
+    comments,
+    bookmarks,
+    sortBy,
+    sortDirection,
+    onSearch,
+    tagMode,
+    activeCanonicalTag,
   ]);
 
   async function savePreset(name) {
@@ -620,13 +934,34 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
       name: name,
       timestamp: Date.now(),
       preset: {
-        anyField, title, creator, date, completionStatus, crossoverStatus,
-        singleChapter, wordCount, language,
-        fandoms, rating, warnings, categories, characters,
-        relationships, additionalTags,
-        excludedFandoms, excludedCharacters, excludedRelationships, excludedAdditionalTags, excludedRatings, excludedWarnings,
-        hits, kudos, comments, bookmarks,
-        sortBy, sortDirection,
+        anyField,
+        title,
+        creator,
+        date,
+        completionStatus,
+        crossoverStatus,
+        singleChapter,
+        wordCount,
+        language,
+        fandoms,
+        rating,
+        warnings,
+        categories,
+        characters,
+        relationships,
+        additionalTags,
+        excludedFandoms,
+        excludedCharacters,
+        excludedRelationships,
+        excludedAdditionalTags,
+        excludedRatings,
+        excludedWarnings,
+        hits,
+        kudos,
+        comments,
+        bookmarks,
+        sortBy,
+        sortDirection,
         canonicalTagName: activeCanonicalTag,
       },
     };
@@ -639,13 +974,34 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
     const newPreset = {
       timestamp: Date.now(),
       preset: {
-        anyField, title, creator, date, completionStatus, crossoverStatus,
-        singleChapter, wordCount, language,
-        fandoms, rating, warnings, categories, characters,
-        relationships, additionalTags,
-        excludedFandoms, excludedCharacters, excludedRelationships, excludedAdditionalTags, excludedRatings, excludedWarnings,
-        hits, kudos, comments, bookmarks,
-        sortBy, sortDirection,
+        anyField,
+        title,
+        creator,
+        date,
+        completionStatus,
+        crossoverStatus,
+        singleChapter,
+        wordCount,
+        language,
+        fandoms,
+        rating,
+        warnings,
+        categories,
+        characters,
+        relationships,
+        additionalTags,
+        excludedFandoms,
+        excludedCharacters,
+        excludedRelationships,
+        excludedAdditionalTags,
+        excludedRatings,
+        excludedWarnings,
+        hits,
+        kudos,
+        comments,
+        bookmarks,
+        sortBy,
+        sortDirection,
         canonicalTagName: activeCanonicalTag,
       },
     };
@@ -666,88 +1022,111 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
       return;
     }
 
-    setAnyField(presetToLoad.preset.anyField);
-    setTitle(presetToLoad.preset.title);
-    setCreator(presetToLoad.preset.creator);
-    setDate(presetToLoad.preset.date);
-    setCompletionStatus(presetToLoad.preset.completionStatus);
-    setCrossoverStatus(presetToLoad.preset.crossoverStatus);
-    setSingleChapter(presetToLoad.preset.singleChapter);
-    setWordCount(presetToLoad.preset.wordCount);
-    setLanguage(presetToLoad.preset.language);
+    console.log('Preset: ', presetToLoad);
 
-    setFandoms(presetToLoad.preset.fandoms);
-    setRating(presetToLoad.preset.rating);
-    setWarnings(presetToLoad.preset.warnings);
-    setCategories(presetToLoad.preset.categories);
-    setCharacters(presetToLoad.preset.characters);
-    setRelationships(presetToLoad.preset.relationships);
-    setAdditionalTags(presetToLoad.preset.additionalTags);
-    setExcludedFandoms(presetToLoad.preset.excludedFandoms || []);
-    setExcludedCharacters(presetToLoad.preset.excludedCharacters || []);
-    setExcludedRelationships(presetToLoad.preset.excludedRelationships || []);
-    setExcludedAdditionalTags(presetToLoad.preset.excludedAdditionalTags || presetToLoad.preset.excludedTags || []);
+    setAnyField(presetToLoad.preset.anyField || '');
+    setTitle(presetToLoad.preset.title || '');
+    setCreator(presetToLoad.preset.creator || '');
+    setDate(presetToLoad.preset.date || '');
+    setCompletionStatus(presetToLoad.preset.completionStatus || '');
+    setCrossoverStatus(presetToLoad.preset.crossoverStatus || '');
+    setSingleChapter(presetToLoad.preset.singleChapter || false);
+    setWordCount(presetToLoad.preset.wordCount || '');
+    setLanguage(presetToLoad.preset.language || '');
+
+    setFandoms(normalizeItems(presetToLoad.preset.fandoms));
+    setRating(presetToLoad.preset.rating || '');
+    setWarnings(presetToLoad.preset.warnings || []);
+    setCategories(presetToLoad.preset.categories || []);
+    setCharacters(normalizeItems(presetToLoad.preset.characters));
+    setRelationships(normalizeItems(presetToLoad.preset.relationships));
+    setAdditionalTags(normalizeItems(presetToLoad.preset.additionalTags));
+    setExcludedFandoms(normalizeItems(presetToLoad.preset.excludedFandoms));
+    setExcludedCharacters(
+      normalizeItems(presetToLoad.preset.excludedCharacters),
+    );
+    setExcludedRelationships(
+      normalizeItems(presetToLoad.preset.excludedRelationships),
+    );
+    setExcludedAdditionalTags(
+      normalizeItems(
+        presetToLoad.preset.excludedAdditionalTags ||
+          presetToLoad.preset.excludedTags,
+      ),
+    );
     setExcludedRatings(presetToLoad.preset.excludedRatings || []);
     setExcludedWarnings(presetToLoad.preset.excludedWarnings || []);
     setRestoredCanonicalTag(presetToLoad.preset.canonicalTagName || null);
     setCanonicalTagDismissed(false);
 
-    setHits(presetToLoad.preset.hits);
-    setKudos(presetToLoad.preset.kudos);
-    setComments(presetToLoad.preset.comments);
-    setBookmarks(presetToLoad.preset.bookmarks);
-    setSortBy(presetToLoad.preset.sortBy);
-    setSortDirection(presetToLoad.preset.sortDirection);
+    setHits(presetToLoad.preset.hits || '');
+    setKudos(presetToLoad.preset.kudos || '');
+    setComments(presetToLoad.preset.comments || '');
+    setBookmarks(presetToLoad.preset.bookmarks || '');
+    setSortBy(presetToLoad.preset.sortBy || '');
+    setSortDirection(presetToLoad.preset.sortDirection || '');
 
-    setPresetName(presetToLoad.name)
+    setPresetName(presetToLoad.name);
   }
 
   function loadPreset(presetToLoad) {
-    setAnyField(presetToLoad.preset.anyField);
-    setTitle(presetToLoad.preset.title);
-    setCreator(presetToLoad.preset.creator);
-    setDate(presetToLoad.preset.date);
-    setCompletionStatus(presetToLoad.preset.completionStatus);
-    setCrossoverStatus(presetToLoad.preset.crossoverStatus);
-    setSingleChapter(presetToLoad.preset.singleChapter);
-    setWordCount(presetToLoad.preset.wordCount);
-    setLanguage(presetToLoad.preset.language);
+    setAnyField(presetToLoad.preset.anyField || '');
+    setTitle(presetToLoad.preset.title || '');
+    setCreator(presetToLoad.preset.creator || '');
+    setDate(presetToLoad.preset.date || '');
+    setCompletionStatus(presetToLoad.preset.completionStatus || '');
+    setCrossoverStatus(presetToLoad.preset.crossoverStatus || '');
+    setSingleChapter(presetToLoad.preset.singleChapter || false);
+    setWordCount(presetToLoad.preset.wordCount || '');
+    setLanguage(presetToLoad.preset.language || '');
 
-    setFandoms(presetToLoad.preset.fandoms);
-    setRating(presetToLoad.preset.rating);
-    setWarnings(presetToLoad.preset.warnings);
-    setCategories(presetToLoad.preset.categories);
-    setCharacters(presetToLoad.preset.characters);
-    setRelationships(presetToLoad.preset.relationships);
-    setAdditionalTags(presetToLoad.preset.additionalTags);
-    setExcludedFandoms(presetToLoad.preset.excludedFandoms || []);
-    setExcludedCharacters(presetToLoad.preset.excludedCharacters || []);
-    setExcludedRelationships(presetToLoad.preset.excludedRelationships || []);
-    setExcludedAdditionalTags(presetToLoad.preset.excludedAdditionalTags || presetToLoad.preset.excludedTags || []);
+    setFandoms(normalizeItems(presetToLoad.preset.fandoms));
+    setRating(presetToLoad.preset.rating || '');
+    setWarnings(presetToLoad.preset.warnings || []);
+    setCategories(presetToLoad.preset.categories || []);
+    setCharacters(normalizeItems(presetToLoad.preset.characters));
+    setRelationships(normalizeItems(presetToLoad.preset.relationships));
+    setAdditionalTags(normalizeItems(presetToLoad.preset.additionalTags));
+    setExcludedFandoms(normalizeItems(presetToLoad.preset.excludedFandoms));
+    setExcludedCharacters(
+      normalizeItems(presetToLoad.preset.excludedCharacters),
+    );
+    setExcludedRelationships(
+      normalizeItems(presetToLoad.preset.excludedRelationships),
+    );
+    setExcludedAdditionalTags(
+      normalizeItems(
+        presetToLoad.preset.excludedAdditionalTags ||
+          presetToLoad.preset.excludedTags,
+      ),
+    );
     setExcludedRatings(presetToLoad.preset.excludedRatings || []);
     setExcludedWarnings(presetToLoad.preset.excludedWarnings || []);
     setRestoredCanonicalTag(presetToLoad.preset.canonicalTagName || null);
     setCanonicalTagDismissed(false);
 
-    setHits(presetToLoad.preset.hits);
-    setKudos(presetToLoad.preset.kudos);
-    setComments(presetToLoad.preset.comments);
-    setBookmarks(presetToLoad.preset.bookmarks);
-    setSortBy(presetToLoad.preset.sortBy);
-    setSortDirection(presetToLoad.preset.sortDirection);
+    setHits(presetToLoad.preset.hits || '');
+    setKudos(presetToLoad.preset.kudos || '');
+    setComments(presetToLoad.preset.comments || '');
+    setBookmarks(presetToLoad.preset.bookmarks || '');
+    setSortBy(presetToLoad.preset.sortBy || '');
+    setSortDirection(presetToLoad.preset.sortDirection || '');
 
-    setPresetName(presetToLoad.name)
+    setPresetName(presetToLoad.name);
   }
 
-
-  const deletePreset = async (index) => {
+  const deletePreset = async index => {
     await removePreset(index);
     await loadPresetsFromStorage();
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.backgroundColor }]}>
-
+    <SafeAreaView
+      style={[
+        styles.safeArea,
+        { backgroundColor: currentTheme.backgroundColor },
+      ]}
+    >
       {/* Add preset modal */}
       <Modal
         animationType="slide"
@@ -756,29 +1135,70 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
         onRequestClose={() => setShowAddModal(!showAddModal)}
       >
         <View style={styles.modal}>
-          <View style={[styles.modalBg, { backgroundColor: currentTheme.backgroundColor, borderColor: currentTheme.borderColor }]}>
-            <View style={[styles.header, { borderBottomColor: currentTheme.borderColor }]}>
-              <Text style={[styles.headerTitle, { color: currentTheme.textColor }]}>{t('screen_advancedSearch_save_preset_modal_title')}</Text>
+          <View
+            style={[
+              styles.modalBg,
+              {
+                backgroundColor: currentTheme.backgroundColor,
+                borderColor: currentTheme.borderColor,
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.header,
+                { borderBottomColor: currentTheme.borderColor },
+              ]}
+            >
+              <Text
+                style={[styles.headerTitle, { color: currentTheme.textColor }]}
+              >
+                {t('screen_advancedSearch_save_preset_modal_title')}
+              </Text>
               <TouchableOpacity onPress={() => setShowAddModal(false)}>
-                <Icon style={[styles.icon, { color: currentTheme.iconColor }]} name={"close"} />
+                <Icon
+                  style={[styles.icon, { color: currentTheme.iconColor }]}
+                  name={'close'}
+                />
               </TouchableOpacity>
             </View>
             <View style={styles.modalContent}>
               <View style={styles.inputGroup}>
-                <Text style={[styles.label, { color: currentTheme.textColor }]}>{t('screen_advancedSearch_preset_name_label')}</Text>
+                <Text style={[styles.label, { color: currentTheme.textColor }]}>
+                  {t('screen_advancedSearch_preset_name_label')}
+                </Text>
                 <TextInput
-                  style={[styles.input, { color: currentTheme.textColor, borderColor: currentTheme.borderColor, backgroundColor: currentTheme.inputBackground }]}
-                  placeholder={t('screen_advancedSearch_preset_name_placeholder')}
+                  style={[
+                    styles.input,
+                    {
+                      color: currentTheme.textColor,
+                      borderColor: currentTheme.borderColor,
+                      backgroundColor: currentTheme.inputBackground,
+                    },
+                  ]}
+                  placeholder={t(
+                    'screen_advancedSearch_preset_name_placeholder',
+                  )}
                   placeholderTextColor={currentTheme.placeholderColor}
                   value={presetName}
                   onChangeText={setPresetName}
                 />
               </View>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: currentTheme.primaryColor }]}
-                onPress={() => { savePreset(presetName); setShowAddModal(false); }}
+                style={[
+                  styles.modalButton,
+                  { backgroundColor: currentTheme.primaryColor },
+                ]}
+                onPress={() => {
+                  savePreset(presetName);
+                  setShowAddModal(false);
+                }}
               >
-                <Text style={styles.buttonText}>{presetExists ? t('screen_advancedSearch_update_button') : t('screen_advancedSearch_add_button')}</Text>
+                <Text style={styles.buttonText}>
+                  {presetExists
+                    ? t('screen_advancedSearch_update_button')
+                    : t('screen_advancedSearch_add_button')}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -793,27 +1213,71 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
         onRequestClose={() => setShowPresetModal(!showPresetModal)}
       >
         <View style={styles.modal}>
-          <View style={[styles.modalBg, { backgroundColor: currentTheme.backgroundColor, borderColor: currentTheme.borderColor }]}>
-            <View style={[styles.header, { borderBottomColor: currentTheme.borderColor }]}>
-              <Text style={[styles.headerTitle, { color: currentTheme.textColor }]}>{t('screen_advancedSearch_presets_button')}</Text>
+          <View
+            style={[
+              styles.modalBg,
+              {
+                backgroundColor: currentTheme.backgroundColor,
+                borderColor: currentTheme.borderColor,
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.header,
+                { borderBottomColor: currentTheme.borderColor },
+              ]}
+            >
+              <Text
+                style={[styles.headerTitle, { color: currentTheme.textColor }]}
+              >
+                {t('screen_advancedSearch_presets_button')}
+              </Text>
               <TouchableOpacity onPress={() => setShowPresetModal(false)}>
-                <Icon style={[styles.icon, { color: currentTheme.iconColor }]} name={"close"} />
+                <Icon
+                  style={[styles.icon, { color: currentTheme.iconColor }]}
+                  name={'close'}
+                />
               </TouchableOpacity>
             </View>
             <View style={styles.modalContent}>
               <ScrollView>
                 {presets.map((p, index) => (
-                  <TouchableOpacity key={index} onPress={() => { loadPreset(presets[index]); setShowPresetModal(false); }}>
-                    <View style={[styles.modalPresetObject, { backgroundColor: currentTheme.cardBackground, borderColor: currentTheme.borderColor }]}>
-                      <Text style={[{ color: currentTheme.textColor }]}>{p.name}</Text>
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => {
+                      loadPreset(presets[index]);
+                      setShowPresetModal(false);
+                    }}
+                  >
+                    <View
+                      style={[
+                        styles.modalPresetObject,
+                        {
+                          backgroundColor: currentTheme.cardBackground,
+                          borderColor: currentTheme.borderColor,
+                        },
+                      ]}
+                    >
+                      <Text style={[{ color: currentTheme.textColor }]}>
+                        {p.name}
+                      </Text>
                       <TouchableOpacity onPress={() => deletePreset(index)}>
-                        <Icon style={[styles.iconDelete, { color: currentTheme.warningTextColor }]} name={"delete"} />
+                        <Icon
+                          style={[
+                            styles.iconDelete,
+                            { color: currentTheme.warningTextColor },
+                          ]}
+                          name={'delete'}
+                        />
                       </TouchableOpacity>
                     </View>
                   </TouchableOpacity>
                 ))}
                 {presets.length === 0 && (
-                  <Text style={[{ color: currentTheme.textColor }]}>{t('screen_advancedSearch_no_presets')}</Text>
+                  <Text style={[{ color: currentTheme.textColor }]}>
+                    {t('screen_advancedSearch_no_presets')}
+                  </Text>
                 )}
               </ScrollView>
             </View>
@@ -821,16 +1285,32 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
         </View>
       </Modal>
 
-      <View style={[styles.header, { borderBottomColor: currentTheme.borderColor }]}>
-        <Text style={[styles.headerTitle, { color: currentTheme.textColor }]}>{t('screen_advancedSearch_title')}</Text>
+      <View
+        style={[styles.header, { borderBottomColor: currentTheme.borderColor }]}
+      >
+        <Text style={[styles.headerTitle, { color: currentTheme.textColor }]}>
+          {t('screen_advancedSearch_title')}
+        </Text>
         <TouchableOpacity onPress={() => setShowPresetModal(true)}>
-          <Text style={[styles.closeButton, { color: currentTheme.primaryColor }]}>{t('screen_advancedSearch_presets_button')}</Text>
+          <Text
+            style={[styles.closeButton, { color: currentTheme.primaryColor }]}
+          >
+            {t('screen_advancedSearch_presets_button')}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setShowAddModal(true)}>
-          <Text style={[styles.closeButton, { color: currentTheme.primaryColor }]}>{t('screen_advancedSearch_save_button')}</Text>
+          <Text
+            style={[styles.closeButton, { color: currentTheme.primaryColor }]}
+          >
+            {t('screen_advancedSearch_save_button')}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={onClose}>
-          <Text style={[styles.closeButton, { color: currentTheme.primaryColor }]}>{t('screen_advancedSearch_close_button')}</Text>
+          <Text
+            style={[styles.closeButton, { color: currentTheme.primaryColor }]}
+          >
+            {t('screen_advancedSearch_close_button')}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -840,29 +1320,88 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
         keyboardShouldPersistTaps="handled"
       >
         {activeCanonicalTag ? (
-          <View style={[styles.canonicalTagBanner, { backgroundColor: currentTheme.primaryColor + '22', borderColor: currentTheme.primaryColor }]}>
-            <Icon name="local-offer" size={14} style={{ color: currentTheme.primaryColor, marginRight: 6 }} />
-            <Text style={[styles.canonicalTagBannerText, { color: currentTheme.primaryColor, flex: 1 }]}>
-              {t('screen_advancedSearch_canonical_tag_banner', { tag: activeCanonicalTag })}
+          <View
+            style={[
+              styles.canonicalTagBanner,
+              {
+                backgroundColor: currentTheme.primaryColor + '22',
+                borderColor: currentTheme.primaryColor,
+              },
+            ]}
+          >
+            <Icon
+              name="local-offer"
+              size={14}
+              style={{ color: currentTheme.primaryColor, marginRight: 6 }}
+            />
+            <Text
+              style={[
+                styles.canonicalTagBannerText,
+                { color: currentTheme.primaryColor, flex: 1 },
+              ]}
+            >
+              {t('screen_advancedSearch_canonical_tag_banner', {
+                tag: activeCanonicalTag,
+              })}
             </Text>
-            <TouchableOpacity onPress={() => setCanonicalTagDismissed(true)} style={styles.canonicalTagDismiss}>
-              <Icon name="close" size={14} style={{ color: currentTheme.primaryColor }} />
+            <TouchableOpacity
+              onPress={() => setCanonicalTagDismissed(true)}
+              style={styles.canonicalTagDismiss}
+            >
+              <Icon
+                name="close"
+                size={14}
+                style={{ color: currentTheme.primaryColor }}
+              />
             </TouchableOpacity>
           </View>
         ) : (
-          <View style={[styles.canonicalTagBanner, { backgroundColor: currentTheme.warningMessageBackground, borderColor: currentTheme.warningMessageTextColor }]}>
-            <Icon name="local-offer" size={14} style={{ color: currentTheme.warningMessageTextColor, marginRight: 6 }} />
-            <Text style={[styles.canonicalTagBannerText, { color: currentTheme.warningMessageTextColor, flex: 1 }]}>
+          <View
+            style={[
+              styles.canonicalTagBanner,
+              {
+                backgroundColor: currentTheme.warningMessageBackground,
+                borderColor: currentTheme.warningMessageTextColor,
+              },
+            ]}
+          >
+            <Icon
+              name="local-offer"
+              size={14}
+              style={{
+                color: currentTheme.warningMessageTextColor,
+                marginRight: 6,
+              }}
+            />
+            <Text
+              style={[
+                styles.canonicalTagBannerText,
+                { color: currentTheme.warningMessageTextColor, flex: 1 },
+              ]}
+            >
               {t('screen_advancedSearch_no_canonical_tag_banner')}
             </Text>
           </View>
         )}
 
-        <FilterSection title={t('screen_advancedSearch_filter_work_info')} theme={currentTheme} defaultOpen={true}>
+        <FilterSection
+          title={t('screen_advancedSearch_filter_work_info')}
+          theme={currentTheme}
+          defaultOpen={true}
+        >
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: currentTheme.textColor }]}>{t('screen_advancedSearch_label_any_field')}</Text>
+            <Text style={[styles.label, { color: currentTheme.textColor }]}>
+              {t('screen_advancedSearch_label_any_field')}
+            </Text>
             <TextInput
-              style={[styles.input, { color: currentTheme.textColor, borderColor: currentTheme.borderColor, backgroundColor: currentTheme.inputBackground }]}
+              style={[
+                styles.input,
+                {
+                  color: currentTheme.textColor,
+                  borderColor: currentTheme.borderColor,
+                  backgroundColor: currentTheme.inputBackground,
+                },
+              ]}
               placeholder={t('screen_advancedSearch_placeholder_any_field')}
               placeholderTextColor={currentTheme.placeholderColor}
               value={anyField}
@@ -870,9 +1409,18 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
             />
           </View>
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: currentTheme.textColor }]}>{t('screen_advancedSearch_label_title')}</Text>
+            <Text style={[styles.label, { color: currentTheme.textColor }]}>
+              {t('screen_advancedSearch_label_title')}
+            </Text>
             <TextInput
-              style={[styles.input, { color: currentTheme.textColor, borderColor: currentTheme.borderColor, backgroundColor: currentTheme.inputBackground }]}
+              style={[
+                styles.input,
+                {
+                  color: currentTheme.textColor,
+                  borderColor: currentTheme.borderColor,
+                  backgroundColor: currentTheme.inputBackground,
+                },
+              ]}
               placeholder={t('screen_advancedSearch_placeholder_title')}
               placeholderTextColor={currentTheme.placeholderColor}
               value={title}
@@ -880,9 +1428,18 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
             />
           </View>
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: currentTheme.textColor }]}>{t('screen_advancedSearch_label_creator')}</Text>
+            <Text style={[styles.label, { color: currentTheme.textColor }]}>
+              {t('screen_advancedSearch_label_creator')}
+            </Text>
             <TextInput
-              style={[styles.input, { color: currentTheme.textColor, borderColor: currentTheme.borderColor, backgroundColor: currentTheme.inputBackground }]}
+              style={[
+                styles.input,
+                {
+                  color: currentTheme.textColor,
+                  borderColor: currentTheme.borderColor,
+                  backgroundColor: currentTheme.inputBackground,
+                },
+              ]}
               placeholder={t('screen_advancedSearch_placeholder_creator')}
               placeholderTextColor={currentTheme.placeholderColor}
               value={creator}
@@ -890,24 +1447,59 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
             />
           </View>
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: currentTheme.textColor }]}>{t('screen_advancedSearch_label_date')}</Text>
+            <Text style={[styles.label, { color: currentTheme.textColor }]}>
+              {t('screen_advancedSearch_label_date')}
+            </Text>
             <TextInput
-              style={[styles.input, { color: currentTheme.textColor, borderColor: currentTheme.borderColor, backgroundColor: currentTheme.inputBackground }]}
+              style={[
+                styles.input,
+                {
+                  color: currentTheme.textColor,
+                  borderColor: currentTheme.borderColor,
+                  backgroundColor: currentTheme.inputBackground,
+                },
+              ]}
               placeholder={t('screen_advancedSearch_placeholder_date')}
               placeholderTextColor={currentTheme.placeholderColor}
               value={date}
               onChangeText={setDate}
             />
           </View>
-          <RadioGroup title={t('screen_advancedSearch_label_completion_status')} options={completionOptions} selected={completionStatus} onSelect={setCompletionStatus} theme={currentTheme} />
-          <RadioGroup title={t('screen_advancedSearch_label_crossovers')} options={crossoverOptions} selected={crossoverStatus} onSelect={setCrossoverStatus} theme={currentTheme} />
+          <RadioGroup
+            title={t('screen_advancedSearch_label_completion_status')}
+            options={completionOptions}
+            selected={completionStatus}
+            onSelect={setCompletionStatus}
+            theme={currentTheme}
+          />
+          <RadioGroup
+            title={t('screen_advancedSearch_label_crossovers')}
+            options={crossoverOptions}
+            selected={crossoverStatus}
+            onSelect={setCrossoverStatus}
+            theme={currentTheme}
+          />
           <View style={styles.groupContainer}>
-            <ToggleCheckbox label={t('screen_advancedSearch_label_single_chapter')} checked={singleChapter} onToggle={() => setSingleChapter(!singleChapter)} theme={currentTheme} />
+            <ToggleCheckbox
+              label={t('screen_advancedSearch_label_single_chapter')}
+              checked={singleChapter}
+              onToggle={() => setSingleChapter(!singleChapter)}
+              theme={currentTheme}
+            />
           </View>
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: currentTheme.textColor }]}>{t('screen_advancedSearch_label_word_count')}</Text>
+            <Text style={[styles.label, { color: currentTheme.textColor }]}>
+              {t('screen_advancedSearch_label_word_count')}
+            </Text>
             <TextInput
-              style={[styles.input, { color: currentTheme.textColor, borderColor: currentTheme.borderColor, backgroundColor: currentTheme.inputBackground }]}
+              style={[
+                styles.input,
+                {
+                  color: currentTheme.textColor,
+                  borderColor: currentTheme.borderColor,
+                  backgroundColor: currentTheme.inputBackground,
+                },
+              ]}
               placeholder={t('screen_advancedSearch_placeholder_word_count')}
               placeholderTextColor={currentTheme.placeholderColor}
               value={wordCount}
@@ -915,16 +1507,41 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
             />
           </View>
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: currentTheme.textColor }]}>{t('screen_advancedSearch_label_language')}</Text>
-            <View style={[styles.CustomDropdownContainer, { borderColor: currentTheme.borderColor, backgroundColor: currentTheme.inputBackground }]}>
-              <CustomDropdown theme={currentTheme} selectedValue={language} onValueChange={(itemValue) => setLanguage(itemValue)} style={{ color: currentTheme.textColor }} dropdownIconColor={currentTheme.textColor}>
-                {languageOptions.map(opt => <CustomDropdown.Item key={opt.value} label={opt.label} value={opt.value} />)}
+            <Text style={[styles.label, { color: currentTheme.textColor }]}>
+              {t('screen_advancedSearch_label_language')}
+            </Text>
+            <View
+              style={[
+                styles.CustomDropdownContainer,
+                {
+                  borderColor: currentTheme.borderColor,
+                  backgroundColor: currentTheme.inputBackground,
+                },
+              ]}
+            >
+              <CustomDropdown
+                theme={currentTheme}
+                selectedValue={language}
+                onValueChange={itemValue => setLanguage(itemValue)}
+                style={{ color: currentTheme.textColor }}
+                dropdownIconColor={currentTheme.textColor}
+              >
+                {languageOptions.map(opt => (
+                  <CustomDropdown.Item
+                    key={opt.value}
+                    label={opt.label}
+                    value={opt.value}
+                  />
+                ))}
               </CustomDropdown>
             </View>
           </View>
         </FilterSection>
 
-        <FilterSection title={t('screen_advancedSearch_filter_work_tags')} theme={currentTheme}>
+        <FilterSection
+          title={t('screen_advancedSearch_filter_work_tags')}
+          theme={currentTheme}
+        >
           <AutocompleteInput
             label={t('screen_advancedSearch_label_fandoms')}
             placeholder={t('screen_advancedSearch_placeholder_fandoms')}
@@ -934,16 +1551,53 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
             theme={currentTheme}
           />
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: currentTheme.textColor }]}>{t('screen_advancedSearch_label_rating')}</Text>
-            <View style={[styles.CustomDropdownContainer, { borderColor: currentTheme.borderColor, backgroundColor: currentTheme.inputBackground }]}>
-              <CustomDropdown theme={currentTheme} selectedValue={rating} onValueChange={(itemValue) => setRating(itemValue)} style={{ color: currentTheme.textColor }} dropdownIconColor={currentTheme.textColor}>
-                <CustomDropdown.Item label={t('screen_advancedSearch_rating_any')} value="" />
-                {ratingOptions.map(opt => <CustomDropdown.Item key={opt.value} label={opt.label} value={opt.value} />)}
+            <Text style={[styles.label, { color: currentTheme.textColor }]}>
+              {t('screen_advancedSearch_label_rating')}
+            </Text>
+            <View
+              style={[
+                styles.CustomDropdownContainer,
+                {
+                  borderColor: currentTheme.borderColor,
+                  backgroundColor: currentTheme.inputBackground,
+                },
+              ]}
+            >
+              <CustomDropdown
+                theme={currentTheme}
+                selectedValue={rating}
+                onValueChange={itemValue => setRating(itemValue)}
+                style={{ color: currentTheme.textColor }}
+                dropdownIconColor={currentTheme.textColor}
+              >
+                <CustomDropdown.Item
+                  label={t('screen_advancedSearch_rating_any')}
+                  value=""
+                />
+                {ratingOptions.map(opt => (
+                  <CustomDropdown.Item
+                    key={opt.value}
+                    label={opt.label}
+                    value={opt.value}
+                  />
+                ))}
               </CustomDropdown>
             </View>
           </View>
-          <CheckboxGroup title={t('screen_advancedSearch_label_warnings')} options={warningOptions} selected={warnings} onSelect={setWarnings} theme={currentTheme} />
-          <CheckboxGroup title={t('screen_advancedSearch_label_categories')} options={categoryOptions} selected={categories} onSelect={setCategories} theme={currentTheme} />
+          <CheckboxGroup
+            title={t('screen_advancedSearch_label_warnings')}
+            options={warningOptions}
+            selected={warnings}
+            onSelect={setWarnings}
+            theme={currentTheme}
+          />
+          <CheckboxGroup
+            title={t('screen_advancedSearch_label_categories')}
+            options={categoryOptions}
+            selected={categories}
+            onSelect={setCategories}
+            theme={currentTheme}
+          />
           <AutocompleteInput
             label={t('screen_advancedSearch_label_characters')}
             placeholder={t('screen_advancedSearch_placeholder_characters')}
@@ -971,14 +1625,21 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
         </FilterSection>
 
         {activeCanonicalTag && (
-          <FilterSection title={t('screen_advancedSearch_filter_exclude')} theme={currentTheme}>
+          <FilterSection
+            title={t('screen_advancedSearch_filter_exclude')}
+            theme={currentTheme}
+          >
             <AutocompleteInput
               label={t('screen_advancedSearch_label_exclude_fandoms')}
               placeholder={t('screen_advancedSearch_placeholder_fandoms')}
               fetchSuggestions={fetchFandomSuggestions}
               selectedItems={excludedFandoms}
               onItemsChange={setExcludedFandoms}
-              theme={{ ...currentTheme, primaryColor: currentTheme.warningBackground, secondaryTextColor: currentTheme.warningTextColor }}
+              theme={{
+                ...currentTheme,
+                primaryColor: currentTheme.warningBackground,
+                secondaryTextColor: currentTheme.warningTextColor,
+              }}
               redText={true}
             />
             <AutocompleteInput
@@ -987,7 +1648,11 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
               fetchSuggestions={fetchCharacterSuggestions}
               selectedItems={excludedCharacters}
               onItemsChange={setExcludedCharacters}
-              theme={{ ...currentTheme, primaryColor: currentTheme.warningBackground, secondaryTextColor: currentTheme.warningTextColor }}
+              theme={{
+                ...currentTheme,
+                primaryColor: currentTheme.warningBackground,
+                secondaryTextColor: currentTheme.warningTextColor,
+              }}
               redText={true}
             />
             <AutocompleteInput
@@ -996,28 +1661,62 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
               fetchSuggestions={fetchRelationshipSuggestions}
               selectedItems={excludedRelationships}
               onItemsChange={setExcludedRelationships}
-              theme={{ ...currentTheme, primaryColor: currentTheme.warningBackground, secondaryTextColor: currentTheme.warningTextColor }}
+              theme={{
+                ...currentTheme,
+                primaryColor: currentTheme.warningBackground,
+                secondaryTextColor: currentTheme.warningTextColor,
+              }}
               redText={true}
             />
             <AutocompleteInput
               label={t('screen_advancedSearch_label_exclude_additional_tags')}
-              placeholder={t('screen_advancedSearch_placeholder_additional_tags')}
+              placeholder={t(
+                'screen_advancedSearch_placeholder_additional_tags',
+              )}
               fetchSuggestions={fetchFreeformSuggestions}
               selectedItems={excludedAdditionalTags}
               onItemsChange={setExcludedAdditionalTags}
-              theme={{ ...currentTheme, primaryColor: currentTheme.warningBackground, secondaryTextColor: currentTheme.warningTextColor }}
+              theme={{
+                ...currentTheme,
+                primaryColor: currentTheme.warningBackground,
+                secondaryTextColor: currentTheme.warningTextColor,
+              }}
               redText={true}
             />
-            <CheckboxGroup title={t('screen_advancedSearch_label_exclude_ratings')} options={excludeRatingOptions} selected={excludedRatings} onSelect={setExcludedRatings} theme={currentTheme} />
-            <CheckboxGroup title={t('screen_advancedSearch_label_exclude_warnings')} options={excludeWarningOptions} selected={excludedWarnings} onSelect={setExcludedWarnings} theme={currentTheme} />
+            <CheckboxGroup
+              title={t('screen_advancedSearch_label_exclude_ratings')}
+              options={excludeRatingOptions}
+              selected={excludedRatings}
+              onSelect={setExcludedRatings}
+              theme={currentTheme}
+            />
+            <CheckboxGroup
+              title={t('screen_advancedSearch_label_exclude_warnings')}
+              options={excludeWarningOptions}
+              selected={excludedWarnings}
+              onSelect={setExcludedWarnings}
+              theme={currentTheme}
+            />
           </FilterSection>
         )}
 
-        <FilterSection title={t('screen_advancedSearch_filter_stats')} theme={currentTheme}>
+        <FilterSection
+          title={t('screen_advancedSearch_filter_stats')}
+          theme={currentTheme}
+        >
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: currentTheme.textColor }]}>{t('screen_advancedSearch_label_hits')}</Text>
+            <Text style={[styles.label, { color: currentTheme.textColor }]}>
+              {t('screen_advancedSearch_label_hits')}
+            </Text>
             <TextInput
-              style={[styles.input, { color: currentTheme.textColor, borderColor: currentTheme.borderColor, backgroundColor: currentTheme.inputBackground }]}
+              style={[
+                styles.input,
+                {
+                  color: currentTheme.textColor,
+                  borderColor: currentTheme.borderColor,
+                  backgroundColor: currentTheme.inputBackground,
+                },
+              ]}
               placeholder={t('screen_advancedSearch_placeholder_hits')}
               placeholderTextColor={currentTheme.placeholderColor}
               value={hits}
@@ -1026,9 +1725,18 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
             />
           </View>
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: currentTheme.textColor }]}>{t('screen_advancedSearch_label_kudos')}</Text>
+            <Text style={[styles.label, { color: currentTheme.textColor }]}>
+              {t('screen_advancedSearch_label_kudos')}
+            </Text>
             <TextInput
-              style={[styles.input, { color: currentTheme.textColor, borderColor: currentTheme.borderColor, backgroundColor: currentTheme.inputBackground }]}
+              style={[
+                styles.input,
+                {
+                  color: currentTheme.textColor,
+                  borderColor: currentTheme.borderColor,
+                  backgroundColor: currentTheme.inputBackground,
+                },
+              ]}
               placeholder={t('screen_advancedSearch_placeholder_kudos')}
               placeholderTextColor={currentTheme.placeholderColor}
               value={kudos}
@@ -1037,9 +1745,18 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
             />
           </View>
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: currentTheme.textColor }]}>{t('screen_advancedSearch_label_comments')}</Text>
+            <Text style={[styles.label, { color: currentTheme.textColor }]}>
+              {t('screen_advancedSearch_label_comments')}
+            </Text>
             <TextInput
-              style={[styles.input, { color: currentTheme.textColor, borderColor: currentTheme.borderColor, backgroundColor: currentTheme.inputBackground }]}
+              style={[
+                styles.input,
+                {
+                  color: currentTheme.textColor,
+                  borderColor: currentTheme.borderColor,
+                  backgroundColor: currentTheme.inputBackground,
+                },
+              ]}
               placeholder={t('screen_advancedSearch_placeholder_comments')}
               placeholderTextColor={currentTheme.placeholderColor}
               value={comments}
@@ -1048,9 +1765,18 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
             />
           </View>
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: currentTheme.textColor }]}>{t('screen_advancedSearch_label_bookmarks')}</Text>
+            <Text style={[styles.label, { color: currentTheme.textColor }]}>
+              {t('screen_advancedSearch_label_bookmarks')}
+            </Text>
             <TextInput
-              style={[styles.input, { color: currentTheme.textColor, borderColor: currentTheme.borderColor, backgroundColor: currentTheme.inputBackground }]}
+              style={[
+                styles.input,
+                {
+                  color: currentTheme.textColor,
+                  borderColor: currentTheme.borderColor,
+                  backgroundColor: currentTheme.inputBackground,
+                },
+              ]}
               placeholder={t('screen_advancedSearch_placeholder_bookmarks')}
               placeholderTextColor={currentTheme.placeholderColor}
               value={bookmarks}
@@ -1060,26 +1786,82 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
           </View>
         </FilterSection>
 
-        <FilterSection title={t('screen_advancedSearch_filter_search_options')} theme={currentTheme} defaultOpen={true}>
+        <FilterSection
+          title={t('screen_advancedSearch_filter_search_options')}
+          theme={currentTheme}
+          defaultOpen={true}
+        >
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: currentTheme.textColor }]}>{t('screen_advancedSearch_label_sort_by')}</Text>
-            <View style={[styles.CustomDropdownContainer, { borderColor: currentTheme.borderColor, backgroundColor: currentTheme.inputBackground }]}>
-              <CustomDropdown theme={currentTheme} selectedValue={sortBy} onValueChange={(itemValue) => setSortBy(itemValue)} style={{ color: currentTheme.textColor }} dropdownIconColor={currentTheme.textColor}>
-                {sortOptions.map(opt => <CustomDropdown.Item key={opt.value} label={opt.label} value={opt.value} />)}
+            <Text style={[styles.label, { color: currentTheme.textColor }]}>
+              {t('screen_advancedSearch_label_sort_by')}
+            </Text>
+            <View
+              style={[
+                styles.CustomDropdownContainer,
+                {
+                  borderColor: currentTheme.borderColor,
+                  backgroundColor: currentTheme.inputBackground,
+                },
+              ]}
+            >
+              <CustomDropdown
+                theme={currentTheme}
+                selectedValue={sortBy}
+                onValueChange={itemValue => setSortBy(itemValue)}
+                style={{ color: currentTheme.textColor }}
+                dropdownIconColor={currentTheme.textColor}
+              >
+                {sortOptions.map(opt => (
+                  <CustomDropdown.Item
+                    key={opt.value}
+                    label={opt.label}
+                    value={opt.value}
+                  />
+                ))}
               </CustomDropdown>
             </View>
           </View>
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: currentTheme.textColor }]}>{t('screen_advancedSearch_label_sort_direction')}</Text>
-            <View style={[styles.CustomDropdownContainer, { borderColor: currentTheme.borderColor, backgroundColor: currentTheme.inputBackground }]}>
-              <CustomDropdown theme={currentTheme} selectedValue={sortDirection} onValueChange={(itemValue) => setSortDirection(itemValue)} style={{ color: currentTheme.textColor }} dropdownIconColor={currentTheme.textColor}>
-                {sortDirectionOptions.map(opt => <CustomDropdown.Item key={opt.value} label={opt.label} value={opt.value} />)}
+            <Text style={[styles.label, { color: currentTheme.textColor }]}>
+              {t('screen_advancedSearch_label_sort_direction')}
+            </Text>
+            <View
+              style={[
+                styles.CustomDropdownContainer,
+                {
+                  borderColor: currentTheme.borderColor,
+                  backgroundColor: currentTheme.inputBackground,
+                },
+              ]}
+            >
+              <CustomDropdown
+                theme={currentTheme}
+                selectedValue={sortDirection}
+                onValueChange={itemValue => setSortDirection(itemValue)}
+                style={{ color: currentTheme.textColor }}
+                dropdownIconColor={currentTheme.textColor}
+              >
+                {sortDirectionOptions.map(opt => (
+                  <CustomDropdown.Item
+                    key={opt.value}
+                    label={opt.label}
+                    value={opt.value}
+                  />
+                ))}
               </CustomDropdown>
             </View>
           </View>
         </FilterSection>
-        <TouchableOpacity style={[styles.button, { backgroundColor: currentTheme.primaryColor }]} onPress={handleSearch}>
-          <Text style={styles.buttonText}>{t('screen_advancedSearch_search_button')}</Text>
+        <TouchableOpacity
+          style={[
+            styles.button,
+            { backgroundColor: currentTheme.primaryColor },
+          ]}
+          onPress={handleSearch}
+        >
+          <Text style={styles.buttonText}>
+            {t('screen_advancedSearch_search_button')}
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -1088,29 +1870,81 @@ const AdvancedSearchScreen = ({ currentTheme, onClose, onSearch, savedFilters = 
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1 },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
   headerTitle: { fontSize: 20, fontWeight: 'bold' },
   closeButton: { fontSize: 16, fontWeight: '600' },
   container: { flex: 1 },
   contentContainer: { padding: 16 },
   inputGroup: { marginBottom: 16 },
   label: { fontSize: 16, fontWeight: '500', marginBottom: 8 },
-  input: { borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, fontSize: 16 },
-  CustomDropdownContainer: { borderWidth: 1, borderRadius: 8, justifyContent: 'center' },
-  sectionContainer: { borderWidth: 1, borderRadius: 8, marginBottom: 16, overflow: 'hidden' },
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 12 },
+  input: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 16,
+  },
+  CustomDropdownContainer: {
+    borderWidth: 1,
+    borderRadius: 8,
+    justifyContent: 'center',
+  },
+  sectionContainer: {
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 16,
+    overflow: 'hidden',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+  },
   sectionTitle: { fontSize: 18, fontWeight: 'bold' },
   sectionToggle: { fontSize: 24, fontWeight: 'bold' },
   sectionContent: { padding: 12 },
   groupContainer: { marginBottom: 16 },
-  groupTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 8, marginTop: 8 },
+  groupTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    marginTop: 8,
+  },
   checkItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
   checkLabel: { fontSize: 16, marginLeft: 12, flex: 1 },
-  checkbox: { width: 24, height: 24, borderWidth: 2, borderRadius: 4, justifyContent: 'center', alignItems: 'center' },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   checkboxMark: { color: 'white', fontWeight: 'bold' },
-  radio: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  radio: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   radioInner: { width: 12, height: 12, borderRadius: 6 },
-  button: { padding: 15, borderRadius: 8, alignItems: 'center', marginTop: 20, marginBottom: 100 },
+  button: {
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 100,
+  },
   buttonText: { color: 'white', fontSize: 18, fontWeight: 'bold' },
   autocompleteContainer: {
     borderWidth: 1,
@@ -1192,10 +2026,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     margin: 4,
     padding: 8,
-    display: "flex",
+    display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: "center"
+    alignItems: 'center',
   },
   icon: {
     fontSize: 32,

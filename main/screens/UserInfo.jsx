@@ -11,16 +11,12 @@ import { getUserInfo, getUserInfoByPseud } from '../web/user/getUserInfo';
 import { useEffect, useState } from 'react';
 import HtmlTextRenderer from '../components/common/HtmlTextRenderer';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import BookmarksScreen from './more/BookmarksScreen';
-import UserWorkScreen from './more/UserWorkScreen';
 import LoadingSpinner from '../components/History/Spinner';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function UserInfoScreen({
-  route
-}) {
+export default function UserInfoScreen({ route }) {
   const {
     currentTheme,
     username,
@@ -87,11 +83,22 @@ export default function UserInfoScreen({
             { backgroundColor: currentTheme.backgroundColor },
           ]}
         >
-          <View style={[styles.header, { borderBottomColor: currentTheme.borderColor }]}>
+          <View
+            style={[
+              styles.header,
+              { borderBottomColor: currentTheme.borderColor },
+            ]}
+          >
             <TouchableOpacity onPress={onBack} style={styles.backButton}>
-              <Icon name="arrow-back" size={24} color={currentTheme.textColor} />
+              <Icon
+                name="arrow-back"
+                size={24}
+                color={currentTheme.textColor}
+              />
             </TouchableOpacity>
-            <Text style={[styles.title, { color: currentTheme.textColor }]}>{t("general_error")}</Text>
+            <Text style={[styles.title, { color: currentTheme.textColor }]}>
+              {t('general_error')}
+            </Text>
           </View>
 
           <View style={styles.errorContainer}>
@@ -174,7 +181,7 @@ export default function UserInfoScreen({
                     {properPseud && (
                       <TouchableOpacity
                         onPress={() => {
-                          navigation.push("User", {
+                          navigation.push('User', {
                             username: properUsername,
                             currentTheme: currentTheme,
                             onBack: onBack,
@@ -185,7 +192,7 @@ export default function UserInfoScreen({
                             chapterDAO: chapterDAO,
                             progressDAO: progressDAO,
                             kudoHistoryDAO: kudoHistoryDAO,
-                          })
+                          });
                         }}
                       >
                         <Text
@@ -227,7 +234,7 @@ export default function UserInfoScreen({
                   { borderColor: currentTheme.borderColor },
                 ]}
                 onPress={() => {
-                  navigation.push("Bookmarks", {
+                  navigation.push('Bookmarks', {
                     setScreens: setScreens,
                     historyDAO: historyDAO,
                     settingsDAO: settingsDAO,
@@ -263,7 +270,7 @@ export default function UserInfoScreen({
                   { borderColor: currentTheme.borderColor },
                 ]}
                 onPress={() => {
-                  navigation.push("UserWork", {
+                  navigation.push('UserWork', {
                     setScreens: setScreens,
                     historyDAO: historyDAO,
                     settingsDAO: settingsDAO,
@@ -275,7 +282,7 @@ export default function UserInfoScreen({
                     username: properUsername,
                     chapterDAO: chapterDAO,
                     pseud: properPseud,
-                  })
+                  });
                 }}
               >
                 <Text

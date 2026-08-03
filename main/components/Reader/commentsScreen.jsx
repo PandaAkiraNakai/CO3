@@ -13,7 +13,6 @@ import { fetchComments } from '../../web/worksScreen/fetchComments';
 import HtmlTextRenderer from '../common/HtmlTextRenderer';
 import { getJsonSettings } from '../../storage/jsonSettings';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import UserInfoScreen from '../../screens/UserInfo';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 
@@ -149,8 +148,7 @@ export const CommentsScreen = ({
                 activeOpacity={0}
                 onPress={() => {
                   comment.username
-                    ? (
-                      navigation.push("User", {
+                    ? navigation.push('User', {
                         username: comment.username,
                         currentTheme: currentTheme,
                         setScreens: setScreens,
@@ -162,7 +160,7 @@ export const CommentsScreen = ({
                         libraryDAO: libraryDAO,
                         workDAO: workDAO,
                         chapterDAO: chapterDAO,
-                      }))
+                      })
                     : null;
                 }}
               >

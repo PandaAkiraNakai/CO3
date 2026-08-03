@@ -146,6 +146,7 @@ async function createCompleteHtml(chapterHtml, cssStyles, currentTheme, settings
       color: var(--text-color, #333);
       transition: background-color 0.3s ease, color 0.3s ease;
       font-size: ${settings.useCustomSize ? settings.fontSize + 'em' : '1em'};
+      overflow-wrap: break-word;
     }
     
     #workskin h1, #workskin h2, #workskin h3, #workskin h4, #workskin h5, #workskin h6 {

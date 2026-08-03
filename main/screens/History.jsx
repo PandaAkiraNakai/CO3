@@ -16,7 +16,6 @@ import CalendarModal from '../components/History/CalendarModal';
 import EmptyState from '../components/History/Empty';
 import LoadingSpinner from '../components/History/Spinner';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import WorkScreen from './workScreen';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 
@@ -271,7 +270,7 @@ const HistoryScreen = ({
   };
 
   function handleClick(item) {
-    navigation.push("Work", {
+    navigation.push('Work', {
       workId: item.workId,
       currentTheme: currentTheme,
       settingsDAO: settingsDAO,
@@ -283,7 +282,7 @@ const HistoryScreen = ({
       loadChapter: item.chapterEnd || item.chapter || 0,
       kudoHistoryDAO: kudoHistoryDAO,
       chapterDAO: chapterDAO,
-    })
+    });
   }
 
   const clearDateFilter = async () => {

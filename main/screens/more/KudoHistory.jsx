@@ -19,9 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const KudoHistoryScreen = ({
-  route
-}) => {
+const KudoHistoryScreen = ({ route }) => {
   const {
     currentTheme,
     workDAO,

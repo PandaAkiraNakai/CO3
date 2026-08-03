@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import BookDetailsModal from './BookDetailsModal';
-import ChapterInfoScreen from '../../screens/workScreen';
 import QuickActionsModal from './QuickActionsModal';
 import HtmlTextRenderer from '../common/HtmlTextRenderer';
-import UserInfoScreen from '../../screens/UserInfo';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 

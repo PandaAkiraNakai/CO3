@@ -1,6 +1,5 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import WorkScreen from '../../screens/workScreen';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 
@@ -67,7 +66,7 @@ const HistoryItem = ({
 
   function handleClick() {
     if (hasChapter) {
-      navigation.push("Work", {
+      navigation.push('Work', {
         workId: item.workId,
         currentTheme: currentTheme,
         settingsDAO: settingsDAO,
@@ -79,9 +78,9 @@ const HistoryItem = ({
         loadChapter: item.chapterEnd || item.chapter || 0,
         kudoHistoryDAO: kudoHistoryDAO,
         chapterDAO: chapterDAO,
-      })
+      });
     } else {
-      navigation.push("Work", {
+      navigation.push('Work', {
         workId: item.workId,
         currentTheme: currentTheme,
         settingsDAO: settingsDAO,
@@ -92,7 +91,7 @@ const HistoryItem = ({
         progressDAO: progressDAO,
         kudoHistoryDAO: kudoHistoryDAO,
         chapterDAO: chapterDAO,
-      })
+      });
     }
   }
 

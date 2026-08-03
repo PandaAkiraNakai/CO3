@@ -1,13 +1,12 @@
 import { fetchLoginAuthenticityToken } from './fetchAuthenticityToken';
 import Toast from 'react-native-toast-message';
 import {
-  deleteCredsPasswd, hasStoredPassword,
-  setCredsPasswd,
+  deleteCredsPasswd,
+  hasStoredPassword,
   setCredsToken,
   setLastLogin,
   setUsernameOnly,
 } from '../../storage/Credentials';
-import { navigationRef } from '../../app';
 import i18n from 'i18next';
 
 export const handleLogin = async (username, password) => {
@@ -35,7 +34,7 @@ export const handleLogin = async (username, password) => {
         type: 'success',
         text1: t('general_success'),
         text2: t('screen_account_login_success'),
-      })
+      });
     } else {
       throw t('screen_account_login_failed_invalid_server_error');
     }
