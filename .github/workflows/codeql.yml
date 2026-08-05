@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ "main" ]
   schedule:
-    - cron: '30 3 * * 1' 
+    - cron: '30 3 * * 1'
   workflow_dispatch:
 
 jobs:
@@ -43,7 +43,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ---- Manual build prep: java-kotlin (Android) ----
       - name: Setup Node
         if: matrix.language == 'java-kotlin'
         uses: actions/setup-node@v4
