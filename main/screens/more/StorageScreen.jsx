@@ -12,9 +12,15 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import CustomToast from '../../components/common/CustomToast';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Bar } from 'react-native-progress';
+import { useContext, useEffect, useState } from 'react';
+import DeviceInfo from 'react-native-device-info';
+import { countDownloads } from '../../downloads/Downloader';
+import { AppContext } from '../../app';
 
 export default function StorageScreen({ route }) {
   const { setScreens, currentTheme, databaseObj } = route.params;
+  const { workDAO, chapterDAO } = useContext(AppContext)
 
   const navigation = useNavigation();
 
@@ -23,6 +29,44 @@ export default function StorageScreen({ route }) {
   }
 
   const { t } = useTranslation();
+
+  const [storageData, setStorageData] = useState();
+  const [downloadedCount, setDownloadedCount] = useState();
+  const [cachedWorksCount, setCachedWorksCount] = useState();
+  const [cachedChaptersCount, setCachedChaptersCount] = useState();
+
+  useEffect(() => {
+    async function getStorageData() {
+      const totalSpace = await DeviceInfo.getTotalDiskCapacity();
+      const freeSpace = await DeviceInfo.getFreeDiskStorage();
+
+      const totalRawGB = totalSpace / (1024 * 1024 * 1024);
+      const freeRawGB = freeSpace / (1024 * 1024 * 1024);
+      const usedRawGB = totalRawGB - freeRawGB;
+
+      setStorageData({
+        totalSpace: totalSpace,
+        freeSpace: freeSpace,
+        totalGB: totalRawGB.toFixed(2),
+        freeGB: freeRawGB.toFixed(2),
+        usedGB: usedRawGB.toFixed(2),
+      });
+    }
+
+    async function getDownloadedCount() {
+      setDownloadedCount(await countDownloads());
+    }
+
+    async function getCachedCount() {
+      setCachedWorksCount(await workDAO.countWorks())
+      setCachedChaptersCount(await chapterDAO.countChapters())
+    }
+
+    getStorageData();
+    getDownloadedCount();
+    getCachedCount();
+
+  }, []);
 
   return (
     <SafeAreaView
@@ -40,12 +84,67 @@ export default function StorageScreen({ route }) {
         </Text>
       </View>
       <ScrollView style={styles.content}>
+        <Text style={[{ color: currentTheme.textColor }]}>
+          Usage: {storageData?.usedGB || '?'} GB / {storageData?.totalGB || '?'}{' '}
+          GB
+        </Text>
+        <Bar
+          progress={
+            storageData?.freeGB &&
+            storageData?.totalGB &&
+            storageData.usedGB / storageData.totalGB
+          }
+          width={null}
+          color={currentTheme.primaryColor}
+          backgroundColor={currentTheme.inputBackground}
+          borderColor={currentTheme.borderColor}
+          height={10}
+          borderRadius={20}
+        />
+        <Text style={[{ color: currentTheme.textColor, paddingTop: 10 }]}>
+          Downloaded chapters:{' '}
+          {downloadedCount?.chapterCount ?? t('general_loading')}
+        </Text>
+        <Text style={[{ color: currentTheme.textColor }]}>
+          Cached works: {cachedWorksCount}
+        </Text>
+        <Text style={[{ color: currentTheme.textColor, paddingBottom: 10 }]}>
+          Cached chapters: {cachedChaptersCount}
+        </Text>
+
+        <TouchableOpacity>
+          <Text
+            style={[
+              styles.button,
+              {
+                color: currentTheme.textColor,
+                backgroundColor: currentTheme.primaryColor,
+              },
+            ]}
+          >
+            {t('screen_storage_button_clear_unused_cache')}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Text
+            style={[
+              styles.button,
+              {
+                color: currentTheme.textColor,
+                backgroundColor: currentTheme.primaryColor,
+              },
+            ]}
+          >
+            {t('screen_storage_button_delete_downloaded')}
+          </Text>
+        </TouchableOpacity>
+
         <View style={styles.sectionHeader}>
           <Icon name="storage" size={20} color={currentTheme.iconColor} />
           <Text
             style={[styles.sectionTitle, { color: currentTheme.textColor }]}
           >
-            {t('screen_storage_section_database')}
+            {t('screen_storage_section_backups')}
           </Text>
         </View>
         <TouchableOpacity
@@ -76,9 +175,30 @@ export default function StorageScreen({ route }) {
               },
             ]}
           >
-            {t('screen_storage_button_export_database')}
+            {t('screen_storage_button_create_backup')}
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity>
+          <Text
+            style={[
+              styles.button,
+              {
+                color: currentTheme.textColor,
+                backgroundColor: currentTheme.primaryColor,
+              },
+            ]}
+          >
+            {t('screen_storage_button_import_backup')}
+          </Text>
+        </TouchableOpacity>
+
+        <Text style={{ color: currentTheme.textColor, paddingTop: 10 }}>
+          Backup may contain sensitive data. They include: Full reading history,
+          Library, Settings, Downloaded chapters and more.
+        </Text>
+        <Text style={{ color: currentTheme.textColor, paddingTop: 10 }}>
+          They do not include your username or your password.
+        </Text>
       </ScrollView>
       <CustomToast currentTheme={currentTheme} />
     </SafeAreaView>
