@@ -15,7 +15,6 @@
   "general_back": "Retour",
   "general_not_applicable": "Non applicable",
 
-
   "onboard_step1_title": "Le lecteur AO3 gratuit et open source",
   "onboard_step1_ligne1": "Aucun abonnement. Aucune publicité. Aucune fonctionnalité payante.",
   "onboard_step1_ligne2": "Vos histoires, comme elles se doivent d'être.",
@@ -40,13 +39,11 @@
   "onboard_step4_co3_cta": "Offrez-moi un café",
   "onboard_step4_button": "Commencer à lire",
 
-
   "navigation_library": "Bibliothèque",
   "navigation_update": "Mise à jour",
   "navigation_browse": "Navigation",
   "navigation_history": "Historique",
   "navigation_more": "Plus",
-
 
   "screen_library_title": "Bibliothèque",
   "screen_library_loading": "Chargement de la bibliothèque...",
@@ -83,7 +80,6 @@
   "screen_update_earlier": "Plus tôt",
   "screen_update_loading": "Chargement des mises à jour...",
 
-
   "screen_browse_title": "Parcourir les œuvres",
   "screen_browse_subtitle": "{{count}} œuvres chargées",
   "screen_browse_filter_summary": "{{count}} filtre appliqué",
@@ -93,13 +89,11 @@
   "screen_browse_loading": "Chargement des œuvres...",
   "screen_browse_error": "Échec du chargement des œuvres",
 
-
   "screen_history_title": "Historique de lecture",
   "screen_history_clear_title": "Vider l'historique",
   "screen_history_clear_text": "Êtes-vous sûr(e) que vous voulez supprimer l'intégralité de votre historique de lecture ?",
   "screen_history_clear_button": "Vider",
   "screen_history_loading": "Chargement de l'historique...",
-
 
   "screen_more_title": "Plus d'options",
   "screen_more_subtitle": "Paramètres et fonctionnalités additionnels",
@@ -113,7 +107,6 @@
   "screen_more_nav_data": "Données et Stockage",
   "screen_more_nav_about": "À propos",
   "screen_more_nav_help": "Aide",
-
 
   "screen_preferences_title": "Paramètres",
   "screen_preferences_title_general": "Général",
@@ -166,7 +159,6 @@
   "screen_preferences_onboarding_title": "Recommencer le processus d'accueil.",
   "screen_preferences_onboarding_text": "Ceci vous ramènera aux écrans de configuration. Continuer ?",
 
-
   "screen_account_title": "Compte",
   "screen_account_text": "Se connecter avec votre compte AO3",
   "screen_account_username": "Nom d'utilisateur",
@@ -190,7 +182,6 @@
   "screen_account_logged_in_subtitle": "Votre session est active",
   "screen_account_check_session_button": "Vérifier la session actuelle",
 
-
   "screen_kudos_history_title": "Historique des likes",
   "screen_kudos_history_clear_title": "Vider l'historique des likes",
   "screen_kudos_history_clear_message": "Êtes-vous sûr(e) que vous voulez effacer l'intégralité de votre historique des likes ?",
@@ -199,7 +190,6 @@
   "screen_kudos_history_no_entries_filter_sub": "Il n'y a aucune entrée correspondante aux filtres",
   "screen_kudos_history_no_entries": "Aucun historique des likes pour le moment",
   "screen_kudos_history_no_entries_sub": "Les œuvres likées apparaîtront ici",
-
 
   "screen_bookmarks_title": "Marque-pages",
   "screen_bookmarks_title_username": "Les marque-pages de {{username}}",
@@ -210,7 +200,6 @@
   "screen_bookmarks_empty_title": "Aucun marque-page pour l'instant.",
   "screen_bookmarks_empty_subtitle": "Les œuvres avec marque-page apparaîtront ici.",
 
-
   "screen_read_later_title": "Marquées pour plus tard",
   "screen_read_later_loading": "Chargement des entrées...",
   "screen_read_later_loading_more": "Chargement...",
@@ -219,7 +208,6 @@
   "screen_read_later_empty": "Aucune œuvre pour l'instant.",
   "screen_read_later_empty_sub": "Les œuvres marquées pour plus tard apparaîtront ici.",
 
-
   "screen_category_title": "Gérer les catégories",
   "screen_category_new_category": "Nouvelle catégorie",
   "screen_category_new_category_count": "Nouvelle catégorie {{count}}",
@@ -227,7 +215,6 @@
   "screen_category_duplicate_message": "Une catégorie nommée {{trimmedName}} existe déjà.",
   "screen_category_delete_title": "Supprimer la catégorie",
   "screen_category_delete_message": "Êtes-vous sûr(e) que vous voulez supprimer la catégorie {{category}} ?",
-
 
   "screen_stats_title": "Statistiques",
   "screen_stats_reading_activity": "ACTIVITÉ DE LECTURE",
@@ -240,14 +227,21 @@
   "screen_stats_no_data": "Aucune donnée pour l'instant",
   "screen_stats_preferred_tags": "Balises préférées",
 
-
-  "screen_storage_title": "Donnée et stockage",
-  "screen_storage_section_database": "Base de donnée",
-  "screen_storage_button_export_database": "Exporter la base donnée",
-  "screen_storage_export_database_success": "Base de donnée exportée",
-  "screen_storage_export_database_success_sub": "Exportée dans le dossier de téléchargements",
-  "screen_storage_export_database_error_generic": "Impossible d'exporter la base de donnée",
-
+  "screen_storage_title": "Données et stockage",
+  "screen_storage_section_storage": "Stockage et utilisation",
+  "screen_storage_msg_usage": "Utilisation : {{used}} Go / {{total}} Go",
+  "screen_storage_msg_downloaded_count": "Chapitres téléchargés : {{count}}",
+  "screen_storage_msg_cached_works_count": "Œuvres en cache : {{count}}",
+  "screen_storage_msg_cached_chapters_count": "Chapitres en cache : {{count}}",
+  "screen_storage_button_clear_unused_cache": "Effacer le cache inutilisé",
+  "screen_storage_button_delete_downloaded": "Supprimer tous les téléchargements",
+  "screen_storage_section_backups": "Sauvegardes",
+  "screen_storage_button_create_backup": "Créer une sauvegarde",
+  "screen_storage_button_import_backup": "Importer une sauvegarde",
+  "screen_storage_msg_backup_1": "La sauvegarde peut contenir des données sensibles. Elle inclut : l'historique de lecture complet, la bibliothèque, les paramètres, les chapitres téléchargés et plus encore.",
+  "screen_storage_msg_backup_2": "Elles n'incluent pas votre nom d'utilisateur ni votre mot de passe.",
+  "screen_storage_export_database_success_sub": "Base de données exportée dans le dossier de téléchargements.",
+  "screen_storage_export_database_error_generic": "Échec de l'exportation de la base de données",
 
   "screen_about_title": "À propos de CO3",
   "screen_about_sub": "Le lecteur mobile open source pour AO3",
@@ -259,19 +253,16 @@
   "screen_about_support": "Supportez moi",
   "screen_about_version": "Version {{co3Version}}",
 
-
   "screen_help_title": "Aide",
   "screen_help_sub": "Avez-vous besoin d'aide ou avez-vous le moindre problème ?",
   "screen_help_discord": "Demander sur le Discord",
   "screen_help_github": "Ouvrir un ticket sur GitHub",
-
 
   "screen_advancedSearch_title": "Rechercher",
   "screen_advancedSearch_presets_button": "Préréglages",
   "screen_advancedSearch_save_button": "Enregistrer",
   "screen_advancedSearch_close_button": "Fermer",
   "screen_advancedSearch_search_button": "Rechercher",
-
 
   "screen_advancedSearch_save_preset_modal_title": "Sauvegarder les préréglages",
   "screen_advancedSearch_preset_name_label": "Nom du préréglage",

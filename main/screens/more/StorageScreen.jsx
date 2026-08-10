@@ -84,63 +84,105 @@ export default function StorageScreen({ route }) {
         </Text>
       </View>
       <ScrollView style={styles.content}>
-        <Text style={[{ color: currentTheme.textColor }]}>
-          Usage: {storageData?.usedGB || '?'} GB / {storageData?.totalGB || '?'}{' '}
-          GB
-        </Text>
-        <Bar
-          progress={
-            storageData?.freeGB &&
-            storageData?.totalGB &&
-            storageData.usedGB / storageData.totalGB
-          }
-          width={null}
-          color={currentTheme.primaryColor}
-          backgroundColor={currentTheme.inputBackground}
-          borderColor={currentTheme.borderColor}
-          height={10}
-          borderRadius={20}
-        />
-        <Text style={[{ color: currentTheme.textColor, paddingTop: 10 }]}>
-          Downloaded chapters:{' '}
-          {downloadedCount?.chapterCount ?? t('general_loading')}
-        </Text>
-        <Text style={[{ color: currentTheme.textColor }]}>
-          Cached works: {cachedWorksCount}
-        </Text>
-        <Text style={[{ color: currentTheme.textColor, paddingBottom: 10 }]}>
-          Cached chapters: {cachedChaptersCount}
-        </Text>
+        <View
+          style={[
+            styles.pageSection,
+            { borderColor: currentTheme.borderColor },
+          ]}
+        >
+          <View style={styles.sectionHeader}>
+            <Icon name="storage" size={20} color={currentTheme.iconColor} />
+            <Text
+              style={[styles.sectionTitle, { color: currentTheme.textColor }]}
+            >
+              {t('screen_storage_section_storage')}
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.pane,
+              {
+                backgroundColor: currentTheme.cardBackground,
+                borderColor: currentTheme.borderColor,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                { color: currentTheme.textColor, paddingBottom: 4 },
+                styles.text,
+              ]}
+            >
+              {t('screen_storage_msg_usage', {
+                total: storageData?.totalGB || '?',
+                used: storageData?.usedGB || '?',
+              })}
+            </Text>
+            <Bar
+              progress={
+                storageData?.freeGB &&
+                storageData?.totalGB &&
+                storageData.usedGB / storageData.totalGB
+              }
+              width={null}
+              color={currentTheme.primaryColor}
+              backgroundColor={currentTheme.inputBackground}
+              borderColor={currentTheme.borderColor}
+              height={10}
+              borderRadius={20}
+            />
+            <Text
+              style={[
+                { color: currentTheme.textColor, paddingTop: 10 },
+                styles.text,
+              ]}
+            >
+              {t('screen_storage_msg_downloaded_count', {
+                count: downloadedCount?.chapterCount ?? t('general_loading'),
+              })}
+            </Text>
+            <Text style={[{ color: currentTheme.textColor }, styles.text]}>
+              {t('screen_storage_msg_cached_works_count', {
+                count: cachedWorksCount,
+              })}
+            </Text>
+            <Text style={[{ color: currentTheme.textColor }, styles.text]}>
+              {t('screen_storage_msg_cached_chapters_count', {
+                count: cachedChaptersCount,
+              })}
+            </Text>
+          </View>
 
-        <TouchableOpacity>
-          <Text
-            style={[
-              styles.button,
-              {
-                color: currentTheme.textColor,
-                backgroundColor: currentTheme.primaryColor,
-              },
-            ]}
-          >
-            {t('screen_storage_button_clear_unused_cache')}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text
-            style={[
-              styles.button,
-              {
-                color: currentTheme.textColor,
-                backgroundColor: currentTheme.primaryColor,
-              },
-            ]}
-          >
-            {t('screen_storage_button_delete_downloaded')}
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity>
+            <Text
+              style={[
+                styles.button,
+                {
+                  color: currentTheme.textColor,
+                  backgroundColor: currentTheme.primaryColor,
+                },
+              ]}
+            >
+              {t('screen_storage_button_clear_unused_cache')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Text
+              style={[
+                styles.button,
+                {
+                  color: currentTheme.textColor,
+                  backgroundColor: currentTheme.primaryColor,
+                },
+              ]}
+            >
+              {t('screen_storage_button_delete_downloaded')}
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.sectionHeader}>
-          <Icon name="storage" size={20} color={currentTheme.iconColor} />
+          <Icon name="sd-card" size={20} color={currentTheme.iconColor} />
           <Text
             style={[styles.sectionTitle, { color: currentTheme.textColor }]}
           >
@@ -192,12 +234,15 @@ export default function StorageScreen({ route }) {
           </Text>
         </TouchableOpacity>
 
-        <Text style={{ color: currentTheme.textColor, paddingTop: 10 }}>
-          Backup may contain sensitive data. They include: Full reading history,
-          Library, Settings, Downloaded chapters and more.
+        <Text
+          style={[styles.text, { color: currentTheme.secondaryTextColor, paddingTop: 10 }]}
+        >
+          {t('screen_storage_msg_backup_1')}
         </Text>
-        <Text style={{ color: currentTheme.textColor, paddingTop: 10 }}>
-          They do not include your username or your password.
+        <Text
+          style={[styles.text, { color: currentTheme.secondaryTextColor, paddingTop: 10 }]}
+        >
+          {t('screen_storage_msg_backup_2')}
         </Text>
       </ScrollView>
       <CustomToast currentTheme={currentTheme} />
@@ -309,5 +354,19 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
+    marginBottom: 16
   },
+  pane: {
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 24
+  },
+  pageSection: {
+    borderBottomWidth: 1,
+    marginBottom: 16,
+  },
+  text: {
+    fontSize: 16,
+  }
 });
