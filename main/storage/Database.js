@@ -56,7 +56,7 @@ class Database {
       const version = results.rows.item(0).user_version;
       return version === 0 ? 1 : version;
     } catch (error) {
-      console.error("Failed to get database version:", error);
+      console.error('Failed to get database version:', error);
       return 1;
     }
   }
@@ -173,7 +173,7 @@ class Database {
       `CREATE INDEX IF NOT EXISTS idx_progress_workId_chapterId ON progress_entries (workId, chapterID);`,
       `CREATE INDEX IF NOT EXISTS idx_library_readIndex ON library (readIndex);`,
       `CREATE INDEX IF NOT EXISTS idx_library_dateAdded ON library (dateAdded);`,
-      `CREATE INDEX IF NOT EXISTS idx_library_collection ON library (collection);`
+      `CREATE INDEX IF NOT EXISTS idx_library_collection ON library (collection);`,
     ];
 
     try {
@@ -181,16 +181,16 @@ class Database {
         await this.db.executeSql(query);
       }
       const [settingsCheck] = await this.db.executeSql(
-        'SELECT COUNT(*) as count FROM settings WHERE id = 1'
+        'SELECT COUNT(*) as count FROM settings WHERE id = 1',
       );
       if (settingsCheck.rows.item(0).count === 0) {
         await this.db.executeSql(
           `INSERT INTO settings (id, theme, isIncognitoMode, viewMode, fontSize, useCustomSize, font, fontFamily, useCustomFont) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [1, 'light', 0, 'full', 1.0, 0, 'Helvetica', 0]
+          [1, 'light', 0, 'full', 1.0, 0, 'Helvetica', 0],
         );
       }
     } catch (error) {
-      console.error("Error initializing schema:", error);
+      console.error('Error initializing schema:', error);
       throw error;
     }
   }
@@ -266,6 +266,25 @@ export async function exportDb(db) {
         console.error('Failed to reopen database:', reopenError);
       }
     }
+    throw error;
+  }
+}
+
+export async function clearUnusedCache(db) {
+  try {
+    await db.executeSql('PRAGMA foreign_keys = ON;');
+
+    const [result] = await db.executeSql(
+      `DELETE FROM works
+       WHERE id NOT IN (SELECT workId FROM library)
+         AND id NOT IN (SELECT workId FROM history)
+         AND id NOT IN (SELECT workId FROM kudo_history)`,
+    );
+
+    console.log(`Cleared ${result.rowsAffected} unused work(s) from cache`);
+    return result.rowsAffected;
+  } catch (error) {
+    console.error('Failed to clear unused cache:', error);
     throw error;
   }
 }

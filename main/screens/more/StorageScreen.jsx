@@ -17,10 +17,13 @@ import { useContext, useEffect, useState } from 'react';
 import DeviceInfo from 'react-native-device-info';
 import { countDownloads } from '../../downloads/Downloader';
 import { AppContext } from '../../app';
+import { clearUnusedCache, database } from '../../storage/Database';
 
 export default function StorageScreen({ route }) {
   const { setScreens, currentTheme, databaseObj } = route.params;
   const { workDAO, chapterDAO } = useContext(AppContext)
+
+  console.log(databaseObj);
 
   const navigation = useNavigation();
 
@@ -35,38 +38,60 @@ export default function StorageScreen({ route }) {
   const [cachedWorksCount, setCachedWorksCount] = useState();
   const [cachedChaptersCount, setCachedChaptersCount] = useState();
 
+  async function getStorageData() {
+    const totalSpace = await DeviceInfo.getTotalDiskCapacity();
+    const freeSpace = await DeviceInfo.getFreeDiskStorage();
+
+    const totalRawGB = totalSpace / (1024 * 1024 * 1024);
+    const freeRawGB = freeSpace / (1024 * 1024 * 1024);
+    const usedRawGB = totalRawGB - freeRawGB;
+
+    setStorageData({
+      totalSpace: totalSpace,
+      freeSpace: freeSpace,
+      totalGB: totalRawGB.toFixed(2),
+      freeGB: freeRawGB.toFixed(2),
+      usedGB: usedRawGB.toFixed(2),
+    });
+  }
+
+  async function getDownloadedCount() {
+    setDownloadedCount(await countDownloads());
+  }
+
+  async function getCachedCount() {
+    setCachedWorksCount(await workDAO.countWorks());
+    setCachedChaptersCount(await chapterDAO.countChapters());
+  }
+
   useEffect(() => {
-    async function getStorageData() {
-      const totalSpace = await DeviceInfo.getTotalDiskCapacity();
-      const freeSpace = await DeviceInfo.getFreeDiskStorage();
-
-      const totalRawGB = totalSpace / (1024 * 1024 * 1024);
-      const freeRawGB = freeSpace / (1024 * 1024 * 1024);
-      const usedRawGB = totalRawGB - freeRawGB;
-
-      setStorageData({
-        totalSpace: totalSpace,
-        freeSpace: freeSpace,
-        totalGB: totalRawGB.toFixed(2),
-        freeGB: freeRawGB.toFixed(2),
-        usedGB: usedRawGB.toFixed(2),
-      });
-    }
-
-    async function getDownloadedCount() {
-      setDownloadedCount(await countDownloads());
-    }
-
-    async function getCachedCount() {
-      setCachedWorksCount(await workDAO.countWorks())
-      setCachedChaptersCount(await chapterDAO.countChapters())
-    }
-
     getStorageData();
     getDownloadedCount();
     getCachedCount();
-
   }, []);
+
+  async function clearCache() {
+    clearUnusedCache(databaseObj)
+      .then(count => {
+        Toast.show({
+          text1: t('screen_storage_button_clear_unused_cache_success_1'),
+          text2: t(`screen_storage_button_clear_unused_cache_success_2`, {
+            count: count,
+          }),
+          type: 'success',
+        });
+    }).catch(err => {
+      Toast.show({
+        text1: t('screen_storage_button_clear_unused_cache_err_1'),
+        text2: t(`screen_storage_button_clear_unused_cache_err_2`, {
+          error: err.message,
+        }),
+        type: 'error',
+      });
+    }).finally(() => {
+      getCachedCount();
+    });
+  }
 
   return (
     <SafeAreaView
@@ -153,7 +178,7 @@ export default function StorageScreen({ route }) {
             </Text>
           </View>
 
-          <TouchableOpacity>
+          <TouchableOpacity onPress={clearCache}>
             <Text
               style={[
                 styles.button,
