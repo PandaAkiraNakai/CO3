@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Bar } from 'react-native-progress';
 import { useContext, useEffect, useState } from 'react';
 import DeviceInfo from 'react-native-device-info';
-import { countDownloads } from '../../downloads/Downloader';
+import { countDownloads, deleteAllDownloads } from '../../downloads/Downloader';
 import { AppContext } from '../../app';
 import { clearUnusedCache, database } from '../../storage/Database';
 
@@ -90,7 +90,29 @@ export default function StorageScreen({ route }) {
       });
     }).finally(() => {
       getCachedCount();
+      getStorageData();
     });
+  }
+
+  async function deleteDownloads() {
+    await deleteAllDownloads().then(res => {
+      if (!res) {
+        Toast.show({
+          type: 'success',
+          text1: t('screen_storage_button_delete_downloaded_success_1'),
+          text2: t('screen_storage_button_delete_downloaded_success_2'),
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: t('screen_storage_button_delete_downloaded_failed_1'),
+          text2: t('screen_storage_button_delete_downloaded_failes_2', { error: res.message }),
+        });
+      }
+    }).finally(() => {
+      getDownloadedCount();
+      getStorageData()
+    })
   }
 
   return (
@@ -191,7 +213,7 @@ export default function StorageScreen({ route }) {
               {t('screen_storage_button_clear_unused_cache')}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={deleteDownloads}>
             <Text
               style={[
                 styles.button,

@@ -74,3 +74,14 @@ export async function countDownloads() {
 
   return { folderCount: dirs.length, fileCount, chapterCount: fileCount / 2 };
 }
+
+export async function deleteAllDownloads() {
+  const dlPath = `${RNFS.DocumentDirectoryPath}/CO3/downloads/`
+  return await RNFS.unlink(dlPath)
+    .then(() => {
+      return undefined;
+    })
+    .catch(error => {
+      return error;
+    });
+}
