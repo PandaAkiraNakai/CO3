@@ -164,6 +164,19 @@ const MoreScreen = ({
           databaseObj: databaseObj,
         });
         break;
+      case 'Word Replacer':
+        navigation.push('WordReplacer', {
+          currentTheme: currentTheme,
+          workDAO: workDAO,
+          libraryDAO: libraryDAO,
+          setScreens: setScreens,
+          historyDAO: historyDAO,
+          settingsDAO: settingsDAO,
+          progressDAO: progressDAO,
+          kudoHistoryDAO: kudoHistoryDAO,
+          databaseObj: databaseObj,
+        });
+        break;
       case 'About':
         navigation.push('About', {
           currentTheme: currentTheme,
@@ -233,6 +246,11 @@ const MoreScreen = ({
       name: t('screen_more_nav_data'),
       icon: 'storage',
       handler: () => handlePress('Data and Storage'),
+    },
+    {
+      name: t('screen_more_nav_word-replacer'),
+      icon: 'find-replace',
+      handler: () => handlePress('Word Replacer'),
     },
     {
       name: t('screen_more_nav_about'),
