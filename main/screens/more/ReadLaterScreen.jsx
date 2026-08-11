@@ -18,6 +18,7 @@ import EmptyState from '../../components/History/Empty';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 
 export default function ReadLaterScreen({ route }) {
   const {
@@ -178,8 +179,20 @@ export default function ReadLaterScreen({ route }) {
         style={{ marginLeft: 'auto' }}
         onPress={() =>
           getUsername().then(usrname => {
-            Linking.openURL(
+            InAppBrowser.open(
               `https://archiveofourown.org/users/${usrname}/readings?show=to-read`,
+              {
+                // Android
+                showTitle: true,
+                toolbarColor: currentTheme.backgroundColor,
+                enableUrlBarHiding: true,
+                enableDefaultShare: true,
+                forceCloseOnRedirection: false,
+                // iOS
+                dismissButtonStyle: 'close',
+                preferredBarTintColor: currentTheme.backgroundColor,
+                preferredControlTintColor: 'white',
+              },
             );
           })
         }

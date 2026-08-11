@@ -12,6 +12,7 @@ import { co3Version } from '../../constant';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 
 export default function AboutScreen({ route }) {
   const { setScreens, currentTheme, db } = route.params;
@@ -113,15 +114,28 @@ function LinkButton({ url, label, theme }) {
       style={[
         {
           flex: 1,
-          flexDirection: "row",
-          alignItems: "center",
+          flexDirection: 'row',
+          alignItems: 'center',
           paddingTop: 16,
         },
       ]}
-      onPress={() => Linking.openURL(url)}
+      onPress={() => {
+        InAppBrowser.open(url, {
+          // Android
+          showTitle: true,
+          toolbarColor: theme.backgroundColor,
+          enableUrlBarHiding: true,
+          enableDefaultShare: true,
+          forceCloseOnRedirection: false,
+          // iOS
+          dismissButtonStyle: 'close',
+          preferredBarTintColor: theme.backgroundColor,
+          preferredControlTintColor: 'white',
+        });
+      }}
     >
-      <Icon name={"link"} size={20} color={theme.textColor} />
-      <Text style={[styles.buttonText, { color: theme.textColor}]}>
+      <Icon name={'link'} size={20} color={theme.textColor} />
+      <Text style={[styles.buttonText, { color: theme.textColor }]}>
         {label}
       </Text>
     </TouchableOpacity>

@@ -19,6 +19,7 @@ import { CommentsScreen } from '../components/Reader/commentsScreen';
 import { getJsonSettings } from '../storage/jsonSettings';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 
 const PULL_THRESHOLD = 150;
 const PROGRESS_SAVE_DEBOUNCE = 1000;
@@ -643,13 +644,35 @@ const ChapterReader = ({
           onOpenWindow={ (syntheticEvent) => {
             const { nativeEvent } = syntheticEvent;
             const { targetUrl } = nativeEvent
-            Linking.openURL(targetUrl);
+            InAppBrowser.open(targetUrl, {
+              // Android
+              showTitle: true,
+              toolbarColor: currentTheme.backgroundColor,
+              enableUrlBarHiding: true,
+              enableDefaultShare: true,
+              forceCloseOnRedirection: false,
+              // iOS
+              dismissButtonStyle: 'close',
+              preferredBarTintColor: currentTheme.backgroundColor,
+              preferredControlTintColor: 'white',
+            });
           }}
           onShouldStartLoadWithRequest={(req) => {
             const url = req.url ?? '';
             if (url === 'about:blank' || url.startsWith('about:blank#')) return true;
             if (url.startsWith('http://') || url.startsWith('https://')) {
-              Linking.openURL(url).catch((e) => {
+              InAppBrowser.open(url, {
+                // Android
+                showTitle: true,
+                toolbarColor: currentTheme.backgroundColor,
+                enableUrlBarHiding: true,
+                enableDefaultShare: true,
+                forceCloseOnRedirection: false,
+                // iOS
+                dismissButtonStyle: 'close',
+                preferredBarTintColor: currentTheme.backgroundColor,
+                preferredControlTintColor: 'white',
+              }).catch((e) => {
                 Toast.show({
                   type: "error",
                   text1: t('reader_error_opening_link'),
