@@ -270,6 +270,8 @@ const HistoryScreen = ({
   };
 
   function handleClick(item) {
+    if (!item) return;
+
     navigation.push('Work', {
       workId: item.workId,
       currentTheme: currentTheme,
