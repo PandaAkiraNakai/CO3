@@ -1,4 +1,5 @@
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -18,6 +19,14 @@ import DeviceInfo from 'react-native-device-info';
 import { countDownloads, deleteAllDownloads } from '../../downloads/Downloader';
 import { AppContext } from '../../app';
 import { clearUnusedCache, database } from '../../storage/Database';
+import { exportBackup, importBackup } from '../../storage/Backups';
+import {
+  errorCodes,
+  isErrorWithCode,
+  pick,
+  types,
+} from '@react-native-documents/picker';
+import RNRestart from 'react-native-restart';
 
 export default function StorageScreen({ route }) {
   const { setScreens, currentTheme, databaseObj } = route.params;
@@ -113,6 +122,77 @@ export default function StorageScreen({ route }) {
       getDownloadedCount();
       getStorageData()
     })
+  }
+
+  async function createBackup() {
+    exportBackup(databaseObj).then(() => {
+      Toast.show({
+        type: 'success',
+        text1: "yay it worked"
+      })
+    }).catch(err => {
+      Toast.show({
+        type: 'success',
+        text1: 'noooo it broke',
+      });
+    })
+  }
+
+  async function onImportBackup() {
+    Alert.alert(
+      t('screen_storage_msg_import_backup_warning_1'),
+      t('screen_storage_msg_import_backup_warning_2'),
+      [
+        {
+          text: t('general_cancel'),
+          onPress: () => {
+            Toast.show({
+              type: 'error',
+              text1: t('screen_storage_button_import_backup_cancel_1'),
+              text2: t('screen_storage_button_import_backup_cancel_2'),
+            });
+          },
+          style: 'cancel',
+        },
+        {
+          text: t('general_proceed'),
+          onPress: async () => {
+            try {
+              const [file] = await pick({
+                type: [types.zip],
+              });
+
+              const zipPath = file.uri.replace('file://', '');
+              await importBackup(databaseObj, zipPath);
+
+              Toast.show({
+                type: 'success',
+                text1: t('screen_storage_button_import_backup_success_1'),
+                text2: t('screen_storage_button_import_backup_success_2'),
+              });
+
+              setTimeout(() => {
+                RNRestart.restart();
+              }, 1200);
+            } catch (err) {
+              if (isErrorWithCode(err) && err.code === errorCodes.OPERATION_CANCELED) {
+                Toast.show({
+                  type: 'error',
+                  text1: t('screen_storage_button_import_backup_cancel_1'),
+                  text2: t('screen_storage_button_import_backup_cancel_2'),
+                });
+              } else {
+                Toast.show({
+                  type: 'error',
+                  text1: t('screen_storage_button_import_backup_err_1'),
+                  text2: t('screen_storage_button_import_backup_err_2', { error: err.message }),
+                });
+              }
+            }
+          },
+        },
+      ],
+    );
   }
 
   return (
@@ -237,23 +317,7 @@ export default function StorageScreen({ route }) {
           </Text>
         </View>
         <TouchableOpacity
-          onPress={() => {
-            exportDb(databaseObj)
-              .then(() => {
-                Toast.show({
-                  type: 'success',
-                  text1: t('screen_storage_export_database_success'),
-                  text2: t('screen_storage_export_database_success_sub'),
-                });
-              })
-              .catch(err => {
-                Toast.show({
-                  type: 'error',
-                  text1: t('screen_storage_export_database_error_generic'),
-                  text2: err.message,
-                });
-              });
-          }}
+          onPress={createBackup}
         >
           <Text
             style={[
@@ -267,7 +331,7 @@ export default function StorageScreen({ route }) {
             {t('screen_storage_button_create_backup')}
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={onImportBackup}>
           <Text
             style={[
               styles.button,
