@@ -53,7 +53,7 @@ You can get releases [here](https://github.com/tbvns/CO3/releases). </br>
 You can get android dev builds [here](https://github.com/tbvns/CO3/actions/workflows/android-build.yml). </br>
 You can get IOS dev builds [here](https://github.com/tbvns/CO3/actions/workflows/ios-build.yml).
 
-## Star History
+# Star History
 
 <a href="https://www.star-history.com/?repos=tbvns%2FCO3&type=date&legend=top-left">
  <picture>
