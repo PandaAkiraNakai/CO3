@@ -8,6 +8,7 @@
   "general_ok": "OK",
   "general_restart": "Restart",
   "general_proceed": "Proceed",
+  "general_save": "Save",
   "general_error": "Error",
   "general_success": "Success",
   "general_unknown": "Unknown",
@@ -106,6 +107,7 @@
   "screen_more_nav_categories": "Categories",
   "screen_more_nav_stats": "Statistics",
   "screen_more_nav_data": "Data and Storage",
+  "screen_more_nav_word-replacer": "Word Replacer",
   "screen_more_nav_about": "About",
   "screen_more_nav_help": "Help",
 
@@ -265,6 +267,15 @@
   "screen_storage_msg_backup_2": "They do not include your username or your password.",
   "screen_storage_export_database_success_sub": "Database exported to download folder.",
   "screen_storage_export_database_error_generic": "Failed to export database",
+
+  "screen_word_replacer_title": "Word Replace",
+  "screen_word_replacer_new_rule": "New Rule",
+  "screen_word_replacer_new_rule_count": "New Rule {{count}}",
+  "screen_word_replacer_delete_title": "Delete Rule",
+  "screen_word_replacer_delete_message": "Are you sure you want to delete \"{{rule}}\"?",
+  "screen_word_replacer_duplicate_title": "Duplicate Name",
+  "screen_word_replacer_duplicate_message": "A rule named \"{{trimmedName}}\" already exists.",
+  "screen_word_replacer_empty_message": "No rules yet. Tap the button below to add one.",
 
   "screen_about_title": "About CO3",
   "screen_about_sub": "The Open Source AO3 Mobile Reader",
@@ -557,5 +568,17 @@
   "component_comments_none": "No comments",
   "component_comments_end": "No more comments",
 
-  "component_update_bookcard_deletion_failed": "Error deleting"
+  "component_update_bookcard_deletion_failed": "Error deleting",
+
+  "component_rule_edit_header": "Edit Rule",
+  "component_rule_edit_title_label": "Title:",
+  "component_rule_edit_title_placeholder": "Rule name",
+  "component_rule_edit_match_label": "Match:",
+  "component_rule_edit_match_placeholder": "Text to find",
+  "component_rule_edit_replace_label": "Replace:",
+  "component_rule_edit_replace_placeholder": "Text to replace with",
+  "component_rule_edit_case_sensitive": "Match case",
+  "component_rule_edit_regex": "Use regular expression",
+  "component_rule_edit_case_sensitive_label": "Match Case",
+  "component_rule_edit_regex_label": "Regex"
 }

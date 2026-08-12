@@ -8,6 +8,7 @@
   "general_ok": "OK",
   "general_restart": "Recommencer",
   "general_proceed": "Continuer",
+  "general_save": "Sauvegarder",
   "general_error": "Erreur",
   "general_success": "Succès",
   "general_unknown": "Inconnu",
@@ -106,6 +107,7 @@
   "screen_more_nav_categories": "Catégories",
   "screen_more_nav_stats": "Statistiques",
   "screen_more_nav_data": "Données et Stockage",
+  "screen_more_nav_word-replacer": "Remplacement de mots",
   "screen_more_nav_about": "À propos",
   "screen_more_nav_help": "Aide",
 
@@ -263,6 +265,15 @@
   "screen_storage_msg_backup_2": "Elles n'incluent pas votre nom d'utilisateur ni votre mot de passe.",
   "screen_storage_export_database_success_sub": "Base de données exportée dans le dossier de téléchargements.",
   "screen_storage_export_database_error_generic": "Échec de l'exportation de la base de données",
+
+  "screen_word_replacer_title": "Remplacement de mots",
+  "screen_word_replacer_new_rule": "Nouvelle règle",
+  "screen_word_replacer_new_rule_count": "Nouvelle règle {{count}}",
+  "screen_word_replacer_delete_title": "Supprimer la règle",
+  "screen_word_replacer_delete_message": "Êtes-vous sûr de vouloir supprimer \"{{rule}}\" ?",
+  "screen_word_replacer_duplicate_title": "Nom en double",
+  "screen_word_replacer_duplicate_message": "Une règle nommée \"{{trimmedName}}\" existe déjà.",
+  "screen_word_replacer_empty_message": "Aucune règle pour le moment. Appuyez sur le bouton ci-dessous pour en ajouter une.",
 
   "screen_about_title": "À propos de CO3",
   "screen_about_sub": "Le lecteur mobile open source pour AO3",
@@ -555,5 +566,17 @@
   "component_comments_none": "Aucun commentaire",
   "component_comments_end": "Plus de commentaires",
 
-  "component_update_bookcard_deletion_failed": "Erreur lors de la suppression"
+  "component_update_bookcard_deletion_failed": "Erreur lors de la suppression",
+
+  "component_rule_edit_header": "Modifier la règle",
+  "component_rule_edit_title_label": "Titre :",
+  "component_rule_edit_title_placeholder": "Nom de la règle",
+  "component_rule_edit_match_label": "Rechercher :",
+  "component_rule_edit_match_placeholder": "Texte à rechercher",
+  "component_rule_edit_replace_label": "Remplacer :",
+  "component_rule_edit_replace_placeholder": "Texte de remplacement",
+  "component_rule_edit_case_sensitive": "Respecter la casse",
+  "component_rule_edit_regex": "Utiliser une expression régulière",
+  "component_rule_edit_case_sensitive_label": "Respecter les maj",
+  "component_rule_edit_regex_label": "Regex"
 }

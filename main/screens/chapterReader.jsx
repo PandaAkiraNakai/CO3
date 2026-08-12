@@ -20,6 +20,7 @@ import { getJsonSettings } from '../storage/jsonSettings';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PULL_THRESHOLD = 150;
 const PROGRESS_SAVE_DEBOUNCE = 1000;
@@ -99,10 +100,64 @@ const ChapterReader = ({
   const [size, setSize] = useState(1);
   const [jsonSettings, setJsonSettings] = useState();
 
+  const [modifiedHtmlContent, setModifiedHtmlContent] = useState(htmlContent);
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const webViewRef = useRef(null);
   const progressSaveTimeoutRef = useRef(null);
   const lastSavedProgressRef = useRef(0);
+
+  // Apply the word replacer rule
+  useEffect(() => {
+    AsyncStorage.getItem('WordReplaceRules').then(rulesString => {
+      if (!rulesString) {
+        setModifiedHtmlContent(htmlContent);
+        return;
+      }
+
+      let rules;
+      try {
+        rules = JSON.parse(rulesString);
+      } catch (e) {
+        console.warn('Failed to parse WordReplaceRules:', e);
+        setModifiedHtmlContent(htmlContent);
+        return;
+      }
+
+      if (!Array.isArray(rules) || rules.length === 0) {
+        setModifiedHtmlContent(htmlContent);
+        return;
+      }
+
+      let result = htmlContent;
+
+      for (const rule of rules) {
+        const { match, replace, caseSensitive, useRegex } = rule;
+
+        if (!match) continue;
+
+        let pattern;
+
+        try {
+          if (useRegex) {
+            pattern = new RegExp(match, caseSensitive ? 'g' : 'gi');
+          } else {
+            const escaped = match.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            pattern = new RegExp(escaped, caseSensitive ? 'g' : 'gi');
+          }
+
+          result = result.replace(pattern, replace ?? '');
+        } catch (e) {
+          console.warn(
+            `Invalid word replacer rule "${rule.title || match}":`,
+            e,
+          );
+        }
+      }
+
+      setModifiedHtmlContent(result);
+    });
+  }, [htmlContent]);
 
   // Load settings when component mounts
   useEffect(() => {
@@ -634,7 +689,7 @@ const ChapterReader = ({
           ref={webViewRef}
           originWhitelist={['*']}
           allowFileAccess={true}
-          source={{ html: htmlContent || `<p>${t('reader_error_fallback')}</p>` }}
+          source={{ html: modifiedHtmlContent || `<p>${t('reader_error_fallback')}</p>` }}
           style={styles.webView}
           injectedJavaScript={injectedJavaScript}
           onMessage={handleMessage}

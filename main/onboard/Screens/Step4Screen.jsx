@@ -1,4 +1,3 @@
-// Step4Screen.jsx – Support (was Step3)
 import {
   Linking,
   ScrollView,

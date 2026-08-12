@@ -1,10 +1,10 @@
-// MainOnboardScreen.jsx
 import { SafeAreaView, StyleSheet, View } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Step1 from './Screens/Step1Screen';
-import Step2 from './Screens/Step2Screen'; // Language
-import Step3 from './Screens/Step3Screen'; // Theme (was Step2)
-import Step4 from './Screens/Step4Screen'; // Support (was Step3)
+import Step2 from './Screens/Step2Screen';
+import Step3 from './Screens/Step3Screen';
+import Step4 from './Screens/Step4Screen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function MainOnboardScreen({
   setCurrentTheme,
@@ -14,6 +14,28 @@ export default function MainOnboardScreen({
   onFinish,
 }) {
   const [screen, setScreen] = useState(0);
+
+  useEffect(() => {
+    //Thingy that only runs once
+
+    //Setup the y/n word replacer
+    AsyncStorage.getItem('WordReplaceRules').then(value => {
+      if (!value) {
+        AsyncStorage.setItem(
+          'WordReplaceRules',
+          JSON.stringify([
+            {
+              title: 'Y/N Replacer',
+              match: 'y/n',
+              replace: '[Go to (More > Word Replacer > Y/N Replacer) to set your name]',
+              caseSensitive: false,
+              useRegex: false,
+            },
+          ]),
+        );
+      }
+    });
+  }, [])
 
   const renderScreen = () => {
     switch (screen) {
