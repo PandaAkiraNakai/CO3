@@ -129,6 +129,7 @@
   "screen_preferences_setting_allow_text_select": "Autoriser la sélection du texte",
   "screen_preferences_setting_show_full_desc": "Favoriser les descriptions complètes",
   "screen_preferences_setting_prefer_html": "Favoriser l'HTML",
+  "screen_preferences_setting_show_status_badge": "Montrer le badge de status",
   "screen_preferences_setting_compact_notifications": "Notifications compactes",
   "screen_preferences_setting_download_update": "Télécharger lors d'une mise à jour",
   "screen_preferences_label_theme": "Thème",
