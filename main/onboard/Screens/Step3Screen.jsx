@@ -1,4 +1,3 @@
-// Step3Screen.jsx – Theme selection (moved from step3)
 import {
   ScrollView,
   StyleSheet,

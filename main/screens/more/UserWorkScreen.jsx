@@ -17,6 +17,7 @@ import { fetchUserWorks } from '../../web/user/userWorks';
 import EmptyState from '../../components/History/Empty';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 
 export default function UserWorkScreen({ route }) {
   const [bookmarks, setBookmarks] = useState([]);
@@ -171,14 +172,35 @@ export default function UserWorkScreen({ route }) {
         style={{ marginLeft: 'auto' }}
         onPress={() => {
           username
-            ? Linking.openURL(
-                `https://archiveofourown.org/users/${username}/works`,
-              )
+            ? InAppBrowser.open(`https://archiveofourown.org/users/${username}/works`, {
+              // Android
+              showTitle: true,
+              toolbarColor: currentTheme.backgroundColor,
+              enableUrlBarHiding: true,
+              enableDefaultShare: true,
+              forceCloseOnRedirection: false,
+              // iOS
+              dismissButtonStyle: 'close',
+              preferredBarTintColor: currentTheme.backgroundColor,
+              preferredControlTintColor: 'white',
+            })
             : getUsername().then(usrname => {
-                Linking.openURL(
-                  `https://archiveofourown.org/users/${usrname}/works`,
-                );
-              });
+              InAppBrowser.open(
+                `https://archiveofourown.org/users/${usrname}/works`,
+                {
+                  // Android
+                  showTitle: true,
+                  toolbarColor: currentTheme.backgroundColor,
+                  enableUrlBarHiding: true,
+                  enableDefaultShare: true,
+                  forceCloseOnRedirection: false,
+                  // iOS
+                  dismissButtonStyle: 'close',
+                  preferredBarTintColor: currentTheme.backgroundColor,
+                  preferredControlTintColor: 'white',
+                },
+              );
+            });
         }}
       >
         <Icon name="link" size={24} color={currentTheme.textColor} />

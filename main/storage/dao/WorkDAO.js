@@ -103,6 +103,13 @@ export class WorkDAO {
     return works;
   }
 
+  async countWorks() {
+    const [results] = await this.db.executeSql(
+      'SELECT COUNT(*) as count FROM works',
+    );
+    return results.rows.item(0).count;
+  }
+
   async update(work) {
     const {
       id,
@@ -293,7 +300,6 @@ export class WorkDAO {
     }
   }
 }
-
 
 export const normalizeWorkData = (work) => ({
   ...work,

@@ -7,6 +7,8 @@
   "general_delete": "Delete",
   "general_ok": "OK",
   "general_restart": "Restart",
+  "general_proceed": "Proceed",
+  "general_save": "Save",
   "general_error": "Error",
   "general_success": "Success",
   "general_unknown": "Unknown",
@@ -14,7 +16,6 @@
   "general_unknown_work": "Unknown Work",
   "general_back": "Back",
   "general_not_applicable": "N/A",
-
 
   "onboard_step1_title": "The free, open source AO3 reader",
   "onboard_step1_ligne1": "No subscriptions. No ads. No paywalled features.",
@@ -40,13 +41,11 @@
   "onboard_step4_co3_cta": "Buy me a coffee",
   "onboard_step4_button": "Start reading",
 
-
   "navigation_library": "Library",
   "navigation_update": "Update",
   "navigation_browse": "Browse",
   "navigation_history": "History",
   "navigation_more": "More",
-
 
   "screen_library_title": "Your Library",
   "screen_library_loading": "Loading library...",
@@ -68,7 +67,6 @@
   "screen_library_sort_selector_date": "Date Added",
   "screen_library_select_category_modal_title": "Select Collection",
 
-
   "screen_update_last_updated": "Library last updated: {{last_update}}",
   "screen_update_time_now": "just now",
   "screen_update_time_minute": "{{count}} minute ago",
@@ -84,7 +82,6 @@
   "screen_update_earlier": "Earlier",
   "screen_update_loading": "Loading updates...",
 
-
   "screen_browse_title": "Browse Works",
   "screen_browse_subtitle": "{{count}} works loaded",
   "screen_browse_filter_summary": "{{count}} filter applied",
@@ -94,13 +91,11 @@
   "screen_browse_loading": "Loading works...",
   "screen_browse_error": "Failed to Load Works",
 
-
   "screen_history_title": "Reading History",
   "screen_history_clear_title": "Clear History",
   "screen_history_clear_text": "Are you sure you want to clear all reading history?",
   "screen_history_clear_button": "Clear",
   "screen_history_loading": "Loading history...",
-
 
   "screen_more_title": "More Options",
   "screen_more_subtitle": "Additional settings and features",
@@ -112,9 +107,9 @@
   "screen_more_nav_categories": "Categories",
   "screen_more_nav_stats": "Statistics",
   "screen_more_nav_data": "Data and Storage",
+  "screen_more_nav_word-replacer": "Word Replacer",
   "screen_more_nav_about": "About",
   "screen_more_nav_help": "Help",
-
 
   "screen_preferences_title": "Settings",
   "screen_preferences_title_general": "General",
@@ -134,6 +129,7 @@
   "screen_preferences_setting_allow_text_select": "Allow selecting text",
   "screen_preferences_setting_show_full_desc": "Prefer Full Descriptions",
   "screen_preferences_setting_prefer_html": "Prefer HTML Styling",
+  "screen_preferences_setting_show_status_badge": "Show Status Badge",
   "screen_preferences_setting_compact_notifications": "Compact Notifications",
   "screen_preferences_setting_download_update": "Download on Update",
   "screen_preferences_label_theme": "Theme",
@@ -169,7 +165,6 @@
   "screen_preferences_onboarding_title": "Restart Onboarding",
   "screen_preferences_onboarding_text": "This will take you back through the setup screens. Continue?",
 
-
   "screen_account_title": "Account",
   "screen_account_text": "Login with your AO3 account",
   "screen_account_username": "Username",
@@ -193,7 +188,6 @@
   "screen_account_logged_in_subtitle": "Your session is active",
   "screen_account_check_session_button": "Check current session",
 
-
   "screen_kudos_history_title": "Kudos History",
   "screen_kudos_history_clear_title": "Clear Kudos History",
   "screen_kudos_history_clear_message": "Are you sure you want to clear all kudos history?",
@@ -202,7 +196,6 @@
   "screen_kudos_history_no_entries_filter_sub": "There are no entries matching the filter",
   "screen_kudos_history_no_entries": "No kudos history yet",
   "screen_kudos_history_no_entries_sub": "Kudoed work will appear here",
-
 
   "screen_bookmarks_title": "Bookmarks",
   "screen_bookmarks_title_username": "{{username}}'s Bookmarks",
@@ -213,7 +206,6 @@
   "screen_bookmarks_empty_title": "No bookmarks yet.",
   "screen_bookmarks_empty_subtitle": "Bookmarked work will appear here.",
 
-
   "screen_read_later_title": "Marked for Later",
   "screen_read_later_loading": "Loading entries...",
   "screen_read_later_loading_more": "Loading more...",
@@ -222,7 +214,6 @@
   "screen_read_later_empty": "No works yet.",
   "screen_read_later_empty_sub": "Mark works for later to see them here.",
 
-
   "screen_category_title": "Manage Categories",
   "screen_category_new_category": "New Category",
   "screen_category_new_category_count": "New Category {{count}}",
@@ -230,7 +221,6 @@
   "screen_category_duplicate_message": "A category named {{trimmedName}} already exists.",
   "screen_category_delete_title": "Delete Category",
   "screen_category_delete_message": "Are you sure you want to delete {{category}}?",
-
 
   "screen_stats_title": "Statistics",
   "screen_stats_reading_activity": "READING ACTIVITY",
@@ -243,14 +233,50 @@
   "screen_stats_no_data": "No data yet",
   "screen_stats_preferred_tags": "Preferred Tags",
 
-
   "screen_storage_title": "Data and storage",
-  "screen_storage_section_database": "Database",
-  "screen_storage_button_export_database": "Export database",
-  "screen_storage_export_database_success": "Exported database",
+  "screen_storage_section_storage": "Storage & Usage",
+  "screen_storage_msg_usage": "Usage: {{used}}GB / {{total}}GB",
+  "screen_storage_msg_downloaded_count": "Downloaded chapters: {{count}}",
+  "screen_storage_msg_cached_works_count": "Cached works: {{count}}",
+  "screen_storage_msg_cached_chapters_count": "Cached chapters: {{count}}",
+  "screen_storage_button_clear_unused_cache": "Clear unused cache",
+  "screen_storage_button_clear_unused_cache_success_1": "Cleared cache successfully",
+  "screen_storage_button_clear_unused_cache_success_2": "Removed {{count}} works from storage",
+  "screen_storage_button_clear_unused_cache_err_1": "Failed to clear cache",
+  "screen_storage_button_clear_unused_cache_err_2": "Cache clearing failed: {{error}}",
+  "screen_storage_button_delete_downloaded": "Delete all downloads",
+  "screen_storage_button_delete_downloaded_success_1": "Deleted all downloaded chapters",
+  "screen_storage_button_delete_downloaded_success_2": "All downloaded chapters where deleted successfully",
+  "screen_storage_button_delete_downloaded_err_1": "Failed to delete all downloaded chapters",
+  "screen_storage_button_delete_downloaded_err_2": "Deleting chapters failed: {{error}}",
+  "screen_storage_section_backups": "Backups",
+  "screen_storage_button_create_backup": "Create backup",
+  "screen_storage_button_create_backup_success_1": "Created backup successfully",
+  "screen_storage_button_create_backup_success_2": "Backup saved in the download folder",
+  "screen_storage_button_create_backup_err_1": "Failed to create backup",
+  "screen_storage_button_create_backup_err_2": "Backup failed: {{error}}",
+  "screen_storage_button_import_backup": "Import backup",
+  "screen_storage_msg_import_backup_warning_1": "Are you sure ?",
+  "screen_storage_msg_import_backup_warning_2": "This is going to override the storage of the app. All the data will be lost.",
+  "screen_storage_button_import_backup_success_1": "Backup imported",
+  "screen_storage_button_import_backup_success_2": "The app is going to restart shortly...",
+  "screen_storage_button_import_backup_cancel_1": "Backup canceled",
+  "screen_storage_button_import_backup_cancel_2": "The backup import got canceled",
+  "screen_storage_button_import_backup_err_1": "Failed to import backup",
+  "screen_storage_button_import_backup_err_2": "Import failed: {{error}}",
+  "screen_storage_msg_backup_1": "Backup may contain sensitive data. They include: Full reading history, Library, Settings, Downloaded chapters and more.",
+  "screen_storage_msg_backup_2": "They do not include your username or your password.",
   "screen_storage_export_database_success_sub": "Database exported to download folder.",
   "screen_storage_export_database_error_generic": "Failed to export database",
 
+  "screen_word_replacer_title": "Word Replace",
+  "screen_word_replacer_new_rule": "New Rule",
+  "screen_word_replacer_new_rule_count": "New Rule {{count}}",
+  "screen_word_replacer_delete_title": "Delete Rule",
+  "screen_word_replacer_delete_message": "Are you sure you want to delete \"{{rule}}\"?",
+  "screen_word_replacer_duplicate_title": "Duplicate Name",
+  "screen_word_replacer_duplicate_message": "A rule named \"{{trimmedName}}\" already exists.",
+  "screen_word_replacer_empty_message": "No rules yet. Tap the button below to add one.",
 
   "screen_about_title": "About CO3",
   "screen_about_sub": "The Open Source AO3 Mobile Reader",
@@ -262,19 +288,16 @@
   "screen_about_support": "Support me",
   "screen_about_version": "Version {{co3Version}}",
 
-
   "screen_help_title": "Help",
   "screen_help_sub": "Do you need help or do you have an issue ?",
   "screen_help_discord": "Ask on the Discord",
   "screen_help_github": "Open an issue on GitHub",
-
 
   "screen_advancedSearch_title": "Work Search",
   "screen_advancedSearch_presets_button": "Presets",
   "screen_advancedSearch_save_button": "Save",
   "screen_advancedSearch_close_button": "Close",
   "screen_advancedSearch_search_button": "Search",
-
 
   "screen_advancedSearch_save_preset_modal_title": "Save preset",
   "screen_advancedSearch_preset_name_label": "Preset name",
@@ -456,7 +479,6 @@
   "screen_work_toast_no_new_chapters_to_download": "No new chapters to download",
   "screen_work_toast_added_chapters_to_queue": "Added {{count}} chapters to download list.",
 
-
   "component_side_menu_title": "Settings",
   "component_side_menu_incognito_switch": "Incognito Mode",
   "component_side_menu_support": "Support us",
@@ -547,6 +569,17 @@
   "component_comments_none": "No comments",
   "component_comments_end": "No more comments",
 
-  "component_update_bookcard_deletion_failed": "Error deleting"
+  "component_update_bookcard_deletion_failed": "Error deleting",
 
+  "component_rule_edit_header": "Edit Rule",
+  "component_rule_edit_title_label": "Title:",
+  "component_rule_edit_title_placeholder": "Rule name",
+  "component_rule_edit_match_label": "Match:",
+  "component_rule_edit_match_placeholder": "Text to find",
+  "component_rule_edit_replace_label": "Replace:",
+  "component_rule_edit_replace_placeholder": "Text to replace with",
+  "component_rule_edit_case_sensitive": "Match case",
+  "component_rule_edit_regex": "Use regular expression",
+  "component_rule_edit_case_sensitive_label": "Match Case",
+  "component_rule_edit_regex_label": "Regex"
 }

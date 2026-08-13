@@ -53,6 +53,16 @@ You can get releases [here](https://github.com/tbvns/CO3/releases). </br>
 You can get android dev builds [here](https://github.com/tbvns/CO3/actions/workflows/android-build.yml). </br>
 You can get IOS dev builds [here](https://github.com/tbvns/CO3/actions/workflows/ios-build.yml).
 
+# Star History
+
+<a href="https://www.star-history.com/?repos=tbvns%2FCO3&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=tbvns/CO3&type=date&theme=dark&legend=top-left&sealed_token=uov0KCSeJbVMdQAV_xEis2Ip366E5YPJtuNIbQCweDBdyndKnxwk2sk46gbJSOk72B0SDjce7b-KYAFt7EGmYOW9FgLifF5qNqOF_Wje_PPdDIbFiJeXow" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=tbvns/CO3&type=date&legend=top-left&sealed_token=uov0KCSeJbVMdQAV_xEis2Ip366E5YPJtuNIbQCweDBdyndKnxwk2sk46gbJSOk72B0SDjce7b-KYAFt7EGmYOW9FgLifF5qNqOF_Wje_PPdDIbFiJeXow" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=tbvns/CO3&type=date&legend=top-left&sealed_token=uov0KCSeJbVMdQAV_xEis2Ip366E5YPJtuNIbQCweDBdyndKnxwk2sk46gbJSOk72B0SDjce7b-KYAFt7EGmYOW9FgLifF5qNqOF_Wje_PPdDIbFiJeXow" />
+ </picture>
+</a>
+
 # Logo and name usage
 The name "CO3" or "Client Of Our Own" and the project logo are copyright © Tbvns and are not covered by the GPL license. You may not publish this application or any derivative under the same name or logo on the Google Play Store, Apple App Store, or any other proprietary app store. Redistribution via F-Droid or direct APK sideloading is permitted.
 

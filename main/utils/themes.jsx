@@ -23,6 +23,11 @@ export const themes = {
     tagSelectedTextColor: '#15803d',
     tagExcludedBackground: '#fecaca',
     tagExcludedTextColor: '#b91c1c',
+    statusBadge: {
+      clicked: '#f59e0b',
+      started: '#3b82f6',
+      finished: '#22c55e',
+    },
   },
   dark: {
     name: 'dark',
@@ -48,6 +53,11 @@ export const themes = {
     tagSelectedTextColor: '#bbf7d0',
     tagExcludedBackground: '#7f1d1d',
     tagExcludedTextColor: '#fecaca',
+    statusBadge: {
+      clicked: '#fbbf24',
+      started: '#60a5fa',
+      finished: '#4ade80',
+    },
   },
   black: {
     name: 'black',
@@ -73,5 +83,10 @@ export const themes = {
     tagSelectedTextColor: '#c8e6c9',
     tagExcludedBackground: '#7f1d1d',
     tagExcludedTextColor: '#ffcdd2',
+    statusBadge: {
+      clicked: '#ffb300',
+      started: '#64b5f6',
+      finished: '#4ade80',
+    },
   },
 };

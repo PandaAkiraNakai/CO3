@@ -25,6 +25,8 @@ const DEFAULT_SETTINGS = {
 
   addBookmarksToCategory: false,
   bookmarksCategory: "default",
+
+  showStatusBadge: false,
 };
 
 export async function getJsonSettings() {

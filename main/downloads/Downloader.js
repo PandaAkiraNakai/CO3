@@ -56,3 +56,32 @@ export const deleteDownloaded = async (workId, chapterId) => {
     });
   }
 }
+
+export async function countDownloads() {
+  const downloadsPath = `${RNFS.DocumentDirectoryPath}/CO3/downloads`;
+
+  const exists = await RNFS.exists(downloadsPath);
+  if (!exists) return { folderCount: 0, fileCount: 0, chapterCount: 0 };
+
+  const workFolders = await RNFS.readDir(downloadsPath);
+  const dirs = workFolders.filter(f => f.isDirectory());
+
+  const counts = await Promise.all(
+    dirs.map(folder => RNFS.readDir(folder.path).then(files => files.length)),
+  );
+
+  const fileCount = counts.reduce((sum, n) => sum + n, 0);
+
+  return { folderCount: dirs.length, fileCount, chapterCount: fileCount / 2 };
+}
+
+export async function deleteAllDownloads() {
+  const dlPath = `${RNFS.DocumentDirectoryPath}/CO3/downloads/`
+  return await RNFS.unlink(dlPath)
+    .then(() => {
+      return undefined;
+    })
+    .catch(error => {
+      return error;
+    });
+}

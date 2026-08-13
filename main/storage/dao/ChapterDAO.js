@@ -93,4 +93,11 @@ export class ChapterDAO {
       });
     }
   }
+
+  async countChapters() {
+    const [results] = await this.db.executeSql(
+      'SELECT COUNT(*) as count FROM chapters',
+    );
+    return results.rows.item(0).count;
+  }
 }

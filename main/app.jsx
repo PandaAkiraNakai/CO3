@@ -84,6 +84,7 @@ import DebugScreen from './screens/more/DebugScreen';
 import CategoryScreen from './screens/more/CategoryScreen';
 import BookmarksScreen from './screens/more/BookmarksScreen';
 import AboutScreen from './screens/more/AboutScreen';
+import WordReplacer from './screens/more/WordReplacer';
 
 export const AppContext = createContext();
 const Stack = createNativeStackNavigator();
@@ -311,6 +312,10 @@ const AppWrapper = () => {
                     component={BookmarksScreen}
                   />
                   <Stack.Screen name={'About'} component={AboutScreen} />
+                  <Stack.Screen
+                    name={'WordReplacer'}
+                    component={WordReplacer}
+                  />
                 </Stack.Navigator>
               </NavigationContainer>
             </SafeAreaProvider>

@@ -57,6 +57,7 @@ const PreferencesScreen = ({ route }) => {
   const [downloadOnUpdate, setDownloadOnUpdate] = useState(false);
   const [downloadWhileReading, setDownloadWhileReading] = useState(0);
   const [preferHtml, setPreferHtml] = useState(false);
+  const [showStatusBadge, setShowStatusBadge] = useState(false);
   const [syncBookmarksToLibrary, setSyncBookmarksToLibrary] = useState(false);
   const [syncBookmarksToLibraryCategory, setSyncBookmarksToLibraryCategory] =
     useState('default');
@@ -98,6 +99,7 @@ const PreferencesScreen = ({ route }) => {
 
         setPreferDesc(jsonSettings.showFullDescription || false);
         setPreferHtml(jsonSettings.preferHtml || false);
+        setShowStatusBadge(jsonSettings.showStatusBadge || false);
 
         setAllowSelect(jsonSettings.allowSelectingText || false);
         setDownloadWhileReading(jsonSettings.downloadWhileReading || 0);
@@ -230,6 +232,12 @@ const PreferencesScreen = ({ route }) => {
     const newValue = !preferHtml;
     setPreferHtml(newValue);
     saveJsonSettingsData({ preferHtml: newValue });
+  };
+
+  const handleShowStatusBadge = () => {
+    const newValue = !showStatusBadge;
+    setShowStatusBadge(newValue);
+    saveJsonSettingsData({ showStatusBadge: newValue });
   };
 
   const handleSyncBookmarksToLibrary = () => {
@@ -794,7 +802,6 @@ const PreferencesScreen = ({ route }) => {
             style={[
               styles.settingItem,
               { borderBottomColor: activeTheme.borderColor },
-              { borderBottomWidth: 0 },
             ]}
           >
             <View style={styles.switchContainer}>
@@ -807,6 +814,32 @@ const PreferencesScreen = ({ route }) => {
                 value={preferHtml}
                 onValueChange={handlePreferHtml}
                 thumbColor={preferHtml ? activeTheme.primaryColor : '#f4f3f4'}
+                trackColor={{
+                  false: '#767577',
+                  true: `${activeTheme.primaryColor}40`,
+                }}
+              />
+            </View>
+          </View>
+          <View
+            style={[
+              styles.settingItem,
+              { borderBottomColor: activeTheme.borderColor },
+              { borderBottomWidth: 0 },
+            ]}
+          >
+            <View style={styles.switchContainer}>
+              <Text
+                style={[{ color: activeTheme.textColor }, styles.settingText]}
+              >
+                {t('screen_preferences_setting_show_status_badge')}
+              </Text>
+              <Switch
+                value={showStatusBadge}
+                onValueChange={handleShowStatusBadge}
+                thumbColor={
+                  showStatusBadge ? activeTheme.primaryColor : '#f4f3f4'
+                }
                 trackColor={{
                   false: '#767577',
                   true: `${activeTheme.primaryColor}40`,

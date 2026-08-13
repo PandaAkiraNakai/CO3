@@ -47,6 +47,7 @@ import RNFS from 'react-native-fs';
 import { useTranslation } from 'react-i18next';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 
 const NATIVE_DOWNLOAD_FORMATS = ['azw3', 'epub', 'mobi', 'pdf', 'html'];
 
@@ -797,8 +798,19 @@ const ChapterInfoScreen = ({ route }) => {
   }, []);
 
   const handleOpenWebView = useCallback(() => {
-    Linking.openURL('https://archiveofourown.org/works/' + workId);
-  }, [workId]);
+    InAppBrowser.open('https://archiveofourown.org/works/' + workId, {
+      // Android
+      showTitle: true,
+      toolbarColor: currentTheme.backgroundColor,
+      enableUrlBarHiding: true,
+      enableDefaultShare: true,
+      forceCloseOnRedirection: false,
+      // iOS
+      dismissButtonStyle: 'close',
+      preferredBarTintColor: currentTheme.backgroundColor,
+      preferredControlTintColor: 'white',
+    });
+    }, [workId]);
 
   const handleBookmark = async () => {
     setMenuVisible(false);
