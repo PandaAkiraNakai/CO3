@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import en from '../../languages/en.json';
 import fr from '../../languages/fr.json';
 import cn from '../../languages/zh-CN.json';
+import es from '../../languages/es.json';
 
 export const availableLanguages = [
   {
@@ -11,6 +12,12 @@ export const availableLanguages = [
     label: 'English',
     flag: 'GB',
     translation: en,
+  },
+  {
+    code: 'es',
+    label: 'Español',
+    flag: 'ES',
+    translation: es,
   },
   {
     code: 'fr',

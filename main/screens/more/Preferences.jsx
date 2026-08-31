@@ -356,7 +356,15 @@ const PreferencesScreen = ({ route }) => {
     </body>
     </html>
   `;
-  }, [activeTheme, useCustomSize, fontSize, useCustomFont, fontFamily, font]);
+  }, [
+    activeTheme,
+    useCustomSize,
+    fontSize,
+    useCustomFont,
+    fontFamily,
+    font,
+    i18n.language,
+  ]);
 
   // --- Render Helpers ---
 
