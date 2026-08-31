@@ -10,6 +10,9 @@ const config = {
   transformer: {
     unstable_allowRequireContext: true,
   },
+  resolver: {
+    blockList: /.*\/android\/(\.cxx|build)\/.*/,
+  },
 };
 
 module.exports = mergeConfig(getDefaultConfig(__dirname), config);
