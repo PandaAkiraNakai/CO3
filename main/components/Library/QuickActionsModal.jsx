@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+  DeviceEventEmitter,
   Modal,
   Pressable,
   SafeAreaView,
@@ -70,6 +71,7 @@ const QuickActionsModal = ({
     if (action === 'remove') {
       await libraryDAO.remove(work.id);
       setInLibrary(false);
+      DeviceEventEmitter.emit('libraryChanged');
       return false;
     }
 
@@ -91,6 +93,7 @@ const QuickActionsModal = ({
       }
 
       await libraryDAO.add(work.id, collection);
+      DeviceEventEmitter.emit('libraryChanged');
       setInLibrary(true);
     } catch (error) {
       console.error('Error adding to library:', error);
@@ -103,6 +106,7 @@ const QuickActionsModal = ({
       try {
         await libraryDAO.remove(work.id);
         setInLibrary(false);
+        DeviceEventEmitter.emit('libraryChanged');
         Toast.show({
           type: 'success',
           text1: t(

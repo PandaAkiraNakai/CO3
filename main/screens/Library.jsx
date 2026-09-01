@@ -124,6 +124,17 @@ const LibraryScreen = ({
   }, [])
 
   useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener('libraryChanged', () => {
+      loadCollections();
+      loadWorks(true, true);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [searchTerm, sortType, selectedCollection, libraryDAO, workDAO]);
+
+  useEffect(() => {
     if (libraryDAO) {
       loadCollections();
     }

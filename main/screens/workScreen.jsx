@@ -567,6 +567,7 @@ const ChapterInfoScreen = ({ route }) => {
     if (action === 'remove') {
       await libraryDAO.remove(workId);
       setInLibrary(false);
+      DeviceEventEmitter.emit('libraryChanged');
       showToast(t('screen_work_toast_removed_from_library'), 'success');
       return;
     }
@@ -593,6 +594,7 @@ const ChapterInfoScreen = ({ route }) => {
       }
 
       await libraryDAO.add(workId, collection);
+      DeviceEventEmitter.emit('libraryChanged');
 
       setInLibrary(true);
       const message =
