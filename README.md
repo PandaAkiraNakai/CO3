@@ -1,3 +1,7 @@
+<!-- profile-excerpt -->
+Fork personal de **CO3**, cliente no oficial y gratuito para **Archive of Our Own (AO3)** en Android. Suma una identidad visual propia estilo biblioteca — portadas en degradé violeta generadas por hash con monograma del título, franja de sellos con rating/categoría/warnings, paleta violeta con tema automático claro/oscuro según el sistema — y traducción completa al español, sobre la base React Native + SQLite local del proyecto original. `// react-native · fanfic · ao3`
+<!-- /profile-excerpt -->
+
 <p align="center">
   <img src="https://github.com/user-attachments/assets/c168f8ee-cd36-4896-b591-87be5d3ad0fe" alt="Logo for the CO3 project">
 </p>
