@@ -21,6 +21,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  useColorScheme,
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -102,6 +103,7 @@ const AppWrapper = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [theme, setTheme] = useState('light');
+  const systemColorScheme = useColorScheme();
   const [isIncognitoMode, setIsIncognitoMode] = useState(false);
   const [viewMode, setViewMode] = useState('full');
   const [books, setBooks] = useState([]);
@@ -192,9 +194,12 @@ const AppWrapper = () => {
     openSearch();
   };
 
+  const resolvedThemeName =
+    theme === 'system' ? (systemColorScheme === 'dark' ? 'dark' : 'light') : theme;
+
   const currentTheme = useMemo(() => {
-    return themes && themes[theme] //TODO: Make the app not load till it get that theme to avoid flash bangs
-      ? themes[theme]
+    return themes && themes[resolvedThemeName] //TODO: Make the app not load till it get that theme to avoid flash bangs
+      ? themes[resolvedThemeName]
       : themes?.light || {
           backgroundColor: 'white',
           textColor: 'black',
@@ -208,7 +213,7 @@ const AppWrapper = () => {
           cardBackground: '#fff',
           secondaryTextColor: '#666',
         };
-  }, [theme]);
+  }, [resolvedThemeName]);
 
   return (
     <View style={wrapperStyle}>
@@ -778,7 +783,7 @@ const App = () => {
       screens.length === 0
         ? currentTheme.headerBackground
         : currentTheme.backgroundColor;
-    const isDark = theme === 'dark' || theme === 'black';
+    const isDark = currentTheme.name === 'dark' || currentTheme.name === 'black';
 
     SystemNavigationBar.setNavigationColor(
       navBarColor,
@@ -925,7 +930,7 @@ const App = () => {
     return (
       <>
         <StatusBar
-          barStyle={theme === 'light' ? 'dark-content' : 'light-content'}
+          barStyle={currentTheme.name === 'light' ? 'dark-content' : 'light-content'}
           backgroundColor={currentTheme.backgroundColor}
         />
         <View
@@ -959,7 +964,7 @@ const App = () => {
           ]}
         >
           <StatusBar
-            barStyle={theme === 'light' ? 'dark-content' : 'light-content'}
+            barStyle={currentTheme.name === 'light' ? 'dark-content' : 'light-content'}
             backgroundColor={currentTheme.backgroundColor}
           />
           <View
@@ -994,7 +999,7 @@ const App = () => {
         ]}
       >
         <StatusBar
-          barStyle={theme === 'light' ? 'dark-content' : 'light-content'}
+          barStyle={currentTheme.name === 'light' ? 'dark-content' : 'light-content'}
           backgroundColor={currentTheme.headerBackground}
         />
 

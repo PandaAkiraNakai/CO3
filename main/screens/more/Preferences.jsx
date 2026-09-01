@@ -746,6 +746,12 @@ const PreferencesScreen = ({ route }) => {
                 isActive={theme === 'black'}
                 onPress={() => handleThemeChange('black')}
               />
+              <ThemeButton
+                themeKey="system"
+                label={t('screen_preferences_label_theme_system')}
+                isActive={theme === 'system'}
+                onPress={() => handleThemeChange('system')}
+              />
             </View>
           </View>
 

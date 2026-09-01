@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { LinearGradient } from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import BookDetailsModal from './BookDetailsModal';
 import QuickActionsModal from './QuickActionsModal';
@@ -121,8 +122,17 @@ const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, wor
   }
 
   const images = [ratingImage, categoryImage, warningImage, statusImage];
-  const gridSize = isSmall ? 50 : 75;
+  const useCoverStyle = !isSmall;
+  const gridSize = isSmall ? 50 : 92;
   const imageSize = gridSize / 2;
+
+  const coverTitle = (book.title || '').trim();
+  const coverMonogram = coverTitle ? coverTitle.charAt(0).toUpperCase() : '?';
+  const coverGradients = theme.coverGradients || [[theme.primaryColor, theme.primaryColor]];
+  const coverHashSeed = String(book.id ?? coverTitle)
+    .split('')
+    .reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+  const coverGradient = coverGradients[coverHashSeed % coverGradients.length];
 
   function handleClick() {
     navigation.push('Work', {
@@ -168,67 +178,93 @@ const BookCard = ({ book, viewMode, theme, onUpdate, setScreens, libraryDAO, wor
             ]}
           />
         )}
-        <View
-          style={[
-            styles.imageGrid,
-            {
-              width: gridSize,
-              height: gridSize,
-              marginRight: 16,
-              borderRadius: 4,
-              overflow: 'hidden',
-            },
-          ]}
-        >
-          <View style={styles.imageRow}>
-            <Image
-              source={images[0]}
-              style={[
-                styles.statusImage,
-                {
-                  width: imageSize,
-                  height: imageSize,
-                  marginRight: -1,
-                  marginBottom: -1,
-                },
-              ]}
+        {useCoverStyle ? (
+          <View
+            style={[
+              styles.coverContainer,
+              { width: gridSize, height: gridSize, marginRight: 16 },
+            ]}
+          >
+            <LinearGradient
+              colors={coverGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFill}
             />
-            <Image
-              source={images[1]}
-              style={[
-                styles.statusImage,
-                {
-                  width: imageSize,
-                  height: imageSize,
-                  marginBottom: -1,
-                },
-              ]}
-            />
+            <View style={styles.coverMonogramWrapper}>
+              <Text style={[styles.coverMonogram, { color: theme.coverTextColor }]}>
+                {coverMonogram}
+              </Text>
+            </View>
+            <View style={styles.coverBadgeStrip}>
+              {images.map((img, idx) => (
+                <Image key={idx} source={img} style={styles.coverBadgeImage} />
+              ))}
+            </View>
           </View>
-          <View style={styles.imageRow}>
-            <Image
-              source={images[2]}
-              style={[
-                styles.statusImage,
-                {
-                  width: imageSize,
-                  height: imageSize,
-                  marginRight: -1,
-                },
-              ]}
-            />
-            <Image
-              source={images[3]}
-              style={[
-                styles.statusImage,
-                {
-                  width: imageSize,
-                  height: imageSize,
-                },
-              ]}
-            />
+        ) : (
+          <View
+            style={[
+              styles.imageGrid,
+              {
+                width: gridSize,
+                height: gridSize,
+                marginRight: 16,
+                borderRadius: 4,
+                overflow: 'hidden',
+              },
+            ]}
+          >
+            <View style={styles.imageRow}>
+              <Image
+                source={images[0]}
+                style={[
+                  styles.statusImage,
+                  {
+                    width: imageSize,
+                    height: imageSize,
+                    marginRight: -1,
+                    marginBottom: -1,
+                  },
+                ]}
+              />
+              <Image
+                source={images[1]}
+                style={[
+                  styles.statusImage,
+                  {
+                    width: imageSize,
+                    height: imageSize,
+                    marginBottom: -1,
+                  },
+                ]}
+              />
+            </View>
+            <View style={styles.imageRow}>
+              <Image
+                source={images[2]}
+                style={[
+                  styles.statusImage,
+                  {
+                    width: imageSize,
+                    height: imageSize,
+                    marginRight: -1,
+                  },
+                ]}
+              />
+              <Image
+                source={images[3]}
+                style={[
+                  styles.statusImage,
+                  {
+                    width: imageSize,
+                    height: imageSize,
+                  },
+                ]}
+              />
+            </View>
           </View>
-        </View>
+        )}
 
         <View style={styles.titleSection}>
           <Text
@@ -505,6 +541,35 @@ const styles = StyleSheet.create({
     marginRight: 16,
     borderRadius: 4,
     overflow: 'hidden',
+  },
+  coverContainer: {
+    borderRadius: 12,
+    overflow: 'hidden',
+    justifyContent: 'space-between',
+  },
+  coverMonogramWrapper: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  coverMonogram: {
+    fontSize: 40,
+    fontWeight: '800',
+    opacity: 0.85,
+  },
+  coverBadgeStrip: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 4,
+    backgroundColor: 'rgba(0,0,0,0.28)',
+  },
+  coverBadgeImage: {
+    width: 18,
+    height: 18,
+    marginHorizontal: 1.5,
+    borderRadius: 3,
+    resizeMode: 'contain',
   },
   imageRow: {
     flexDirection: 'row',

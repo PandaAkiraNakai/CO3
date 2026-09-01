@@ -136,6 +136,7 @@
   "screen_preferences_label_theme_light": "Light",
   "screen_preferences_label_theme_dark": "Dark",
   "screen_preferences_label_theme_black": "Black",
+  "screen_preferences_label_theme_system": "System",
   "screen_preferences_label_view_mode": "View Mode",
   "screen_preferences_label_view_mode_full": "Full",
   "screen_preferences_label_view_mode_med": "Med",
